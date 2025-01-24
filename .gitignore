@@ -76,3 +76,5 @@ DerivedDataCache/*
 
 # Ignore Directory
 Content/StarterContent/
+Content/General/Designs/
+Content/DYL/Designs/
