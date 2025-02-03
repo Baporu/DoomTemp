@@ -53,11 +53,18 @@ public:
 	
 	FVector direction;
 
+	UPROPERTY(EditDefaultsOnly, Category="Input")
+	class UInputAction* ia_Jump;
+
 
 	void Turn(const struct FInputActionValue& inputValue);
 
 	void LookUp(const struct FInputActionValue& inputValue);
 
 	void Move(const struct FInputActionValue& inputValue);
+
+	void InputJump(const struct FInputActionValue& inputValue);
+
+	void PlayerMove();
 
 };

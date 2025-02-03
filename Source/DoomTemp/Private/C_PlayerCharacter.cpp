@@ -42,6 +42,9 @@ AC_PlayerCharacter::AC_PlayerCharacter()
 
 	bUseControllerRotationPitch = true;
 	bUseControllerRotationYaw = true;
+
+	// Allow Double Jump
+	JumpMaxCount = 2;
 }
 
 // Called when the game starts or when spawned
@@ -67,20 +70,7 @@ void AC_PlayerCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 
-	// Set Direction as Relative Position
-	direction = FTransform(GetControlRotation()).TransformVector(direction);
-
-	// P (Position) = P0 (Current Position) + vt (Velocity * Time)
-// 	FVector P0 = GetActorLocation();
-// 	FVector vt = direction * walkSpeed * DeltaTime;
-// 	FVector P = P0 + vt;
-// 	SetActorLocation(P);
-
-	// Call Character Class's Method
-	AddMovementInput(direction);
-
-	// Reset Direction
-	direction = FVector::ZeroVector;
+	PlayerMove();
 }
 
 // Called to bind functionality to input
@@ -95,6 +85,7 @@ void AC_PlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		PlayerInput->BindAction(ia_Turn, ETriggerEvent::Triggered, this, &AC_PlayerCharacter::Turn);
 		PlayerInput->BindAction(ia_LookUp, ETriggerEvent::Triggered, this, &AC_PlayerCharacter::LookUp);
 		PlayerInput->BindAction(ia_Move, ETriggerEvent::Triggered, this, &AC_PlayerCharacter::Move);
+		PlayerInput->BindAction(ia_Jump, ETriggerEvent::Triggered, this, &AC_PlayerCharacter::Jump);
 	}
 }
 
@@ -116,5 +107,28 @@ void AC_PlayerCharacter::Move(const struct FInputActionValue& inputValue)
 
 	direction.X = value.X;
 	direction.Y = value.Y;
+}
+
+void AC_PlayerCharacter::InputJump(const struct FInputActionValue& inputValue)
+{
+	Jump();
+}
+
+void AC_PlayerCharacter::PlayerMove()
+{
+	// Set Direction as Relative Position
+	direction = FTransform(GetControlRotation()).TransformVector(direction);
+
+	// P (Position) = P0 (Current Position) + vt (Velocity * Time)
+// 	FVector P0 = GetActorLocation();
+// 	FVector vt = direction * walkSpeed * DeltaTime;
+// 	FVector P = P0 + vt;
+// 	SetActorLocation(P);
+
+	// Call Character Class's Method
+	AddMovementInput(direction);
+
+	// Reset Direction
+	direction = FVector::ZeroVector;
 }
 
