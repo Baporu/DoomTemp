@@ -39,7 +39,7 @@ enum class EEnemyMove
 	RUN, 
 	STAGGER, 
 	MAX
-}
+};
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -60,9 +60,11 @@ public:
 	// 상태 변수
     UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "FSM")
 	EEnemyState EnemyState = EEnemyState::IDLE;
+	
 
-	//float Speed = 60.f;
-
+	// Enemy를 소윻ㅏ고 있는 AIController
+	UPROPERTY()
+	class AAIController* Ai;
 
 	/***** Time *****/
     UPROPERTY(EditDefaultsOnly, Category = "FSM")

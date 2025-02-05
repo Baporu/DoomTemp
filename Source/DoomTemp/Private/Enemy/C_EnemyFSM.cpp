@@ -2,6 +2,7 @@
 #include "C_PlayerCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "Enemy/C_EnemyA.h"
+#include "AIController.h"
 
 UC_EnemyFSM::UC_EnemyFSM()
 {
@@ -30,6 +31,9 @@ void UC_EnemyFSM::BeginPlay()
 
 	}
 	
+
+	/***** AI Controller *****/
+	Ai = Cast<AAIController>(Self->GetController());
 }
 
 
@@ -114,7 +118,8 @@ void UC_EnemyFSM::MoveState()
 	FVector dir = Target->GetActorLocation() - Self->GetActorLocation();
 
 	// 2. Target 위치로 이동한다
-	Self->AddMovementInput( dir.GetSafeNormal() );
+	//Self->AddMovementInput( dir.GetSafeNormal() );
+	Ai->MoveToLocation( Target->GetActorLocation() );
 
 
 	/***** 근거리 공격 상태로 전환 *****/
