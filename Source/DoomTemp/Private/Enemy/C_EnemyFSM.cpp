@@ -25,10 +25,9 @@ void UC_EnemyFSM::BeginPlay()
 	if (!!Self)
 	{
 		MeleeRange = Self->GetMeleeRange();
-		LongRange = Self->GetLongRange();
+		//LongRange = Self->GetLongRange();
+		// Speed = Self->GetSpeed();
 
-		if(!!Target)
-			Direction = Target->GetActorLocation() - Self->GetActorLocation();
 	}
 	
 }
@@ -102,21 +101,25 @@ void UC_EnemyFSM::MoveState()
 {
 	/***** 기본 상태인지, 비틀거리는 상태인지 체크 *****/
 	////////////////////// 이 부분 의문 //////////////////////
-	if (Self->IsFlinched() == true)
-	{
-		// 1. 일시적으로 움직임이 더뎌진다
+	//if (Self->bIsFlinched == true)
+	//{
+	//	// 1. 일시적으로 움직임이 더뎌진다
+	//
+	//	// 2. 몸이 빨갛게 반짝인다
+	//}
 
-		// 2. 몸이 빨갛게 반짝인다
-	}
 
 	/***** 이동 *****/
-	// 방향으로 이동
-	Self->AddMovementInput( Direction.GetSafeNormal() );
+	// 1. Target 방향을 구한다
+	FVector dir = Target->GetActorLocation() - Self->GetActorLocation();
+
+	// 2. Target 위치로 이동한다
+	Self->AddMovementInput( dir.GetSafeNormal() );
 
 
-	/***** 공격 상태로 전환 *****/
-	// 1. 만약 Player가 공격 범위 안에 들어오면
-	if ( Direction.Size() <= LongRange)
+	/***** 근거리 공격 상태로 전환 *****/
+	// 1. 만약 Player가 근거리 공격 범위 안에 들어오면
+	if ( dir.Size() <= MeleeRange )
 	{
 		// 2. 공격 상태로 전환
 		EnemyState = EEnemyState::ATTACK;
@@ -125,29 +128,28 @@ void UC_EnemyFSM::MoveState()
 
 void UC_EnemyFSM::AttackState()
 {
+	float distance = FVector::Distance( Target->GetActorLocation(), Self->GetActorLocation() );
+	
 	// 1. 시간이 흐른다
 	CurTime += GetWorld()->DeltaTimeSeconds;
-
+	
 	// 2. 만약 경과 시간이 대기 시간을 초과하면
 	if (CurTime > AttackDelayTime)
 	{
-		////////////////////// 이 부분 의문 //////////////////////
-		// 3-1. 만약 Player가 원거리에 있다면
-		if ( Direction.Size() <= Self->GetLongRange())
-		{
-			// 3-2. 원거리 공격을 한다
-			GEngine->AddOnScreenDebugMessage(0, 1, FColor::Blue, L"Melee Attack!!!!!");
-		}
+		// 3. 근거리 공격을 한다
+		GEngine->AddOnScreenDebugMessage(0, 1, FColor::Blue, L"Long Range Attack!!!!!");
 
+        //// 4. 원거리 공격을 한다
+        //GEngine->AddOnScreenDebugMessage(0, 1, FColor::Blue, L"Melee Attack!!!!!");
 
-		// 4-1. 만약 Player가 근거리에 있다면
-		if (Direction.Size() <= Self->GetMeleeRange())
-		{
-			// 4-2. 근거리 공격을 한다
-			GEngine->AddOnScreenDebugMessage(0, 1, FColor::Blue, L"Long Range Attack!!!!!");
-		}
-		
 		CurTime = 0.f;
+	}
+	
+	// 5-1. 만약 Player가 근거리 범위에서 벗어났다면
+	if (distance > MeleeRange )
+	{
+		// 5-2. 상태를 이동으로 전환한다
+		EnemyState = EEnemyState::MOVE;
 	}
 }
 

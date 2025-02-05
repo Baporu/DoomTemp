@@ -7,6 +7,7 @@
 #include "C_EnemyFSM.generated.h"
 
 UENUM(BlueprintType)
+/***** Main State *****/
 enum class EEnemyState : uint8
 {
     SPAWN,			// 등장
@@ -18,6 +19,28 @@ enum class EEnemyState : uint8
 	DEAD,			// 죽음
 	MAX
 };
+
+
+/***** Sub State - Damaged *****/
+enum class EEnemyDamaged : uint8
+{
+	FIST, 
+	GUN, 
+	GLORYKILL, 
+	CHAINSAW,
+	MAX
+};
+
+
+/***** Sub State - Move *****/
+enum class EEnemyMove
+{
+	WALK, 
+	RUN, 
+	STAGGER, 
+	MAX
+}
+
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class DOOMTEMP_API UC_EnemyFSM : public UActorComponent
@@ -38,13 +61,15 @@ public:
     UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "FSM")
 	EEnemyState EnemyState = EEnemyState::IDLE;
 
-	FVector Direction;	// Enemy 이동 방향
+	//float Speed = 60.f;
 
+
+	/***** Time *****/
     UPROPERTY(EditDefaultsOnly, Category = "FSM")
 	float IdleDelayTime = 3.f;		// 대기 시간
 	float CurTime = 0.f;			// 경과 시간
 	UPROPERTY(EditDefaultsOnly, Category = "FSM")
-	float AttackDelayTime = 2.f;
+	float AttackDelayTime = 2.f;	// 공격 대기 시간
 
 
 	/***** Target & Self *****/
@@ -56,7 +81,8 @@ public:
 
 	/***** Attack Range *****/
 	float MeleeRange;	// 근거리 공격 범위
-	float LongRange;	// 장거리 공격 범위
+	//float LongRange;	// 장거리 공격 범위
+
 
 public:
 	// 등장
