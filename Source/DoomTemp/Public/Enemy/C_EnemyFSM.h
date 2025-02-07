@@ -7,17 +7,39 @@
 #include "C_EnemyFSM.generated.h"
 
 UENUM(BlueprintType)
+/***** Main State *****/
 enum class EEnemyState : uint8
 {
     SPAWN,			// 등장
     IDLE,			// 대기
-    PATROL,			// 순찰
     MOVE,			// 이동
     ATTACK,			// 공격
 	DAMAGE,         // 피격
 	DEAD,			// 죽음
 	MAX
 };
+
+
+/***** Sub State - Damaged *****/
+enum class EEnemyDamaged : uint8
+{
+	FIST, 
+	GUN, 
+	GLORYKILL, 
+	CHAINSAW,
+	MAX
+};
+
+
+/***** Sub State - Move *****/
+enum class EEnemyMove
+{
+	WALK, 
+	RUN, 
+	STAGGER, 
+	MAX
+};
+
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class DOOMTEMP_API UC_EnemyFSM : public UActorComponent
@@ -37,14 +59,23 @@ public:
 	// 상태 변수
     UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "FSM")
 	EEnemyState EnemyState = EEnemyState::IDLE;
+	
+	// Enemy를 소유하고 고 있는 AIController
+	UPROPERTY()
+	class AAIController* MyAI;
+	
 
-	FVector Direction;	// Enemy 이동 방향
+	/***** Patrol *****/
+	FVector RandPos;	// 길 찾기 수행 시 랜덤 위치
+	bool GetRandomPositionInNavMesh(FVector InCenterLocation, float InRadius, FVector& InDest);
 
+
+	/***** Time *****/
     UPROPERTY(EditDefaultsOnly, Category = "FSM")
 	float IdleDelayTime = 3.f;		// 대기 시간
 	float CurTime = 0.f;			// 경과 시간
 	UPROPERTY(EditDefaultsOnly, Category = "FSM")
-	float AttackDelayTime = 2.f;
+	float AttackDelayTime = 2.f;	// 공격 대기 시간
 
 
 	/***** Target & Self *****/
@@ -56,7 +87,8 @@ public:
 
 	/***** Attack Range *****/
 	float MeleeRange;	// 근거리 공격 범위
-	float LongRange;	// 장거리 공격 범위
+	//float LongRange;	// 장거리 공격 범위
+
 
 public:
 	// 등장
@@ -64,9 +96,6 @@ public:
 
 	// 대기
 	void IdleState();
-
-	// 순찰
-	void PatrolState();
 
 	// 이동
 	void MoveState();

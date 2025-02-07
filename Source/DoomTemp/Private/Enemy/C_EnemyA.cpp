@@ -5,13 +5,19 @@ AC_EnemyA::AC_EnemyA()
 {
     PrimaryActorTick.bCanEverTick = true;
 
-    /****** ¿Ü°ü *****/
-    ConstructorHelpers::FObjectFinder<USkeletalMesh> skeletal( L"" );
-    if (skeletal.Succeeded())
+    /***** Skeletal Mesh *****/
+    ConstructorHelpers::FObjectFinder<USkeletalMesh> skeleton(L"/Script/Engine.SkeletalMesh'/Game/DYL/Designs/zombie-number-1-animated/source/zom_1.zom_1'");
+    if (skeleton.Succeeded())
     {
-        GetMesh()->SetSkeletalMesh(skeletal.Object);
-        //GetMesh()->SetRelativeLocationAndRotation( FVector(), FRotator() );
+        GetMesh()->SetSkeletalMesh(skeleton.Object);
+        GetMesh()->SetRelativeLocationAndRotation(FVector(0.f, 0.f, -90), FRotator(0.f, -90.f, 0.f));
+        GetMesh()->SetRelativeScale3D(FVector(10.f));
     }
+
+    /***** ABP *****/
+    //ConstructorHelpers:FClassFinder<UAnimInstance> tmpClass( L"/Script/Engine.AnimBlueprint'/Game/DYL/Blueprints/Enemy/ABP_EnemyA.ABP_EnemyA'_C");
+    //if(tmpClass.Succeeded())
+    //    GetMesh()->SetAnimInstanceClass(tmpClass.Class);
 }
 
 void AC_EnemyA::BeginPlay()

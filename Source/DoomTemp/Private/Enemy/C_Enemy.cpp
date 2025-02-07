@@ -1,18 +1,29 @@
 #include "Enemy/C_Enemy.h"
+#include "C_Helpers.h"
+#include "GameFramework/Character.h"
+#include <GameFramework/CharacterMovementComponent.h>
 #include "Enemy/C_EnemyFSM.h"
+
 
 AC_Enemy::AC_Enemy()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+    /***** Speed *****/
+    GetCharacterMovement()->MaxWalkSpeed = Speed;
+
 	/***** FSM *****/
-	FSM = CreateDefaultSubobject<UC_EnemyFSM>( L"FSM" );
+    C_Helpers::CreateActorComponent<UC_EnemyFSM>(this, &FSM, "FSM");
+
+    /***** Weapon *****/
+    //C_Helpers::CreateActorComponent<UCWeaponComponent>(this, &Weapon, "Weapon");
 }
 
 void AC_Enemy::BeginPlay()
 {
 	Super::BeginPlay();
 	
+    
 }
 
 void AC_Enemy::Tick(float DeltaTime)
@@ -20,8 +31,7 @@ void AC_Enemy::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	/***** Enemy 상태 체크 *****/
-	//CheckIsFlinched( HP );
-	//CheckIsStaggered( HP );
+    CheckState();
 }
 
 float AC_Enemy::GetMeleeRange()
@@ -29,52 +39,53 @@ float AC_Enemy::GetMeleeRange()
 	return MeleeRange;
 }
 
-float AC_Enemy::GetLongRange()
+//float AC_Enemy::GetLongRange()
+//{
+//	return LongRange;
+//}
+
+
+float AC_Enemy::GetSpeed()
 {
-	return LongRange;
+    return Speed;
+}
+
+void AC_Enemy::SetHP(int32 InHP)
+{
+    HP += InHP;
+    CheckState();
 }
 
 
 /***** Enemy 상태 체크 *****/
-#pragma region Check Enemy State
 // Flinch 상태인지 체크
-bool AC_Enemy::IsFlinched()
-{
-    if (HP > HPFlinched)
-    {
-        // 기본 상태가 된다
-        bIsFlinched = false;
-        bIsStaggered = false;
-        return false;
-    }
-
-    else
-    {
-        // Flinch 상태가 된다
-        bIsFlinched = true;
-        bIsStaggered = false;
-        return true;
-    }
-}
-
-// Stagger 상태인지 체크
-bool AC_Enemy::IsStaggered()
+void AC_Enemy::CheckState()
 {
     if (HP > HPStaggered)
     {
-        // Flinch 상태가 된다
-        bIsStaggered = false;
-        bIsFlinched = true;		// Stagger -> Flinch로 상태 전환이 일어났으므로
-        return false;
+        if (HP <= HPFlinched)
+        {
+            // Flinch 상태가 된다
+            bIsFlinched = true;
+            bIsStaggered = false;
+        }
+        else
+        {
+            // 기본 상태가 된다
+            bIsFlinched = false;
+            bIsStaggered = false;
+        }
     }
-
     else
     {
-        // Stagger 상태가 된다
-        bIsFlinched = false;		// Flinch -> Stagger로 상태 전환이 일어났으므로
-        bIsStaggered = true;
-        return true;
+        if(HP == 0)
+            bIsDead = true;
+        else
+        {
+            // Stagger 상태가 된다
+            bIsFlinched = false;
+            bIsStaggered = true;
+        }
     }
 }
-#pragma endregion
 
