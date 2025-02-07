@@ -60,7 +60,7 @@ public:
 	
 
 	/***** Setters *****/
-	void SetHP(int32 InHP);
+	void SetHP(int32 InDamage);
 
 
 	/***** Functions *****/

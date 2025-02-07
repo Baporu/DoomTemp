@@ -33,7 +33,7 @@ void AC_BounceBullet::OnBulletOverlap(UPrimitiveComponent* OverlappedComponent, 
 	AC_Enemy* enemy = Cast<AC_Enemy>(OtherActor);
 
 	if (enemy != nullptr) {
-		//OtherActor->Destroy();
+		enemy->SetHP(Damage);
 
 		Destroy();
 	}

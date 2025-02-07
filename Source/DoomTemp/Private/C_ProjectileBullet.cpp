@@ -28,9 +28,9 @@ void AC_ProjectileBullet::OnBulletOverlap(UPrimitiveComponent* OverlappedCompone
 	AC_Enemy* enemy = Cast<AC_Enemy>(OtherActor);
 
 	if (enemy != nullptr) {
-		//OtherActor->Destroy();
+		enemy->SetHP(Damage);
 
-		//Destroy();
+		Destroy();
 	}
 }
 

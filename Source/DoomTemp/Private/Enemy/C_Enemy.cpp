@@ -50,9 +50,13 @@ float AC_Enemy::GetSpeed()
     return Speed;
 }
 
-void AC_Enemy::SetHP(int32 InHP)
+void AC_Enemy::SetHP(int32 InDamage)
 {
-    HP += InHP;
+    HP -= InDamage;
+
+    // 실행 창에 상태 메시지 출력하기
+    GEngine->AddOnScreenDebugMessage(0, 1, FColor::Blue, TEXT("Damaged"));
+
     CheckState();
 }
 
