@@ -1,8 +1,13 @@
 #include "Enemy/C_EnemyFSM.h"
+#include "C_Helpers.h"
 #include "C_PlayerCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "Enemy/C_EnemyA.h"
-#include "AIController.h"
+
+#include "NavigationSystem.h"
+#include <Runtime/AIModule/Classes/AITypes.h>
+#include <AIController.h>
+#include "Navigation/PathFollowingComponent.h"
 
 UC_EnemyFSM::UC_EnemyFSM()
 {
@@ -33,7 +38,7 @@ void UC_EnemyFSM::BeginPlay()
 	
 
 	/***** AI Controller *****/
-	Ai = Cast<AAIController>(Self->GetController());
+	MyAI = Cast<AAIController>(Self->GetController());
 }
 
 
@@ -54,9 +59,6 @@ void UC_EnemyFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 		case EEnemyState::IDLE:
 			IdleState();
 			break;
-		case EEnemyState::PATROL:
-			PatrolState();
-			break;
 		case EEnemyState::MOVE:
 			MoveState();
 			break;
@@ -72,6 +74,16 @@ void UC_EnemyFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 	}
 }
 
+bool UC_EnemyFSM::GetRandomPositionInNavMesh(FVector InCenterLocation, float InRadius, FVector& InDest)
+{
+	auto ns = UNavigationSystemV1::GetNavigationSystem(GetWorld());
+	FNavLocation loc;
+	bool rslt = ns->GetRandomReachablePointInRadius(InCenterLocation, InRadius, loc);
+	InDest = loc.Location;
+
+	return rslt;
+}
+
 void UC_EnemyFSM::SpawnState()
 {
 	// 1. Spawn VFX를 소환한다
@@ -84,22 +96,19 @@ void UC_EnemyFSM::SpawnState()
 
 void UC_EnemyFSM::IdleState()
 {
-	// 1. 시간이 흐른다
 	CurTime += GetWorld()->DeltaTimeSeconds;
 
-	// 2. 만약 경과 시간이 대기 시간을 초과하면
 	if (CurTime > IdleDelayTime)
 	{
-		// 3. 이동 상태로 전환
+		// 이동 상태로 전환
 		EnemyState = EEnemyState::MOVE;
 		CurTime = 0.f;
+
+		// 랜덤 위치 정하기
+		GetRandomPositionInNavMesh( Self->GetActorLocation(), 500, RandPos);
 	}
 }
 
-void UC_EnemyFSM::PatrolState()
-{
-	
-}
 
 void UC_EnemyFSM::MoveState()
 {
@@ -114,19 +123,39 @@ void UC_EnemyFSM::MoveState()
 
 
 	/***** 이동 *****/
-	// 1. Target 방향을 구한다
+	FVector destination = Target->GetActorLocation();
 	FVector dir = Target->GetActorLocation() - Self->GetActorLocation();
+	Self->AddMovementInput(dir.GetSafeNormal());
 
-	// 2. Target 위치로 이동한다
-	//Self->AddMovementInput( dir.GetSafeNormal() );
-	Ai->MoveToLocation( Target->GetActorLocation() );
+
+	/*** Patrol ***/
+	auto ns = UNavigationSystemV1::GetNavigationSystem(GetWorld());
+	FPathFindingQuery query;
+	FAIMoveRequest req;
+
+	req.SetAcceptanceRadius(3);
+	req.SetGoalLocation(destination);
+
+	MyAI->BuildPathfindingQuery(req, query);
+
+	FPathFindingResult rslt = ns->FindPathSync(query);
+
+
+	// 목적지까지의 길 찾기 성공 여부 확인
+	if (rslt.Result == ENavigationQueryResult::Success)
+		MyAI->MoveToLocation(destination);
+	else
+	{
+		auto result = MyAI->MoveToLocation(RandPos);
+		if(result == EPathFollowingRequestResult::AlreadyAtGoal)
+			GetRandomPositionInNavMesh(Self->GetActorLocation(), 500, RandPos);
+	}
 
 
 	/***** 근거리 공격 상태로 전환 *****/
-	// 1. 만약 Player가 근거리 공격 범위 안에 들어오면
 	if ( dir.Size() <= MeleeRange )
 	{
-		// 2. 공격 상태로 전환
+		MyAI->StopMovement();
 		EnemyState = EEnemyState::ATTACK;
 	}
 }
@@ -135,26 +164,27 @@ void UC_EnemyFSM::AttackState()
 {
 	float distance = FVector::Distance( Target->GetActorLocation(), Self->GetActorLocation() );
 	
-	// 1. 시간이 흐른다
 	CurTime += GetWorld()->DeltaTimeSeconds;
 	
-	// 2. 만약 경과 시간이 대기 시간을 초과하면
+	///// 추가 : 타겟이 있을 때만 공격하도록 - 타겟이 죽었는데 공격하면 안되니까
 	if (CurTime > AttackDelayTime)
 	{
-		// 3. 근거리 공격을 한다
+		// 근거리 공격을 한다
 		GEngine->AddOnScreenDebugMessage(0, 1, FColor::Blue, L"Long Range Attack!!!!!");
 
-        //// 4. 원거리 공격을 한다
+        //// 원거리 공격을 한다
         //GEngine->AddOnScreenDebugMessage(0, 1, FColor::Blue, L"Melee Attack!!!!!");
 
 		CurTime = 0.f;
 	}
 	
-	// 5-1. 만약 Player가 근거리 범위에서 벗어났다면
+	// 만약 Player가 근거리 범위에서 벗어났다면
 	if (distance > MeleeRange )
 	{
-		// 5-2. 상태를 이동으로 전환한다
+		// 상태를 이동으로 전환한다
 		EnemyState = EEnemyState::MOVE;
+		// 랜덤 위치 정하기
+		GetRandomPositionInNavMesh(Self->GetActorLocation(), 500, RandPos);
 	}
 }
 

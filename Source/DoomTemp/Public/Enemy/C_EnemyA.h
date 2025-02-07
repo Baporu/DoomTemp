@@ -4,9 +4,6 @@
 #include "Enemy/C_Enemy.h"
 #include "C_EnemyA.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class DOOMTEMP_API AC_EnemyA : public AC_Enemy
 {

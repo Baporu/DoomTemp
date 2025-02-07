@@ -12,7 +12,6 @@ enum class EEnemyState : uint8
 {
     SPAWN,			// 등장
     IDLE,			// 대기
-    PATROL,			// 순찰
     MOVE,			// 이동
     ATTACK,			// 공격
 	DAMAGE,         // 피격
@@ -61,10 +60,15 @@ public:
     UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "FSM")
 	EEnemyState EnemyState = EEnemyState::IDLE;
 	
-
-	// Enemy를 소윻ㅏ고 있는 AIController
+	// Enemy를 소유하고 고 있는 AIController
 	UPROPERTY()
-	class AAIController* Ai;
+	class AAIController* MyAI;
+	
+
+	/***** Patrol *****/
+	FVector RandPos;	// 길 찾기 수행 시 랜덤 위치
+	bool GetRandomPositionInNavMesh(FVector InCenterLocation, float InRadius, FVector& InDest);
+
 
 	/***** Time *****/
     UPROPERTY(EditDefaultsOnly, Category = "FSM")
@@ -92,9 +96,6 @@ public:
 
 	// 대기
 	void IdleState();
-
-	// 순찰
-	void PatrolState();
 
 	// 이동
 	void MoveState();
