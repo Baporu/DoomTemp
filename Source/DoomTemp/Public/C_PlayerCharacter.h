@@ -6,6 +6,14 @@
 #include "GameFramework/Character.h"
 #include "C_PlayerCharacter.generated.h"
 
+// Define Player's Weapon State
+UENUM()
+enum class EWeaponType : uint8 {
+	Plasma,
+	Sniper,
+	Shotgun
+};
+
 UCLASS()
 class DOOMTEMP_API AC_PlayerCharacter : public ACharacter
 {
@@ -82,25 +90,48 @@ public:
 	// Is Firing or Not
 	bool bIsFire = false;
 
+	// Player Weapon State
+	UPROPERTY(VisibleAnywhere, Category = "Guns")
+	EWeaponType mWeaponType;
+	UPROPERTY(EditDefaultsOnly, Category = "Guns")
+	class UC_GunSkeletalMeshComponent* PlasmaMesh;
+	UPROPERTY(EditDefaultsOnly, Category = "Guns")
+	class UC_GunSkeletalMeshComponent* SniperMesh;
+	UPROPERTY(EditDefaultsOnly, Category = "Guns")
+	class UC_GunSkeletalMeshComponent* ShotgunMesh;
+
 	// Guns Array
-	UPROPERTY(EditAnywhere, Category = "Weapons")
-	TSubclassOf<class UC_GunSkeletalMeshComponent> Guns[3];
-	class UC_GunSkeletalMeshComponent* _Guns[3];
+// 	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
+// 	TSubclassOf<class UC_GunSkeletalMeshComponent> Guns[3];
+
+	// HP
+	UPROPERTY(EditDefaultsOnly)
+	int32 MaxHP = 100;
+	int32 CurrentHP;
+
+	// Melee Attack Damage
+	UPROPERTY(EditDefaultsOnly)
+	int32 MeleeDamage = 5;
 
 
-	void LookUp(const struct FInputActionValue& inputValue);
-	void Turn(const struct FInputActionValue& inputValue);
+	void OnLookUp(const struct FInputActionValue& inputValue);
+	void OnTurn(const struct FInputActionValue& inputValue);
 
-	void Move(const struct FInputActionValue& inputValue);
+	void OnMove(const struct FInputActionValue& inputValue);
 	void PlayerMove();
 
-	void InputJump(const struct FInputActionValue& inputValue);
+	void OnJump(const struct FInputActionValue& inputValue);
 
-	void Dash(const struct FInputActionValue& inputValue);
+	void OnDash(const struct FInputActionValue& inputValue);
 	void ResetDashDir(const struct FInputActionValue& inputValue);
 	void ResetDashCount(float InDeltaTime);
 
-	void InputFire(const struct FInputActionValue& inputValue);
+	void OnFire(const struct FInputActionValue& inputValue);
 
-	
+	void Type_Plasma();
+	void Type_Sniper();
+	void Type_Shotgun();
+
+	UCameraComponent* GetCameraComponent();
+
 };

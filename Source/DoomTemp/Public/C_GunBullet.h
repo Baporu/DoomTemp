@@ -25,19 +25,14 @@ public:
 
 
 public:
-	// 발사체의 이동을 담당할 컴포넌트
-	UPROPERTY(VisibleAnywhere, Category = Movement)
-	class UProjectileMovementComponent* MovementComp;
-
 	// 충돌체 컴포넌트
 	UPROPERTY(VisibleAnywhere, Category = Collision)
 	class USphereComponent* CollisionComp;
-
 	// 외관 컴포넌트
 	UPROPERTY(VisibleAnywhere, Category = BodyMesh)
 	class UStaticMeshComponent* MeshComp;
 
+	UPROPERTY(EditDefaultsOnly)
+	int32 Damage = 10;
 
-	UFUNCTION()
-	void OnBulletOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult );
 };

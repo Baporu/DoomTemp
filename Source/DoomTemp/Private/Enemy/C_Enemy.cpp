@@ -48,7 +48,7 @@ bool AC_Enemy::IsFlinched()
         return false;
     }
 
-    if (HP > HPStaggered)
+    else
     {
         // Flinch 상태가 된다
         bIsFlinched = true;
@@ -68,7 +68,7 @@ bool AC_Enemy::IsStaggered()
         return false;
     }
 
-    if (HP <= HPStaggered)
+    else
     {
         // Stagger 상태가 된다
         bIsFlinched = false;		// Flinch -> Stagger로 상태 전환이 일어났으므로

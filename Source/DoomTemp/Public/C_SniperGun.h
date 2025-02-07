@@ -15,11 +15,25 @@ class DOOMTEMP_API UC_SniperGun : public UC_GunSkeletalMeshComponent
 	GENERATED_BODY()
 	
 
+private:
+	class UCameraComponent* FPSCam;
+
+protected:
+	// Called when the game starts
+	virtual void BeginPlay() override;
+
 public:
-	// Sets default values for this character's properties
-	UC_SniperGun();
+	// Sniper UI
+	UPROPERTY(EditDefaultsOnly, Category = SniperUI)
+	TSubclassOf<class UUserWidget> SniperUIFactory;
+	// Sniper UI Widget Instance
+	UPROPERTY()
+	class UUserWidget* SniperUI;
 
 
-	// Call by PlayerCharacter
-	//virtual void InputFire();
+	// Mouse Left Click Event
+	virtual void OnFire() override;
+	// Mouse Right Click Event
+	virtual void OnStartMode() override;
+	virtual void OnEndMode() override;
 };

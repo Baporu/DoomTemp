@@ -13,16 +13,37 @@ UCLASS()
 class DOOMTEMP_API UC_GunSkeletalMeshComponent : public USkeletalMeshComponent
 {
 	GENERATED_BODY()
-	
+
+
+private:
+	UPROPERTY(EditDefaultsOnly)
+	int32 MaxAmmo = 100;
+	int32 CurrentAmmo;
+
+protected:
+	// Called when the game starts
+	virtual void BeginPlay() override;
 
 public:
-	// Sets default values for this character's properties
-	UC_GunSkeletalMeshComponent();
-
-
+	// Bullet Blueprint
 	UPROPERTY(EditDefaultsOnly, Category = BulletFactory)
 	TSubclassOf<class AC_GunBullet> BulletFactory;
 
-	// Call by PlayerCharacter
-	virtual void InputFire();
+	// Using Mode or Not
+	bool bUsingMode = false;
+
+	// 일반 조준 크로스헤어 UI 위젯 공장
+	UPROPERTY(EditAnywhere, Category = GunUI)
+	TSubclassOf<class UUserWidget> CrossHairUIFactory;
+	// 크로스헤어 UI 위젯 인스턴스
+	class UUserWidget* CrossHairUI;
+
+
+	// Call by Player
+	// Mouse Left Click Event
+	virtual void OnFire();
+	// Mouse Right Click Event
+	virtual void OnStartMode();
+	virtual void OnUseMode();
+	virtual void OnEndMode();
 };

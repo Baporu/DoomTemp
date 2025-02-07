@@ -3,26 +3,38 @@
 
 #include "C_GunSkeletalMeshComponent.h"
 #include "C_GunBullet.h"
+#include "C_PlayerCharacter.h"
+#include "Kismet/GameplayStatics.h"
 
-UC_GunSkeletalMeshComponent::UC_GunSkeletalMeshComponent()
+void UC_GunSkeletalMeshComponent::BeginPlay()
 {
-	// Load Skeletal Mesh
-	ConstructorHelpers::FObjectFinder<USkeletalMesh> TempMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/FPWeapon/Mesh/SK_FPGun.SK_FPGun'"));
+	Super::BeginPlay();
 
-	// If Skeletal Mesh Loaded
-	if (TempMesh.Succeeded()) {
-		// Set Loaded Mesh
-		SetSkeletalMesh(TempMesh.Object);
-	}
-
-	// Disable Collision
-	SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CurrentAmmo = MaxAmmo;
 }
 
-void UC_GunSkeletalMeshComponent::InputFire()
+void UC_GunSkeletalMeshComponent::OnFire()
 {
 	FTransform firePos = GetSocketTransform(TEXT("FirePosition"));
+	// Fix Bullet Scale
 	firePos.SetScale3D(FVector(1.0));
 
 	GetWorld()->SpawnActor<AC_GunBullet>(BulletFactory, firePos);
+
+	--CurrentAmmo;
+}
+
+void UC_GunSkeletalMeshComponent::OnStartMode()
+{
+
+}
+
+void UC_GunSkeletalMeshComponent::OnUseMode()
+{
+
+}
+
+void UC_GunSkeletalMeshComponent::OnEndMode()
+{
+
 }
