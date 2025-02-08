@@ -9,6 +9,7 @@
 #include <AIController.h>
 #include "Navigation/PathFollowingComponent.h"
 
+
 UC_EnemyFSM::UC_EnemyFSM()
 {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -23,6 +24,7 @@ void UC_EnemyFSM::BeginPlay()
 
 	/***** Target & Self *****/
 	auto actor = UGameplayStatics::GetActorOfClass( GetWorld(), AC_PlayerCharacter::StaticClass() );
+	CheckNull(actor);
 	Target = Cast<AC_PlayerCharacter>( actor );
 	Self = Cast<AC_EnemyA>( GetOwner() );
 
@@ -32,8 +34,6 @@ void UC_EnemyFSM::BeginPlay()
 	{
 		MeleeRange = Self->GetMeleeRange();
 		//LongRange = Self->GetLongRange();
-		// Speed = Self->GetSpeed();
-
 	}
 	
 
@@ -46,16 +46,9 @@ void UC_EnemyFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// 현재 상태 화면에 출력
-	FString log = UEnum::GetValueAsString(EnemyState);
-	GEngine->AddOnScreenDebugMessage(0, 1, FColor::Red, log);
-
 
 	switch (EnemyState)
 	{
-		case EEnemyState::SPAWN:
-			SpawnState();
-			break;
 		case EEnemyState::IDLE:
 			IdleState();
 			break;
@@ -70,6 +63,9 @@ void UC_EnemyFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 			break;
 		case EEnemyState::DEAD:
 			DeadState();
+			break;
+		case EEnemyState::MAX:
+			SpawnState();
 			break;
 	}
 }
@@ -87,6 +83,7 @@ bool UC_EnemyFSM::GetRandomPositionInNavMesh(FVector InCenterLocation, float InR
 void UC_EnemyFSM::SpawnState()
 {
 	// 1. Spawn VFX를 소환한다
+	
 
 	// 2. Spawn 애니메이션을 재생한다
 
@@ -113,6 +110,7 @@ void UC_EnemyFSM::IdleState()
 void UC_EnemyFSM::MoveState()
 {
 	/***** 기본 상태인지, 비틀거리는 상태인지 체크 *****/
+	#pragma region Check Movement
 	////////////////////// 이 부분 의문 //////////////////////
 	//if (Self->bIsFlinched == true)
 	//{
@@ -120,7 +118,9 @@ void UC_EnemyFSM::MoveState()
 	//
 	//	// 2. 몸이 빨갛게 반짝인다
 	//}
-
+	#pragma endregion
+	//FString DebugMessage = UEnum::GetValueAsString(EnemyMove);
+	//GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Magenta, DebugMessage);
 
 	/***** 이동 *****/
 	FVector destination = Target->GetActorLocation();
@@ -167,13 +167,14 @@ void UC_EnemyFSM::AttackState()
 	CurTime += GetWorld()->DeltaTimeSeconds;
 	
 	///// 추가 : 타겟이 있을 때만 공격하도록 - 타겟이 죽었는데 공격하면 안되니까
+
 	if (CurTime > AttackDelayTime)
 	{
 		// 근거리 공격을 한다
-		GEngine->AddOnScreenDebugMessage(0, 1, FColor::Blue, L"Long Range Attack!!!!!");
+		GEngine->AddOnScreenDebugMessage(0, 1, FColor::Blue, L"Melee Attack!!!!!");
 
         //// 원거리 공격을 한다
-        //GEngine->AddOnScreenDebugMessage(0, 1, FColor::Blue, L"Melee Attack!!!!!");
+        //GEngine->AddOnScreenDebugMessage(0, 1, FColor::Blue, L"Long Range Attack!!!!!");
 
 		CurTime = 0.f;
 	}
@@ -196,5 +197,20 @@ void UC_EnemyFSM::DamageState()
 void UC_EnemyFSM::DeadState()
 {
 
+}
+
+EEnemyMove UC_EnemyFSM::GetEnemyMove()
+{
+	return EnemyMove;
+}
+
+void UC_EnemyFSM::SetEnemyDamaged(EEnemyDamaged InVal)
+{
+	EnemyDamaged = InVal;
+}
+
+void UC_EnemyFSM::SetEnemyMove(EEnemyMove InVal)
+{
+	EnemyMove = InVal;
 }
 

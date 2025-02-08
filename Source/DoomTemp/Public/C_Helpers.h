@@ -6,6 +6,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 
+/***** Check *****/
 #define CheckTure(x) { if(x == true) return; }
 #define CheckTrueResult(x, y) { if(x == true) return y; }
 
@@ -15,9 +16,11 @@
 #define CheckNull(x) { if(x == nullptr) return; }
 #define CheckNullResult(x, y) { if(x == nullptr) return y; }
 
+
 class DOOMTEMP_API C_Helpers
 {
 public:
+	/***** Component *****/
 	template<typename T>
 	static void CreateComponent(AActor* InActor, T** OutComponent, FName InName, USceneComponent* InParent = nullptr)
 	{
@@ -38,6 +41,7 @@ public:
 	}
 
 
+	/***** Get *****/
 	template<typename T>
 	static void GetAsset(T** OutObject, FString InPath)
 	{

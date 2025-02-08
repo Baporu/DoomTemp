@@ -6,37 +6,41 @@
 #include "Components/ActorComponent.h"
 #include "C_EnemyFSM.generated.h"
 
-UENUM(BlueprintType)
 /***** Main State *****/
+// TickComponent에서 관리
+UENUM(BlueprintType)
 enum class EEnemyState : uint8
 {
-    SPAWN,			// 등장
-    IDLE,			// 대기
-    MOVE,			// 이동
-    ATTACK,			// 공격
-	DAMAGE,         // 피격
-	DEAD,			// 죽음
-	MAX
+    IDLE = 0,			// 대기
+    MOVE,				// 이동
+    ATTACK,				// 공격
+	DAMAGE,				// 피격
+	DEAD,				// 죽음
+	MAX					// 등장
 };
 
 
 /***** Sub State - Damaged *****/
+// TickComponent에서 관리 X - Enemy쪽 Tick에서 체크함
+UENUM(BlueprintType)
 enum class EEnemyDamaged : uint8
 {
-	FIST, 
-	GUN, 
-	GLORYKILL, 
-	CHAINSAW,
-	MAX
+	FIST = 0,			// 주먹
+	GUN,				// 총
+	GLORYKILL,			// 글로리 킬
+	CHAINSAW,			// 전기톱
+	MAX					// 공격받고 있지 않음
 };
 
 
 /***** Sub State - Move *****/
-enum class EEnemyMove
+// TickComponent에서 관리 X - Enemy쪽 Tick에서 체크함
+UENUM(BlueprintType)
+enum class EEnemyMove : uint8
 {
-	WALK, 
-	RUN, 
-	STAGGER, 
+	STAGGER = 0,	// 주춤거리기
+	FLINCH,			// 비틀거리기
+	WALK,			// 걷기
 	MAX
 };
 
@@ -55,12 +59,23 @@ protected:
 public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-public:
-	// 상태 변수
+protected:
+	/***** State *****/
+	// Main state
     UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "FSM")
-	EEnemyState EnemyState = EEnemyState::IDLE;
+	EEnemyState EnemyState = EEnemyState::MAX;
+
+	// Sub state - 어떤 공격을 받았는가
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "FSM")
+	EEnemyDamaged EnemyDamaged = EEnemyDamaged::MAX;
+
+	// Sub state - 어떻게 움직이고 있는가
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "FSM")
+	EEnemyMove EnemyMove = EEnemyMove::WALK;
 	
-	// Enemy를 소유하고 고 있는 AIController
+
+	/***** AI Controller *****/
+	// Enemy를 소유하고 있는 AIController
 	UPROPERTY()
 	class AAIController* MyAI;
 	
@@ -108,4 +123,9 @@ public:
 
 	// 죽음
 	void DeadState();
+
+public:
+	EEnemyMove GetEnemyMove();
+	void SetEnemyDamaged(EEnemyDamaged InVal);
+	void SetEnemyMove(EEnemyMove InVal);
 };

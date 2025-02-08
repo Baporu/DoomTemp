@@ -14,9 +14,13 @@ AC_Enemy::AC_Enemy()
 
 	/***** FSM *****/
     C_Helpers::CreateActorComponent<UC_EnemyFSM>(this, &FSM, "FSM");
+    //EnemyDamaged = int32(EEnemyDamaged::MAX);
+    //EnemyMove = int32(EEnemyMove::WALK);
 
     /***** Weapon *****/
     //C_Helpers::CreateActorComponent<UCWeaponComponent>(this, &Weapon, "Weapon");
+
+    HP = HPFlinched;
 }
 
 void AC_Enemy::BeginPlay()
@@ -58,34 +62,59 @@ void AC_Enemy::SetHP(int32 InHP)
 
 
 /***** Enemy 상태 체크 *****/
-// Flinch 상태인지 체크
 void AC_Enemy::CheckState()
 {
+    #pragma region old
+    //if (HP > HPStaggered)
+    //{
+    //    if (HP <= HPFlinched)
+    //    {
+    //        // Flinch 상태가 된다
+    //        bIsFlinched = true;
+    //        bIsStaggered = false;
+    //    }
+    //    else
+    //    {
+    //        // 기본 상태가 된다
+    //        bIsFlinched = false;
+    //        bIsStaggered = false;
+    //    }
+    //}
+    //else
+    //{
+    //    if(HP == 0)
+    //        bIsDead = true;
+    //    else
+    //    {
+    //        // Stagger 상태가 된다
+    //        bIsFlinched = false;
+    //        bIsStaggered = true;
+    //    }
+    //}
+    #pragma endregion
+    /* Enemy Move : Walk > Flinch > Stagger > Dead */
+
     if (HP > HPStaggered)
     {
-        if (HP <= HPFlinched)
+        if (HP > HPFlinched)
         {
-            // Flinch 상태가 된다
-            bIsFlinched = true;
-            bIsStaggered = false;
+            // Walk : HPFlinch < HP
+            FSM->SetEnemyMove(EEnemyMove::WALK);
         }
-        else
-        {
-            // 기본 상태가 된다
-            bIsFlinched = false;
-            bIsStaggered = false;
-        }
+        // Flinch : HPStagger < HP <= HPFlinch
+        FSM->SetEnemyMove(EEnemyMove::FLINCH);
     }
     else
     {
-        if(HP == 0)
-            bIsDead = true;
-        else
+        if (HP > 0)
         {
-            // Stagger 상태가 된다
-            bIsFlinched = false;
-            bIsStaggered = true;
+            // Stagger : 0 < HP <= HPStagger
+            FSM->SetEnemyMove(EEnemyMove::STAGGER);
         }
+        // Dead : HP <= 0
     }
+
+    FString DebugMessage = UEnum::GetValueAsString(FSM->GetEnemyMove());
+    GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Magenta, DebugMessage);
 }
 

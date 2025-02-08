@@ -14,10 +14,11 @@ AC_EnemyA::AC_EnemyA()
         GetMesh()->SetRelativeScale3D(FVector(10.f));
     }
 
-    /***** ABP *****/
-    //ConstructorHelpers:FClassFinder<UAnimInstance> tmpClass( L"/Script/Engine.AnimBlueprint'/Game/DYL/Blueprints/Enemy/ABP_EnemyA.ABP_EnemyA'_C");
-    //if(tmpClass.Succeeded())
-    //    GetMesh()->SetAnimInstanceClass(tmpClass.Class);
+
+    /***** Animation *****/
+    ConstructorHelpers::FClassFinder<UAnimInstance> tmpClass(L"/Game/DYL/Designs/zombie-number-1-animated/source/zom_1.zom_1");
+    if (tmpClass.Succeeded())
+        GetMesh()->SetAnimInstanceClass(tmpClass.Class);
 }
 
 void AC_EnemyA::BeginPlay()
