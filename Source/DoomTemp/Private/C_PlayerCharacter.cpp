@@ -9,6 +9,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "C_GunSkeletalMeshComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "C_SniperGun.h"
 
 // Sets default values
 AC_PlayerCharacter::AC_PlayerCharacter()
@@ -83,7 +84,7 @@ AC_PlayerCharacter::AC_PlayerCharacter()
 		}
 		{
 			// Create Gun Mesh Component
-			SniperMesh = CreateDefaultSubobject<UC_GunSkeletalMeshComponent>(TEXT("SniperMesh"));
+			SniperMesh = CreateDefaultSubobject<UC_SniperGun>(TEXT("SniperMesh"));
 			// Attach Mesh Component to Camera Component
 			SniperMesh->SetupAttachment(GetMesh());
 			// Load Skeletal Mesh
@@ -136,6 +137,11 @@ void AC_PlayerCharacter::BeginPlay()
 		}
 	}
 
+	SetWeaponActive(EWeaponType::Plasma, false);
+	SetWeaponActive(EWeaponType::Sniper, false);
+	SetWeaponActive(EWeaponType::Shotgun, false);
+	SetWeaponActive(mWeaponType, true);
+
 // 	for (int32 i = 0; i < 3; i++) {
 // 		if (Guns[i] != nullptr) {
 // 			UC_GunSkeletalMeshComponent* gun = NewObject<UC_GunSkeletalMeshComponent>(this, Guns[i].GetDefaultObject()->StaticClass(), Guns[i].GetDefaultObject()->MeshName);
@@ -177,6 +183,9 @@ void AC_PlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		//PlayerInput->BindAction(IA_Move, ETriggerEvent::Completed, this, &AC_PlayerCharacter::ResetDashDir);
 
 		PlayerInput->BindAction(IA_Fire, ETriggerEvent::Started, this, &AC_PlayerCharacter::OnFire);
+
+		PlayerInput->BindAction(IA_UseMode, ETriggerEvent::Started, this, &AC_PlayerCharacter::OnUseMode);
+		PlayerInput->BindAction(IA_UseMode, ETriggerEvent::Completed, this, &AC_PlayerCharacter::OnUseMode);
 	}
 }
 
@@ -272,29 +281,54 @@ void AC_PlayerCharacter::OnFire(const struct FInputActionValue& inputValue)
 {
 	switch (mWeaponType)
 	{
-		case EWeaponType::Plasma:	{Type_Plasma();}	break;
-		case EWeaponType::Sniper:	{Type_Sniper();}	break;
-		case EWeaponType::Shotgun:	{Type_Shotgun();}	break;
+		case EWeaponType::Plasma:	{Fire_Plasma();}	break;
+		case EWeaponType::Sniper:	{Fire_Sniper();}	break;
+		case EWeaponType::Shotgun:	{Fire_Shotgun();}	break;
 	}
 }
 
-void AC_PlayerCharacter::Type_Plasma()
+void AC_PlayerCharacter::Fire_Plasma()
 {
 	PlasmaMesh->OnFire();
-	mWeaponType = EWeaponType::Sniper;
 }
 
 
-void AC_PlayerCharacter::Type_Sniper()
+void AC_PlayerCharacter::Fire_Sniper()
 {
 	SniperMesh->OnFire();
-	mWeaponType = EWeaponType::Plasma;
 }
 
 
-void AC_PlayerCharacter::Type_Shotgun()
+void AC_PlayerCharacter::Fire_Shotgun()
 {
 	ShotgunMesh->OnFire();
+}
+
+void AC_PlayerCharacter::OnUseMode(const struct FInputActionValue& inputValue)
+{
+	switch (mWeaponType)
+	{
+		case EWeaponType::Plasma: { PlasmaMesh->bUsingMode		= !(PlasmaMesh->bUsingMode); }		break;
+		case EWeaponType::Sniper: { SniperMesh->OnUseMode(); }		break;
+		case EWeaponType::Shotgun: { ShotgunMesh->bUsingMode	= !(ShotgunMesh->bUsingMode); }		break;
+	}
+}
+
+void AC_PlayerCharacter::ChangeWeapon(EWeaponType InChangeType)
+{
+	SetWeaponActive(mWeaponType, false);
+	mWeaponType = InChangeType;
+	SetWeaponActive(InChangeType, true);
+}
+
+void AC_PlayerCharacter::SetWeaponActive(EWeaponType InChangeType, bool InActive)
+{
+// 	switch (InChangeType)
+// 	{
+// 		case EWeaponType::Plasma:	{ PlasmaMesh->SetVisibility(InActive); }	break;
+// 		case EWeaponType::Sniper:	{ SniperMesh->SetVisibility(InActive); }	break;
+// 		case EWeaponType::Shotgun:	{ ShotgunMesh->SetVisibility(InActive); }	break;
+// 	}
 }
 
 UCameraComponent* AC_PlayerCharacter::GetCameraComponent()

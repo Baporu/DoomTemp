@@ -48,10 +48,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputMappingContext* IMC_FPS;
 
-	// Camera Up Down Input Action
+	// Camera Input Action
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputAction* IA_LookUp;
-	// Camera Left Right Input Action
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputAction* IA_Turn;
 
@@ -68,18 +67,14 @@ public:
 	// Player Dash Input Action
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputAction* IA_Dash;
-	// Max Dash Count
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Stats")
 	int32 MaxDashCount = 2;
-	// Current Dash Count
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, Category = "Stats")
 	int32 CurDashCount = MaxDashCount;
-	// Dash Direction
+
 	FVector DashDir = FVector::ZeroVector;
-	// Dash Speed
 	float DashSpeed = 5.0f;
-	// Dash Cool-time
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Stats")
 	float DashCoolTime = 4.0f;
 	// Dash Count Reset Timer
 	float DashTimer = DashCoolTime;
@@ -92,7 +87,7 @@ public:
 
 	// Player Weapon State
 	UPROPERTY(VisibleAnywhere, Category = "Guns")
-	EWeaponType mWeaponType;
+	EWeaponType mWeaponType = EWeaponType::Sniper;
 	UPROPERTY(EditDefaultsOnly, Category = "Guns")
 	class UC_GunSkeletalMeshComponent* PlasmaMesh;
 	UPROPERTY(EditDefaultsOnly, Category = "Guns")
@@ -105,13 +100,17 @@ public:
 // 	TSubclassOf<class UC_GunSkeletalMeshComponent> Guns[3];
 
 	// HP
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Stats")
 	int32 MaxHP = 100;
 	int32 CurrentHP;
 
 	// Melee Attack Damage
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Stats")
 	int32 MeleeDamage = 5;
+
+	// Player Mode Input Action
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	class UInputAction* IA_UseMode;
 
 
 	void OnLookUp(const struct FInputActionValue& inputValue);
@@ -127,10 +126,14 @@ public:
 	void ResetDashCount(float InDeltaTime);
 
 	void OnFire(const struct FInputActionValue& inputValue);
+	void Fire_Plasma();
+	void Fire_Sniper();
+	void Fire_Shotgun();
 
-	void Type_Plasma();
-	void Type_Sniper();
-	void Type_Shotgun();
+	void OnUseMode(const struct FInputActionValue& inputValue);
+
+	void ChangeWeapon(EWeaponType InChangeType);
+	void SetWeaponActive(EWeaponType InChangeType, bool InActive);
 
 	UCameraComponent* GetCameraComponent();
 

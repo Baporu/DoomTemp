@@ -15,14 +15,14 @@ class DOOMTEMP_API UC_GunSkeletalMeshComponent : public USkeletalMeshComponent
 	GENERATED_BODY()
 
 
-private:
-	UPROPERTY(EditDefaultsOnly)
-	int32 MaxAmmo = 100;
-	int32 CurrentAmmo;
-
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+
+	UPROPERTY(EditDefaultsOnly)
+	int32 MaxAmmo = 100;
+	UPROPERTY(VisibleAnywhere)
+	int32 CurrentAmmo;
 
 public:
 	// Bullet Blueprint

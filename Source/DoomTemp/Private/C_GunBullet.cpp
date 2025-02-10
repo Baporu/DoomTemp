@@ -42,6 +42,6 @@ void AC_GunBullet::BeginPlay()
 void AC_GunBullet::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	
 }
 

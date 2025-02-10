@@ -29,11 +29,13 @@ public:
 	// Sniper UI Widget Instance
 	UPROPERTY()
 	class UUserWidget* SniperUI;
+	// Sniper FX
+	UPROPERTY(EditDefaultsOnly, Category = SniperUI)
+	class UParticleSystem* SniperEffect;
 
 
 	// Mouse Left Click Event
 	virtual void OnFire() override;
 	// Mouse Right Click Event
-	virtual void OnStartMode() override;
-	virtual void OnEndMode() override;
+	virtual void OnUseMode() override;
 };

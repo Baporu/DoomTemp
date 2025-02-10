@@ -14,10 +14,17 @@ void UC_SniperGun::BeginPlay()
 
 	AC_PlayerCharacter* player = Cast<AC_PlayerCharacter>(UGameplayStatics::GetActorOfClass(GetWorld(), AC_PlayerCharacter::StaticClass()));
 	FPSCam = player->GetCameraComponent();
+
+	SniperUI = CreateWidget<UUserWidget>(GetWorld(), SniperUIFactory);
+	CrossHairUI = CreateWidget<UUserWidget>(GetWorld(), CrossHairUIFactory);
+	CrossHairUI->AddToViewport();
 }
 
 void UC_SniperGun::OnFire()
 {
+	if (CurrentAmmo <= 0)
+		return;
+
 	// If Using Aim Mode
 	if (bUsingMode) {
 		// Variables for LineTrace
@@ -37,7 +44,7 @@ void UC_SniperGun::OnFire()
 			bulletTrans.SetLocation(hitInfo.ImpactPoint);
 
 			// Bullet FX
-			//UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BulletEffectFactory, bulletTrans);
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SniperEffect, bulletTrans);
 
 			auto hitComp = hitInfo.GetComponent();
 
@@ -55,6 +62,9 @@ void UC_SniperGun::OnFire()
 // 				
 // 			}
 		}
+
+		// Debug LineTrace
+		DrawDebugLine(GetWorld(), startPos, endPos, FColor::Blue, false, 2.0f, 0, 10.0f);
 	}
 
 	else {
@@ -62,31 +72,27 @@ void UC_SniperGun::OnFire()
 	}
 }
 
-void UC_SniperGun::OnStartMode()
+void UC_SniperGun::OnUseMode()
 {
-	// 스나이퍼 조준 모드 활성화
-	bUsingMode = true;
+	bUsingMode = !bUsingMode;
 
-	// 스나이퍼 조준 UI 등록
-	SniperUI->AddToViewport();
-	// 카메라의 시야각인 FOV(Field Of View) 조절
-	FPSCam->SetFieldOfView(45.0f);
+	if (bUsingMode) {
+		// 스나이퍼 조준 UI 등록
+		SniperUI->AddToViewport();
+		// 카메라의 시야각인 FOV(Field Of View) 조절
+		FPSCam->SetFieldOfView(45.0f);
 
-	// 일반 조준 UI 제거
-	CrossHairUI->RemoveFromParent();
-}
+		// 일반 조준 UI 제거
+		CrossHairUI->RemoveFromParent();
+	}
+	else {
+		// 스나이퍼 조준 UI 제거
+		SniperUI->RemoveFromParent();
+		// 카메라의 FOV를 원래대로 복원
+		FPSCam->SetFieldOfView(90.0f);
 
-void UC_SniperGun::OnEndMode()
-{
-	// 스나이퍼 조준 모드 비활성화
-	bUsingMode = false;
-
-	// 스나이퍼 조준 UI 제거
-	SniperUI->RemoveFromParent();
-	// 카메라의 FOV를 원래대로 복원
-	FPSCam->SetFieldOfView(90.0f);
-
-	// 일반 조준 UI 등록
-	CrossHairUI->AddToViewport();
+		// 일반 조준 UI 등록
+		CrossHairUI->AddToViewport();
+	}
 }
 

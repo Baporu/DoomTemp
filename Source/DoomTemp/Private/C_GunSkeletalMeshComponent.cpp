@@ -15,6 +15,9 @@ void UC_GunSkeletalMeshComponent::BeginPlay()
 
 void UC_GunSkeletalMeshComponent::OnFire()
 {
+	if (CurrentAmmo <= 0)
+		return;
+
 	FTransform firePos = GetSocketTransform(TEXT("FirePosition"));
 	// Fix Bullet Scale
 	firePos.SetScale3D(FVector(1.0));
