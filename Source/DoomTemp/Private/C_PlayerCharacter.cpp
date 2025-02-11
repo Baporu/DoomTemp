@@ -80,8 +80,9 @@ AC_PlayerCharacter::AC_PlayerCharacter()
 				// Set Loaded Mesh
 				PlasmaMesh->SetSkeletalMesh(GunMesh.Object);
 
-				// Set Mesh Component's Location and Rotation
+				// Set Mesh Component's Rotation and Scale
 				PlasmaMesh->SetRelativeRotation(FRotator(0.0, -90.0, 0.0));
+				PlasmaMesh->SetRelativeScale3D(FVector(0.01));
 			}
 		}
 		{
@@ -98,7 +99,7 @@ AC_PlayerCharacter::AC_PlayerCharacter()
 				SniperMesh->SetSkeletalMesh(GunMesh.Object);
 
 				// Set Mesh Component's Location and Rotation
-				SniperMesh->SetRelativeLocationAndRotation(FVector(10.0, 50.0, 10.0), FRotator(0.0, -90.0, 0.0));
+				SniperMesh->SetRelativeLocationAndRotation(FVector(10.0, 45.0, 10.0), FRotator(0.0, -90.0, 0.0));
 				SniperMesh->SetRelativeScale3D(FVector(0.15));
 			}
 		}
@@ -116,7 +117,7 @@ AC_PlayerCharacter::AC_PlayerCharacter()
 				ShotgunMesh->SetSkeletalMesh(GunMesh.Object);
 
 				// Set Mesh Component's Location and Rotation
-				ShotgunMesh->SetRelativeLocationAndRotation(FVector(-30.0f, 0.0f, -150.0f), FRotator(0.0f, -90.0f, 0.0f));
+				ShotgunMesh->SetRelativeLocationAndRotation(FVector(30.0, 0.0, 0.0), FRotator(0.0, -90.0, 0.0));
 			}
  		}
 	}
@@ -141,7 +142,7 @@ void AC_PlayerCharacter::BeginPlay()
 
 	SetWeaponActive(EWeaponType::Plasma, false);
 	SetWeaponActive(EWeaponType::Sniper, false);
-	//SetWeaponActive(EWeaponType::Shotgun, false);
+	SetWeaponActive(EWeaponType::Shotgun, false);
 	SetWeaponActive(mWeaponType, true);
 
 // 	for (int32 i = 0; i < 3; i++) {
@@ -332,7 +333,7 @@ void AC_PlayerCharacter::SetWeaponActive(EWeaponType InChangeType, bool InActive
 	{
 		case EWeaponType::Plasma:	{ PlasmaMesh->SetVisibility(InActive); }	break;
 		case EWeaponType::Sniper:	{ SniperMesh->SetVisibility(InActive); }	break;
-		//case EWeaponType::Shotgun:	{ ShotgunMesh->SetVisibility(InActive); }	break;
+		case EWeaponType::Shotgun:	{ ShotgunMesh->SetVisibility(InActive); }	break;
 	}
 }
 
