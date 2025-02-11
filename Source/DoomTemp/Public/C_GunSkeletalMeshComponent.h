@@ -31,6 +31,8 @@ public:
 
 	// Using Mode or Not
 	bool bUsingMode = false;
+	// Is Firing or Not
+	bool bIsFire = false;
 
 	// 일반 조준 크로스헤어 UI 위젯 공장
 	UPROPERTY(EditAnywhere, Category = GunUI)

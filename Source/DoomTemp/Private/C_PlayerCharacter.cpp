@@ -2,14 +2,16 @@
 
 
 #include "C_PlayerCharacter.h"
-#include "Camera/CameraComponent.h"
-#include "InputActionValue.h"
-#include "EnhancedInputComponent.h"
-#include "EnhancedInputSubsystems.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Camera/CameraComponent.h"
 #include "C_GunSkeletalMeshComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "EnhancedInputSubsystems.h"
+#include "EnhancedInputComponent.h"
+#include "InputActionValue.h"
+#include "C_PlasmaGun.h"
 #include "C_SniperGun.h"
+#include "C_ShotGun.h"
 
 // Sets default values
 AC_PlayerCharacter::AC_PlayerCharacter()
@@ -19,7 +21,7 @@ AC_PlayerCharacter::AC_PlayerCharacter()
 
 
 	// Set Character Default Mesh's Location
-	GetMesh()->SetRelativeLocation(FVector(-50.0, 10.0, 40.0));
+	GetMesh()->SetRelativeLocation(FVector(-50.0, 10.0, 50.0));
 
 	// Create FPS Camera Component
 	FPSCamComp = CreateDefaultSubobject<UCameraComponent>(TEXT("FPSCamera"));
@@ -38,7 +40,7 @@ AC_PlayerCharacter::AC_PlayerCharacter()
 	FPSMeshComp->SetupAttachment(FPSCamComp);
 
 	// Load Skeletal Mesh
-	ConstructorHelpers::FObjectFinder<USkeletalMesh> TempMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/SHS/Designs/KrissVector/vector.vector'"));
+	ConstructorHelpers::FObjectFinder<USkeletalMesh> TempMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/KrissVector/vector.vector'"));
 
 	// If Skeletal Mesh Loaded
 	if (TempMesh.Succeeded()) {
@@ -67,11 +69,11 @@ AC_PlayerCharacter::AC_PlayerCharacter()
 	{
 		{
 			// Create Gun Mesh Component
-			PlasmaMesh = CreateDefaultSubobject<UC_GunSkeletalMeshComponent>(TEXT("PlasmaMesh"));
+			PlasmaMesh = CreateDefaultSubobject<UC_PlasmaGun>(TEXT("PlasmaMesh"));
 			// Attach Mesh Component to Camera Component
 			PlasmaMesh->SetupAttachment(GetMesh());
 			// Load Skeletal Mesh
-			ConstructorHelpers::FObjectFinder<USkeletalMesh> GunMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/FPWeapon/Mesh/SK_FPGun.SK_FPGun'"));
+			ConstructorHelpers::FObjectFinder<USkeletalMesh> GunMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/SHS/Designs/Experimental_Rifle_Coilgun/vector.vector'"));
 
 			// If Skeletal Mesh Loaded
 			if (GunMesh.Succeeded()) {
@@ -88,7 +90,7 @@ AC_PlayerCharacter::AC_PlayerCharacter()
 			// Attach Mesh Component to Camera Component
 			SniperMesh->SetupAttachment(GetMesh());
 			// Load Skeletal Mesh
-			ConstructorHelpers::FObjectFinder<USkeletalMesh> GunMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/SHS/Designs/SV-98_Sniper/source/vector.vector'"));
+			ConstructorHelpers::FObjectFinder<USkeletalMesh> GunMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/SV-98_Sniper/source/vector.vector'"));
 
 			// If Skeletal Mesh Loaded
 			if (GunMesh.Succeeded()) {
@@ -101,21 +103,21 @@ AC_PlayerCharacter::AC_PlayerCharacter()
 			}
 		}
  		{
-// 			// Create Gun Mesh Component
-// 			ShotgunMesh = CreateDefaultSubobject<UC_GunSkeletalMeshComponent>(TEXT("ShotgunMesh"));
-// 			// Attach Mesh Component to Camera Component
-// 			ShotgunMesh->SetupAttachment(GetMesh());
-// 			// Load Skeletal Mesh
-// 			ConstructorHelpers::FObjectFinder<USkeletalMesh> GunMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/FPWeapon/Mesh/SK_FPGun.SK_FPGun'"));
-// 
-// 			// If Skeletal Mesh Loaded
-// 			if (GunMesh.Succeeded()) {
-// 				// Set Loaded Mesh
-// 				ShotgunMesh->SetSkeletalMesh(GunMesh.Object);
-// 
-// 				// Set Mesh Component's Location and Rotation
-// 				ShotgunMesh->SetRelativeLocationAndRotation(FVector(-30.0f, 0.0f, -150.0f), FRotator(0.0f, -90.0f, 0.0f));
-// 			}
+			// Create Gun Mesh Component
+			ShotgunMesh = CreateDefaultSubobject<UC_GunSkeletalMeshComponent>(TEXT("ShotgunMesh"));
+			// Attach Mesh Component to Camera Component
+			ShotgunMesh->SetupAttachment(GetMesh());
+			// Load Skeletal Mesh
+			ConstructorHelpers::FObjectFinder<USkeletalMesh> GunMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/package/Skeleton_mesh/SKM_Shotgun.SKM_Shotgun'"));
+
+			// If Skeletal Mesh Loaded
+			if (GunMesh.Succeeded()) {
+				// Set Loaded Mesh
+				ShotgunMesh->SetSkeletalMesh(GunMesh.Object);
+
+				// Set Mesh Component's Location and Rotation
+				ShotgunMesh->SetRelativeLocationAndRotation(FVector(-30.0f, 0.0f, -150.0f), FRotator(0.0f, -90.0f, 0.0f));
+			}
  		}
 	}
 
@@ -139,7 +141,7 @@ void AC_PlayerCharacter::BeginPlay()
 
 	SetWeaponActive(EWeaponType::Plasma, false);
 	SetWeaponActive(EWeaponType::Sniper, false);
-	SetWeaponActive(EWeaponType::Shotgun, false);
+	//SetWeaponActive(EWeaponType::Shotgun, false);
 	SetWeaponActive(mWeaponType, true);
 
 // 	for (int32 i = 0; i < 3; i++) {
@@ -183,6 +185,7 @@ void AC_PlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		//PlayerInput->BindAction(IA_Move, ETriggerEvent::Completed, this, &AC_PlayerCharacter::ResetDashDir);
 
 		PlayerInput->BindAction(IA_Fire, ETriggerEvent::Started, this, &AC_PlayerCharacter::OnFire);
+		PlayerInput->BindAction(IA_Fire, ETriggerEvent::Completed, this, &AC_PlayerCharacter::OnFire);
 
 		PlayerInput->BindAction(IA_UseMode, ETriggerEvent::Started, this, &AC_PlayerCharacter::OnUseMode);
 		PlayerInput->BindAction(IA_UseMode, ETriggerEvent::Completed, this, &AC_PlayerCharacter::OnUseMode);
@@ -279,6 +282,8 @@ void AC_PlayerCharacter::ResetDashCount(float InDeltaTime)
 
 void AC_PlayerCharacter::OnFire(const struct FInputActionValue& inputValue)
 {
+	bIsFire = !bIsFire;
+
 	switch (mWeaponType)
 	{
 		case EWeaponType::Plasma:	{Fire_Plasma();}	break;
@@ -308,9 +313,9 @@ void AC_PlayerCharacter::OnUseMode(const struct FInputActionValue& inputValue)
 {
 	switch (mWeaponType)
 	{
-		case EWeaponType::Plasma: { PlasmaMesh->bUsingMode		= !(PlasmaMesh->bUsingMode); }		break;
-		case EWeaponType::Sniper: { SniperMesh->OnUseMode(); }		break;
-		case EWeaponType::Shotgun: { ShotgunMesh->bUsingMode	= !(ShotgunMesh->bUsingMode); }		break;
+		case EWeaponType::Plasma:	{ PlasmaMesh->OnUseMode(); }	break;
+		case EWeaponType::Sniper:	{ SniperMesh->OnUseMode(); }	break;
+		case EWeaponType::Shotgun:	{ ShotgunMesh->OnUseMode(); }	break;
 	}
 }
 
@@ -323,12 +328,12 @@ void AC_PlayerCharacter::ChangeWeapon(EWeaponType InChangeType)
 
 void AC_PlayerCharacter::SetWeaponActive(EWeaponType InChangeType, bool InActive)
 {
-// 	switch (InChangeType)
-// 	{
-// 		case EWeaponType::Plasma:	{ PlasmaMesh->SetVisibility(InActive); }	break;
-// 		case EWeaponType::Sniper:	{ SniperMesh->SetVisibility(InActive); }	break;
-// 		case EWeaponType::Shotgun:	{ ShotgunMesh->SetVisibility(InActive); }	break;
-// 	}
+	switch (InChangeType)
+	{
+		case EWeaponType::Plasma:	{ PlasmaMesh->SetVisibility(InActive); }	break;
+		case EWeaponType::Sniper:	{ SniperMesh->SetVisibility(InActive); }	break;
+		//case EWeaponType::Shotgun:	{ ShotgunMesh->SetVisibility(InActive); }	break;
+	}
 }
 
 UCameraComponent* AC_PlayerCharacter::GetCameraComponent()

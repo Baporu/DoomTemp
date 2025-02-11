@@ -6,7 +6,7 @@
 #include "GameFramework/Character.h"
 #include "C_PlayerCharacter.generated.h"
 
-// Define Player's Weapon State
+// 플레이어의 무기 종류
 UENUM()
 enum class EWeaponType : uint8 {
 	Plasma,
@@ -15,9 +15,9 @@ enum class EWeaponType : uint8 {
 	MAX
 };
 
-// Define Player's Attack Type
+// 플레이어의 공격 종류
 UENUM()
-enum class EAttackType : uint8 {
+enum class EAttackType {
 	Fist,
 	Gun,
 	GloryKill,
@@ -47,7 +47,7 @@ public:
 
 
 public:
-	// FPS Camera
+	// 1인칭 카메라 컴포넌트
 	UPROPERTY(EditAnywhere)
 	class UCameraComponent* FPSCamComp;
 

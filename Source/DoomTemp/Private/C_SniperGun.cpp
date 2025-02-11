@@ -22,6 +22,39 @@ void UC_SniperGun::BeginPlay()
 
 void UC_SniperGun::OnFire()
 {
+	bIsFire = !bIsFire;
+
+	if (bIsFire) {
+		SniperAttack();
+	}
+}
+
+void UC_SniperGun::OnUseMode()
+{
+	bUsingMode = !bUsingMode;
+
+	if (bUsingMode) {
+		// 스나이퍼 조준 UI 등록
+		SniperUI->AddToViewport();
+		// 카메라의 시야각인 FOV(Field Of View) 조절
+		FPSCam->SetFieldOfView(45.0f);
+
+		// 일반 조준 UI 제거
+		CrossHairUI->RemoveFromParent();
+	}
+	else {
+		// 스나이퍼 조준 UI 제거
+		SniperUI->RemoveFromParent();
+		// 카메라의 FOV를 원래대로 복원
+		FPSCam->SetFieldOfView(90.0f);
+
+		// 일반 조준 UI 등록
+		CrossHairUI->AddToViewport();
+	}
+}
+
+void UC_SniperGun::SniperAttack()
+{
 	if (CurrentAmmo <= 0)
 		return;
 
@@ -64,35 +97,11 @@ void UC_SniperGun::OnFire()
 		}
 
 		// Debug LineTrace
-		DrawDebugLine(GetWorld(), startPos, endPos, FColor::Blue, false, 2.0f, 0, 10.0f);
+		DrawDebugLine(GetWorld(), startPos, endPos, FColor::Blue, false, 2.0f, 0, 1.0f);
 	}
 
 	else {
 		Super::OnFire();
-	}
-}
-
-void UC_SniperGun::OnUseMode()
-{
-	bUsingMode = !bUsingMode;
-
-	if (bUsingMode) {
-		// 스나이퍼 조준 UI 등록
-		SniperUI->AddToViewport();
-		// 카메라의 시야각인 FOV(Field Of View) 조절
-		FPSCam->SetFieldOfView(45.0f);
-
-		// 일반 조준 UI 제거
-		CrossHairUI->RemoveFromParent();
-	}
-	else {
-		// 스나이퍼 조준 UI 제거
-		SniperUI->RemoveFromParent();
-		// 카메라의 FOV를 원래대로 복원
-		FPSCam->SetFieldOfView(90.0f);
-
-		// 일반 조준 UI 등록
-		CrossHairUI->AddToViewport();
 	}
 }
 

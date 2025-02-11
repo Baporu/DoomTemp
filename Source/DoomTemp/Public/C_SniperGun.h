@@ -38,4 +38,6 @@ public:
 	virtual void OnFire() override;
 	// Mouse Right Click Event
 	virtual void OnUseMode() override;
+
+	void SniperAttack();
 };
