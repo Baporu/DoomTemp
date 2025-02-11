@@ -17,7 +17,7 @@ enum class EWeaponType : uint8 {
 
 // Define Player's Attack Type
 UENUM()
-enum class EAttackType : uint8 {
+enum class EAttackType {
 	Fist,
 	Gun,
 	GloryKill,

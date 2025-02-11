@@ -7,7 +7,7 @@ AC_EnemyA::AC_EnemyA()
     PrimaryActorTick.bCanEverTick = true;
 
     /***** Skeletal Mesh *****/
-    ConstructorHelpers::FObjectFinder<USkeletalMesh> skeleton(L"/Script/Engine.SkeletalMesh'/Game/DYL/Designs/zombie-number-1-animated/source/zom_1.zom_1'");
+    ConstructorHelpers::FObjectFinder<USkeletalMesh> skeleton(L"/Script/Engine.SkeletalMesh'/Game/zombie-number-1-animated/source/zom_1.zom_1'");
     if (skeleton.Succeeded())
     {
         GetMesh()->SetSkeletalMesh(skeleton.Object);
@@ -26,7 +26,7 @@ void AC_EnemyA::BeginPlay()
 {
     Super::BeginPlay();
 
-    HP = 0;
+    //HP = 0;
 }
 
 void AC_EnemyA::Tick(float DeltaTime)

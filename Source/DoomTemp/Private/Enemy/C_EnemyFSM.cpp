@@ -187,7 +187,7 @@ void UC_EnemyFSM::DamageState()
 	CurTime += GetWorld()->DeltaTimeSeconds;
 
 	// 데미지 처리 함수 호출
-	Self->
+
 
 	if (CurTime > DamageDelayTime)
 	{
@@ -197,17 +197,17 @@ void UC_EnemyFSM::DamageState()
 }
 
 
-void UC_EnemyFSM::OnDamageProcess(int32 InVal)
-{
-	// 1. HP를 깎는다
-	Self->SetHP(InVal);
-
-	// EnemyMovement의 값에 따라 EnemyState를 바꾼다
-	if(EnemyMovement != EEnemyMovement::DEAD)
-		EnemyState = EEnemyState::DAMAGE;
-	else
-		EnemyState =  EEnemyState::DEAD;
-}
+//void UC_EnemyFSM::OnDamageProcess(int32 InVal)
+//{
+//	// 1. HP를 깎는다
+//	Self->SetHP(InVal);
+//
+//	// EnemyMovement의 값에 따라 EnemyState를 바꾼다
+//	if(EnemyMovement != EEnemyMovement::DEAD)
+//		EnemyState = EEnemyState::DAMAGE;
+//	else
+//		EnemyState =  EEnemyState::DEAD;
+//}
 
 
 void UC_EnemyFSM::DeadState()
@@ -224,12 +224,6 @@ void UC_EnemyFSM::DeadState()
 		// 4. Enemy를 제거시킨다
 		Self->Destroy();
 	}
-}
-
-
-void UC_EnemyFSM::SetEnemyDamaged(EEnemyDamaged InVal)
-{
-	EnemyDamaged = InVal;
 }
 
 void UC_EnemyFSM::SetEnemyMovement(EEnemyMovement InVal)

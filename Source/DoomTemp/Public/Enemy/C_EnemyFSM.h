@@ -28,21 +28,7 @@ enum class EEnemyMovement : uint8
 	WALK = 0,			// 걷기
 	FLINCH,				// 비틀거리기
 	STAGGER,			// 주춤거리기
-	DEAD	,			// 죽음
 	MAX
-};
-
-
-/***** Sub State - Damaged *****/
-// TickComponent에서 관리 X - Enemy쪽 Tick에서 체크함
-UENUM(BlueprintType)
-enum class EEnemyDamaged : uint8
-{
-    FIST = 0,			// 주먹
-    GUN,				// 총
-    GLORYKILL,			// 글로리 킬
-    CHAINSAW,			// 전기톱
-    MAX					// 공격받고 있지 않음
 };
 
 
@@ -65,10 +51,6 @@ protected:
 	// Main state
     UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "FSM")
 	EEnemyState EnemyState = EEnemyState::MAX;
-
-	// Sub state - 어떤 공격을 받았는가
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "FSM")
-	EEnemyDamaged EnemyDamaged = EEnemyDamaged::MAX;
 
 	// Sub state - 어떻게 움직이고 있는가
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "FSM")
@@ -131,7 +113,6 @@ public:
 	void DeadState();
 
 public:
-	void SetEnemyDamaged(EEnemyDamaged InVal);
 	void SetEnemyMovement(EEnemyMovement InVal);
 	void SetEnemyState(EEnemyState InVal);
 };

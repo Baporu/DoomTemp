@@ -3,6 +3,7 @@
 #include "GameFramework/Character.h"
 #include <GameFramework/CharacterMovementComponent.h>
 #include "Enemy/C_EnemyFSM.h"
+#include "C_PlayerCharacter.h"
 
 
 AC_Enemy::AC_Enemy()
@@ -53,7 +54,7 @@ float AC_Enemy::GetSpeed()
 
 void AC_Enemy::SetHP(int32 InHP)
 {
-    HP += InHP;
+    HP -= InHP;
 }
 
 
@@ -77,17 +78,22 @@ void AC_Enemy::CheckState()
     }
     else
     {
-        FSM->SetEnemyMovement(EEnemyMovement::DEAD);
         FSM->SetEnemyState(EEnemyState::DEAD);
     }
 }
 
 
-void AC_Enemy::OnDamaged(int32 InDamage, enum class EAttackType)
+// 데미지 처리
+void AC_Enemy::OnDamaged(int32 InDamage, enum class EAttackType InAttackType)
 {
+    // 1. HP를 깎는다
+    SetHP(InDamage);
 
+    // 2. Enemy 상태 변경
+    CheckState();
 }
 
+// 사망 처리
 void AC_Enemy::OnDead()
 {
     // 1. 바닥에 피 VFX가 나타난다
