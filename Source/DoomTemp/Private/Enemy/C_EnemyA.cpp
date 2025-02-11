@@ -1,5 +1,6 @@
 #include "Enemy/C_EnemyA.h"
 #include "Engine/SkeletalMesh.h"
+#include "C_Helpers.h"
 
 AC_EnemyA::AC_EnemyA()
 {
@@ -24,9 +25,12 @@ AC_EnemyA::AC_EnemyA()
 void AC_EnemyA::BeginPlay()
 {
     Super::BeginPlay();
+
+    HP = 0;
 }
 
 void AC_EnemyA::Tick(float DeltaTime)
 {
-    
+    Super::Tick(DeltaTime);
+
 }

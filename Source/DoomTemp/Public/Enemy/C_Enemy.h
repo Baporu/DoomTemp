@@ -45,12 +45,8 @@ protected:
     UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "FSMComp")
 	class UC_EnemyFSM* FSM;
 
-	//int32 EnemyState;
-	//int32 EnemyDamaged;
-	//int32 EnemyMove;
 
 	/***** Weapon *****/
-
     UPROPERTY(VisibleAnywhere, Category = "Weapon")
 	class AC_EWeapon* Weapon;
 	#pragma endregion
@@ -67,17 +63,12 @@ public:
 	//float GetLongRange();
 	float GetSpeed();
 
-	//int32 GetEnemyState();
-	int32 GetEnemyDamaged();
-	int32 GetEnemyMove();
 
 	/***** Setters *****/
 	void SetHP(int32 InHP);
 
-	//int32 SetEnemyState();
-	int32 SetEnemyDamaged();
-	int32 SetEnemyMove();
 
 	/***** Functions *****/
 	void CheckState();		// 주춤거리는 상태인지, 비틀거리는 상태인지, 죽었는지 체크
+	void OnDead();			// Enemy 사망 시 처리할 일
 };

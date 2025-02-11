@@ -33,14 +33,15 @@ enum class EEnemyDamaged : uint8
 };
 
 
-/***** Sub State - Move *****/
+/***** Sub State - Movement *****/
 // TickComponent에서 관리 X - Enemy쪽 Tick에서 체크함
 UENUM(BlueprintType)
-enum class EEnemyMove : uint8
+enum class EEnemyMovement : uint8
 {
 	STAGGER = 0,	// 주춤거리기
 	FLINCH,			// 비틀거리기
 	WALK,			// 걷기
+	DEAD,			// 죽음
 	MAX
 };
 
@@ -71,7 +72,7 @@ protected:
 
 	// Sub state - 어떻게 움직이고 있는가
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "FSM")
-	EEnemyMove EnemyMove = EEnemyMove::WALK;
+	EEnemyMovement EnemyMovement = EEnemyMovement::WALK;
 	
 
 	/***** AI Controller *****/
@@ -91,6 +92,10 @@ protected:
 	float CurTime = 0.f;			// 경과 시간
 	UPROPERTY(EditDefaultsOnly, Category = "FSM")
 	float AttackDelayTime = 2.f;	// 공격 대기 시간
+    UPROPERTY(EditAnywhere, Category = "FSM")
+	float DamageDelayTime = 2.f;	// 피격 대기 시간
+	UPROPERTY(EditAnywhere, Category = "FSM")
+	float DestroyDelayTime = 3.f;	// 죽음 후 사라짐 대기 시간
 
 
 	/***** Target & Self *****/
@@ -120,12 +125,13 @@ public:
 
 	// 피격
 	void DamageState();
+	void OnDamageProcess(int32 InVal);
 
 	// 죽음
 	void DeadState();
 
 public:
-	EEnemyMove GetEnemyMove();
 	void SetEnemyDamaged(EEnemyDamaged InVal);
-	void SetEnemyMove(EEnemyMove InVal);
+	void SetEnemyMovement(EEnemyMovement InVal);
+	void SetEnemyState(EEnemyState InVal);
 };

@@ -14,13 +14,9 @@ AC_Enemy::AC_Enemy()
 
 	/***** FSM *****/
     C_Helpers::CreateActorComponent<UC_EnemyFSM>(this, &FSM, "FSM");
-    //EnemyDamaged = int32(EEnemyDamaged::MAX);
-    //EnemyMove = int32(EEnemyMove::WALK);
 
     /***** Weapon *****/
     //C_Helpers::CreateActorComponent<UCWeaponComponent>(this, &Weapon, "Weapon");
-
-    HP = HPFlinched;
 }
 
 void AC_Enemy::BeginPlay()
@@ -49,6 +45,7 @@ float AC_Enemy::GetMeleeRange()
 //}
 
 
+
 float AC_Enemy::GetSpeed()
 {
     return Speed;
@@ -57,64 +54,40 @@ float AC_Enemy::GetSpeed()
 void AC_Enemy::SetHP(int32 InHP)
 {
     HP += InHP;
-    CheckState();
 }
 
 
 /***** Enemy 상태 체크 *****/
 void AC_Enemy::CheckState()
 {
-    #pragma region old
-    //if (HP > HPStaggered)
-    //{
-    //    if (HP <= HPFlinched)
-    //    {
-    //        // Flinch 상태가 된다
-    //        bIsFlinched = true;
-    //        bIsStaggered = false;
-    //    }
-    //    else
-    //    {
-    //        // 기본 상태가 된다
-    //        bIsFlinched = false;
-    //        bIsStaggered = false;
-    //    }
-    //}
-    //else
-    //{
-    //    if(HP == 0)
-    //        bIsDead = true;
-    //    else
-    //    {
-    //        // Stagger 상태가 된다
-    //        bIsFlinched = false;
-    //        bIsStaggered = true;
-    //    }
-    //}
-    #pragma endregion
     /* Enemy Move : Walk > Flinch > Stagger > Dead */
 
-    if (HP > HPStaggered)
+    if (HP > HPFlinched)
     {
-        if (HP > HPFlinched)
-        {
-            // Walk : HPFlinch < HP
-            FSM->SetEnemyMove(EEnemyMove::WALK);
-        }
-        // Flinch : HPStagger < HP <= HPFlinch
-        FSM->SetEnemyMove(EEnemyMove::FLINCH);
+        FSM->SetEnemyMovement(EEnemyMovement::WALK);
+    }
+    else if (HP > HPStaggered)
+    {
+        FSM->SetEnemyMovement(EEnemyMovement::FLINCH);
+
+    }
+    else if (HP > 0.f)
+    {
+        FSM->SetEnemyMovement(EEnemyMovement::STAGGER);
     }
     else
     {
-        if (HP > 0)
-        {
-            // Stagger : 0 < HP <= HPStagger
-            FSM->SetEnemyMove(EEnemyMove::STAGGER);
-        }
-        // Dead : HP <= 0
+        FSM->SetEnemyMovement(EEnemyMovement::DEAD);
+        FSM->SetEnemyState(EEnemyState::DEAD);
     }
+}
 
-    FString DebugMessage = UEnum::GetValueAsString(FSM->GetEnemyMove());
-    GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Magenta, DebugMessage);
+
+void AC_Enemy::OnDead()
+{
+    // 1. 바닥에 피 VFX가 나타난다
+    GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Cyan, FString("Enemy Dead !!!!!"));
+    // 2. 죽음 애니메이션이 재생된다
+
 }
 
