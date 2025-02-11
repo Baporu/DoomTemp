@@ -1,12 +1,13 @@
 #include "Enemy/C_EnemyA.h"
 #include "Engine/SkeletalMesh.h"
+#include "C_Helpers.h"
 
 AC_EnemyA::AC_EnemyA()
 {
     PrimaryActorTick.bCanEverTick = true;
 
     /***** Skeletal Mesh *****/
-    ConstructorHelpers::FObjectFinder<USkeletalMesh> skeleton(L"/Script/Engine.SkeletalMesh'/Game/DYL/Designs/zombie-number-1-animated/source/zom_1.zom_1'");
+    ConstructorHelpers::FObjectFinder<USkeletalMesh> skeleton(L"/Script/Engine.SkeletalMesh'/Game/zombie-number-1-animated/source/zom_1.zom_1'");
     if (skeleton.Succeeded())
     {
         GetMesh()->SetSkeletalMesh(skeleton.Object);
@@ -14,18 +15,22 @@ AC_EnemyA::AC_EnemyA()
         GetMesh()->SetRelativeScale3D(FVector(10.f));
     }
 
-    /***** ABP *****/
-    //ConstructorHelpers:FClassFinder<UAnimInstance> tmpClass( L"/Script/Engine.AnimBlueprint'/Game/DYL/Blueprints/Enemy/ABP_EnemyA.ABP_EnemyA'_C");
-    //if(tmpClass.Succeeded())
-    //    GetMesh()->SetAnimInstanceClass(tmpClass.Class);
+
+    /***** Animation *****/
+    ConstructorHelpers::FClassFinder<UAnimInstance> tmpClass(L"/Game/DYL/Designs/zombie-number-1-animated/source/zom_1.zom_1");
+    if (tmpClass.Succeeded())
+        GetMesh()->SetAnimInstanceClass(tmpClass.Class);
 }
 
 void AC_EnemyA::BeginPlay()
 {
     Super::BeginPlay();
+
+    //HP = 0;
 }
 
 void AC_EnemyA::Tick(float DeltaTime)
 {
-    
+    Super::Tick(DeltaTime);
+
 }

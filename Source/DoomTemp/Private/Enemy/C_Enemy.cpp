@@ -3,6 +3,7 @@
 #include "GameFramework/Character.h"
 #include <GameFramework/CharacterMovementComponent.h>
 #include "Enemy/C_EnemyFSM.h"
+#include "C_PlayerCharacter.h"
 
 
 AC_Enemy::AC_Enemy()
@@ -45,51 +46,59 @@ float AC_Enemy::GetMeleeRange()
 //}
 
 
+
 float AC_Enemy::GetSpeed()
 {
     return Speed;
 }
 
-void AC_Enemy::SetHP(int32 InDamage)
+void AC_Enemy::SetHP(int32 InHP)
 {
-    HP -= InDamage;
-
-    // 실행 창에 상태 메시지 출력하기
-    GEngine->AddOnScreenDebugMessage(0, 1, FColor::Blue, TEXT("Damaged"));
-
-    CheckState();
+    HP -= InHP;
 }
 
 
 /***** Enemy 상태 체크 *****/
-// Flinch 상태인지 체크
 void AC_Enemy::CheckState()
 {
-    if (HP > HPStaggered)
+    /* Enemy Move : Walk > Flinch > Stagger > Dead */
+
+    if (HP > HPFlinched)
     {
-        if (HP <= HPFlinched)
-        {
-            // Flinch 상태가 된다
-            bIsFlinched = true;
-            bIsStaggered = false;
-        }
-        else
-        {
-            // 기본 상태가 된다
-            bIsFlinched = false;
-            bIsStaggered = false;
-        }
+        FSM->SetEnemyMovement(EEnemyMovement::WALK);
+    }
+    else if (HP > HPStaggered)
+    {
+        FSM->SetEnemyMovement(EEnemyMovement::FLINCH);
+
+    }
+    else if (HP > 0.f)
+    {
+        FSM->SetEnemyMovement(EEnemyMovement::STAGGER);
     }
     else
     {
-        if(HP == 0)
-            bIsDead = true;
-        else
-        {
-            // Stagger 상태가 된다
-            bIsFlinched = false;
-            bIsStaggered = true;
-        }
+        FSM->SetEnemyState(EEnemyState::DEAD);
     }
+}
+
+
+// 데미지 처리
+void AC_Enemy::OnDamaged(int32 InDamage, enum class EAttackType InAttackType)
+{
+    // 1. HP를 깎는다
+    SetHP(InDamage);
+
+    // 2. Enemy 상태 변경
+    CheckState();
+}
+
+// 사망 처리
+void AC_Enemy::OnDead()
+{
+    // 1. 바닥에 피 VFX가 나타난다
+    GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Cyan, FString("Enemy Dead !!!!!"));
+    // 2. 죽음 애니메이션이 재생된다
+
 }
 

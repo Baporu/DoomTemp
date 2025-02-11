@@ -6,37 +6,28 @@
 #include "Components/ActorComponent.h"
 #include "C_EnemyFSM.generated.h"
 
-UENUM(BlueprintType)
 /***** Main State *****/
+// TickComponent에서 관리
+UENUM(BlueprintType)
 enum class EEnemyState : uint8
 {
-    SPAWN,			// 등장
-    IDLE,			// 대기
-    MOVE,			// 이동
-    ATTACK,			// 공격
-	DAMAGE,         // 피격
-	DEAD,			// 죽음
-	MAX
+    IDLE = 0,			// 대기
+    MOVE,				// 이동
+    ATTACK,				// 공격
+	DAMAGE,				// 피격
+	DEAD,				// 죽음
+	MAX					// 등장
 };
 
 
-/***** Sub State - Damaged *****/
-enum class EEnemyDamaged : uint8
+/***** Sub State - Movement *****/
+// TickComponent에서 관리 X - Enemy쪽 Tick에서 체크함
+UENUM(BlueprintType)
+enum class EEnemyMovement : uint8
 {
-	FIST, 
-	GUN, 
-	GLORYKILL, 
-	CHAINSAW,
-	MAX
-};
-
-
-/***** Sub State - Move *****/
-enum class EEnemyMove
-{
-	WALK, 
-	RUN, 
-	STAGGER, 
+	WALK = 0,			// 걷기
+	FLINCH,				// 비틀거리기
+	STAGGER,			// 주춤거리기
 	MAX
 };
 
@@ -55,12 +46,19 @@ protected:
 public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-public:
-	// 상태 변수
+protected:
+	/***** State *****/
+	// Main state
     UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "FSM")
-	EEnemyState EnemyState = EEnemyState::IDLE;
+	EEnemyState EnemyState = EEnemyState::MAX;
+
+	// Sub state - 어떻게 움직이고 있는가
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "FSM")
+	EEnemyMovement EnemyMovement = EEnemyMovement::WALK;
 	
-	// Enemy를 소유하고 고 있는 AIController
+
+	/***** AI Controller *****/
+	// Enemy를 소유하고 있는 AIController
 	UPROPERTY()
 	class AAIController* MyAI;
 	
@@ -76,6 +74,10 @@ public:
 	float CurTime = 0.f;			// 경과 시간
 	UPROPERTY(EditDefaultsOnly, Category = "FSM")
 	float AttackDelayTime = 2.f;	// 공격 대기 시간
+    UPROPERTY(EditAnywhere, Category = "FSM")
+	float DamageDelayTime = 2.f;	// 피격 대기 시간
+	UPROPERTY(EditAnywhere, Category = "FSM")
+	float DestroyDelayTime = 3.f;	// 죽음 후 사라짐 대기 시간
 
 
 	/***** Target & Self *****/
@@ -105,7 +107,12 @@ public:
 
 	// 피격
 	void DamageState();
+	void OnDamageProcess(int32 InVal);
 
 	// 죽음
 	void DeadState();
+
+public:
+	void SetEnemyMovement(EEnemyMovement InVal);
+	void SetEnemyState(EEnemyState InVal);
 };

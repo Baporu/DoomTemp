@@ -9,6 +9,7 @@
 #include "Runtime/AIModule/Classes/AIController.h"
 #include "Runtime/AIModule/Classes/Navigation/PathFollowingComponent.h"
 
+
 UC_EnemyFSM::UC_EnemyFSM()
 {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -23,17 +24,14 @@ void UC_EnemyFSM::BeginPlay()
 
 	/***** Target & Self *****/
 	auto actor = UGameplayStatics::GetActorOfClass( GetWorld(), AC_PlayerCharacter::StaticClass() );
+	CheckNull(actor);
 	Target = Cast<AC_PlayerCharacter>( actor );
 	Self = Cast<AC_EnemyA>( GetOwner() );
 
 	/***** Attack Range *****/
-	if (!!Self)
-	{
-		MeleeRange = Self->GetMeleeRange();
-		//LongRange = Self->GetLongRange();
-		// Speed = Self->GetSpeed();
-
-	}
+	CheckNull(Self);
+	MeleeRange = Self->GetMeleeRange();
+	//LongRange = Self->GetLongRange();
 	
 
 	/***** AI Controller *****/
@@ -45,16 +43,11 @@ void UC_EnemyFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// 현재 상태 화면에 출력
-	FString log = UEnum::GetValueAsString(EnemyState);
-	GEngine->AddOnScreenDebugMessage(0, 1, FColor::Red, log);
-
+	//FString DebugMessage = UEnum::GetValueAsString(EnemyState);
+	//GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Red, DebugMessage);
 
 	switch (EnemyState)
 	{
-		case EEnemyState::SPAWN:
-			SpawnState();
-			break;
 		case EEnemyState::IDLE:
 			IdleState();
 			break;
@@ -69,6 +62,9 @@ void UC_EnemyFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 			break;
 		case EEnemyState::DEAD:
 			DeadState();
+			break;
+		case EEnemyState::MAX:
+			SpawnState();
 			break;
 	}
 }
@@ -86,8 +82,10 @@ bool UC_EnemyFSM::GetRandomPositionInNavMesh(FVector InCenterLocation, float InR
 void UC_EnemyFSM::SpawnState()
 {
 	// 1. Spawn VFX를 소환한다
+	
 
 	// 2. Spawn 애니메이션을 재생한다
+
 
 	// 3. Idle 상태로 전환한다
 	EnemyState = EEnemyState::IDLE;
@@ -111,14 +109,8 @@ void UC_EnemyFSM::IdleState()
 
 void UC_EnemyFSM::MoveState()
 {
-	/***** 기본 상태인지, 비틀거리는 상태인지 체크 *****/
-	////////////////////// 이 부분 의문 //////////////////////
-	//if (Self->bIsFlinched == true)
-	//{
-	//	// 1. 일시적으로 움직임이 더뎌진다
-	//
-	//	// 2. 몸이 빨갛게 반짝인다
-	//}
+	FString DebugMessage = UEnum::GetValueAsString(EnemyMovement);
+	GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Magenta, DebugMessage);
 
 
 	/***** 이동 *****/
@@ -127,7 +119,7 @@ void UC_EnemyFSM::MoveState()
 	Self->AddMovementInput(dir.GetSafeNormal());
 
 
-	/*** Patrol ***/
+	/*** 순찰 ***/
 	auto ns = UNavigationSystemV1::GetNavigationSystem(GetWorld());
 	FPathFindingQuery query;
 	FAIMoveRequest req;
@@ -159,6 +151,7 @@ void UC_EnemyFSM::MoveState()
 	}
 }
 
+
 void UC_EnemyFSM::AttackState()
 {
 	float distance = FVector::Distance( Target->GetActorLocation(), Self->GetActorLocation() );
@@ -166,13 +159,14 @@ void UC_EnemyFSM::AttackState()
 	CurTime += GetWorld()->DeltaTimeSeconds;
 	
 	///// 추가 : 타겟이 있을 때만 공격하도록 - 타겟이 죽었는데 공격하면 안되니까
+
 	if (CurTime > AttackDelayTime)
 	{
 		// 근거리 공격을 한다
-		GEngine->AddOnScreenDebugMessage(0, 1, FColor::Blue, L"Long Range Attack!!!!!");
+		GEngine->AddOnScreenDebugMessage(0, 1, FColor::Blue, L"Melee Attack!!!!!");
 
         //// 원거리 공격을 한다
-        //GEngine->AddOnScreenDebugMessage(0, 1, FColor::Blue, L"Melee Attack!!!!!");
+        //GEngine->AddOnScreenDebugMessage(0, 1, FColor::Blue, L"Long Range Attack!!!!!");
 
 		CurTime = 0.f;
 	}
@@ -187,13 +181,57 @@ void UC_EnemyFSM::AttackState()
 	}
 }
 
+
 void UC_EnemyFSM::DamageState()
 {
+	CurTime += GetWorld()->DeltaTimeSeconds;
 
+	// 데미지 처리 함수 호출
+
+
+	if (CurTime > DamageDelayTime)
+	{
+		EnemyState = EEnemyState::IDLE;
+		CurTime = 0.f;
+	}
 }
+
+
+//void UC_EnemyFSM::OnDamageProcess(int32 InVal)
+//{
+//	// 1. HP를 깎는다
+//	Self->SetHP(InVal);
+//
+//	// EnemyMovement의 값에 따라 EnemyState를 바꾼다
+//	if(EnemyMovement != EEnemyMovement::DEAD)
+//		EnemyState = EEnemyState::DAMAGE;
+//	else
+//		EnemyState =  EEnemyState::DEAD;
+//}
+
 
 void UC_EnemyFSM::DeadState()
 {
+	// 1. 죽음 처리시 할 일을 한다
+	Self->OnDead();
 
+	// 2. 시간이 흐르다가
+	CurTime += GetWorld()->DeltaRealTimeSeconds;
+
+	// 3. 경과 시간이 대기 시간을 초과하면
+	if (CurTime > DestroyDelayTime)
+	{
+		// 4. Enemy를 제거시킨다
+		Self->Destroy();
+	}
 }
 
+void UC_EnemyFSM::SetEnemyMovement(EEnemyMovement InVal)
+{
+	EnemyMovement = InVal;
+}
+
+void UC_EnemyFSM::SetEnemyState(EEnemyState InVal)
+{
+	EnemyState = InVal;
+}

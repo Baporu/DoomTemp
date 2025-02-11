@@ -40,12 +40,17 @@ protected:
 	//float LongRange = 0.f;				// 원거리 인식 거리
 	//int32 LongRangeDamage = 0;			// 원거리 공격 시 가할 데미지
 
+
+	/***** FSM *****/
     UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "FSMComp")
 	class UC_EnemyFSM* FSM;
 
+
+	/***** Weapon *****/
     UPROPERTY(VisibleAnywhere, Category = "Weapon")
 	class AC_EWeapon* Weapon;
 	#pragma endregion
+
 
 public:
 	bool bIsFlinched = false;
@@ -57,7 +62,7 @@ public:
 	float GetMeleeRange();
 	//float GetLongRange();
 	float GetSpeed();
-	
+
 
 	/***** Setters *****/
 	void SetHP(int32 InDamage);
@@ -65,4 +70,6 @@ public:
 
 	/***** Functions *****/
 	void CheckState();		// 주춤거리는 상태인지, 비틀거리는 상태인지, 죽었는지 체크
+	void OnDamaged(int32 InDamage, enum class EAttackType InAttackType);
+	void OnDead();			// Enemy 사망 시 처리할 일
 };
