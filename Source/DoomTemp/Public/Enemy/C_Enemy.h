@@ -70,5 +70,6 @@ public:
 
 	/***** Functions *****/
 	void CheckState();		// 주춤거리는 상태인지, 비틀거리는 상태인지, 죽었는지 체크
+	void OnDamaged(int32 InDamage, enum class EAttackType );
 	void OnDead();			// Enemy 사망 시 처리할 일
 };

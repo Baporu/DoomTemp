@@ -30,11 +30,9 @@ void UC_EnemyFSM::BeginPlay()
 
 
 	/***** Attack Range *****/
-	if (!!Self)
-	{
-		MeleeRange = Self->GetMeleeRange();
-		//LongRange = Self->GetLongRange();
-	}
+	CheckNull(Self);
+	MeleeRange = Self->GetMeleeRange();
+	//LongRange = Self->GetLongRange();
 	
 
 	/***** AI Controller *****/
@@ -188,6 +186,9 @@ void UC_EnemyFSM::AttackState()
 void UC_EnemyFSM::DamageState()
 {
 	CurTime += GetWorld()->DeltaTimeSeconds;
+
+	// 데미지 처리 함수 호출
+	Self->
 
 	if (CurTime > DamageDelayTime)
 	{

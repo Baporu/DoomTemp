@@ -83,6 +83,11 @@ void AC_Enemy::CheckState()
 }
 
 
+void AC_Enemy::OnDamaged(int32 InDamage, enum class EAttackType)
+{
+
+}
+
 void AC_Enemy::OnDead()
 {
     // 1. 바닥에 피 VFX가 나타난다
