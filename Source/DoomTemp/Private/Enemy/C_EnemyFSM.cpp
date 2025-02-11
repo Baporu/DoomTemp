@@ -158,7 +158,8 @@ void UC_EnemyFSM::AttackState()
 	
 	CurTime += GetWorld()->DeltaTimeSeconds;
 	
-	///// 추가 : 타겟이 있을 때만 공격하도록 - 타겟이 죽었는데 공격하면 안되니까
+	// 타겟이 있을 때만 공격하도록 - 타겟이 죽었는데 공격하면 안되니까
+	CheckNull(Target);
 
 	if (CurTime > AttackDelayTime)
 	{
@@ -184,30 +185,26 @@ void UC_EnemyFSM::AttackState()
 
 void UC_EnemyFSM::DamageState()
 {
-	CurTime += GetWorld()->DeltaTimeSeconds;
-
-	// 데미지 처리 함수 호출
-
-
-	if (CurTime > DamageDelayTime)
+	// 1. Attack Type에 따른 애니메이션 및 이펙트 실행
+	switch (AttackType)
 	{
-		EnemyState = EEnemyState::IDLE;
-		CurTime = 0.f;
+		case EAttackType::Fist:
+			GEngine->AddOnScreenDebugMessage(0, 1, FColor::Orange, L"-----Damage FIST-----");
+			break;
+		case EAttackType::Gun:
+			GEngine->AddOnScreenDebugMessage(0, 1, FColor::Orange, L"-----Damage GUN-----");
+			break;
+		case EAttackType::GloryKill:
+			GEngine->AddOnScreenDebugMessage(0, 1, FColor::Orange, L"-----Damage GLORYKILL-----");
+			break;
+		case EAttackType::Chainsaw:
+			GEngine->AddOnScreenDebugMessage(0, 1, FColor::Orange, L"-----Damage CHAINSAW-----");
+			break;
 	}
+
+	// 2. Enemy 상태를 IDLE로 변경
+	EnemyState = EEnemyState::IDLE;
 }
-
-
-//void UC_EnemyFSM::OnDamageProcess(int32 InVal)
-//{
-//	// 1. HP를 깎는다
-//	Self->SetHP(InVal);
-//
-//	// EnemyMovement의 값에 따라 EnemyState를 바꾼다
-//	if(EnemyMovement != EEnemyMovement::DEAD)
-//		EnemyState = EEnemyState::DAMAGE;
-//	else
-//		EnemyState =  EEnemyState::DEAD;
-//}
 
 
 void UC_EnemyFSM::DeadState()
@@ -234,4 +231,9 @@ void UC_EnemyFSM::SetEnemyMovement(EEnemyMovement InVal)
 void UC_EnemyFSM::SetEnemyState(EEnemyState InVal)
 {
 	EnemyState = InVal;
+}
+
+void UC_EnemyFSM::SetAttackType(EAttackType InVal)
+{
+	AttackType = InVal;
 }

@@ -47,8 +47,11 @@ protected:
 
 
 	/***** Weapon *****/
-    UPROPERTY(VisibleAnywhere, Category = "Weapon")
-	class AC_EWeapon* Weapon;
+    //UPROPERTY(VisibleAnywhere, Category = "Weapon")
+	//class AC_EWeapon* Weapon;
+	// Weapon component 안에 Weapon이 있으니까 Weapon Comp로 Weapon에 접근 가능
+    UPROPERTY(VisibleAnywhere)
+	class UC_EWeaponComp* Weapon;
 	#pragma endregion
 
 

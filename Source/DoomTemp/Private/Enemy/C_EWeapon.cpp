@@ -33,28 +33,37 @@ void AC_EWeapon::Tick(float DeltaTime)
 
 }
 
+// AnyState인지 체크
 bool AC_EWeapon::CanEquip()
 {
 	return true;
 }
 
+// 호출ㅁㅏㄴ
 void AC_EWeapon::Equip()
 {
 	
 }
 
+// 호출만
 void AC_EWeapon::BeginEquip()
 {
 
 }
 
+// 호출만
 void AC_EWeapon::EndEquip()
 {
 
 }
 
+// 상태에는 우선순위가 있다
+// AnyState : Hit, Dead가 우선순위가 제일 높음
+
 bool AC_EWeapon::CanUnequip()
 {
+	// idle ㅅㅏㅇ태가 아니면
+	// true 
 	return true;
 }
 

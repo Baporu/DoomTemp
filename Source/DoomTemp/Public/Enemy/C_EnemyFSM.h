@@ -20,7 +20,7 @@ enum class EEnemyState : uint8
 };
 
 
-/***** Sub State - Movement *****/
+/***** Sub State - Movement Type *****/
 // TickComponent에서 관리 X - Enemy쪽 Tick에서 체크함
 UENUM(BlueprintType)
 enum class EEnemyMovement : uint8
@@ -31,6 +31,9 @@ enum class EEnemyMovement : uint8
 	MAX
 };
 
+/***** Sub State - Attack Type *****/
+// Player에서 관리중 / 전방 선언
+enum class EAttackType;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class DOOMTEMP_API UC_EnemyFSM : public UActorComponent
@@ -55,6 +58,10 @@ protected:
 	// Sub state - 어떻게 움직이고 있는가
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "FSM")
 	EEnemyMovement EnemyMovement = EEnemyMovement::WALK;
+
+
+	// Sub state - 어떤 공격을 받았는가
+	EAttackType AttackType;
 	
 
 	/***** AI Controller *****/
@@ -107,7 +114,6 @@ public:
 
 	// 피격
 	void DamageState();
-	void OnDamageProcess(int32 InVal);
 
 	// 죽음
 	void DeadState();
@@ -115,4 +121,5 @@ public:
 public:
 	void SetEnemyMovement(EEnemyMovement InVal);
 	void SetEnemyState(EEnemyState InVal);
+	void SetAttackType(EAttackType InVal);
 };
