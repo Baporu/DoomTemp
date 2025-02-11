@@ -11,7 +11,18 @@ UENUM()
 enum class EWeaponType : uint8 {
 	Plasma,
 	Sniper,
-	Shotgun
+	Shotgun,
+	MAX
+};
+
+// Define Player's Attack Type
+UENUM()
+enum class EAttackType : uint8 {
+	Fist,
+	Gun,
+	GloryKill,
+	Chainsaw,
+	MAX
 };
 
 UCLASS()
