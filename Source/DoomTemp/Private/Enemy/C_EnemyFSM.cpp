@@ -6,8 +6,8 @@
 
 #include "NavigationSystem.h"
 #include <Runtime/AIModule/Classes/AITypes.h>
-#include <AIController.h>
-#include "Navigation/PathFollowingComponent.h"
+#include "Runtime/AIModule/Classes/AIController.h"
+#include "Runtime/AIModule/Classes/Navigation/PathFollowingComponent.h"
 
 
 UC_EnemyFSM::UC_EnemyFSM()
@@ -27,7 +27,6 @@ void UC_EnemyFSM::BeginPlay()
 	CheckNull(actor);
 	Target = Cast<AC_PlayerCharacter>( actor );
 	Self = Cast<AC_EnemyA>( GetOwner() );
-
 
 	/***** Attack Range *****/
 	CheckNull(Self);
