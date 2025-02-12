@@ -20,7 +20,7 @@ AC_PlayerCharacter::AC_PlayerCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 
-	// Set Character Default Mesh's Location
+	// Character 클래스 기본 메쉬 위치 설정 (= 총기 기본 위치)
 	GetMesh()->SetRelativeLocation(FVector(-50.0, 10.0, 50.0));
 
 	// Create FPS Camera Component
@@ -130,6 +130,7 @@ void AC_PlayerCharacter::BeginPlay()
 	Super::BeginPlay();
 	
 
+	// 플레이어 컨트롤러 가져오고 IMC와 매핑
 	auto pc = Cast<APlayerController>(Controller);
 
 	if (pc) {
@@ -140,6 +141,10 @@ void AC_PlayerCharacter::BeginPlay()
 		}
 	}
 
+	// 연사 속도 초기화
+	AttackTimer = AttackRate;
+
+	// 모든 무기 비활성화 후 현재 무기만 활성화
 	SetWeaponActive(EWeaponType::Plasma, false);
 	SetWeaponActive(EWeaponType::Sniper, false);
 	SetWeaponActive(EWeaponType::Shotgun, false);
@@ -163,7 +168,8 @@ void AC_PlayerCharacter::Tick(float DeltaTime)
 
 
 	PlayerMove();
-	ResetDashCount(DeltaTime);
+	PlayerFire();
+	ResetDashCount();
 }
 
 // Called to bind functionality to input
@@ -270,9 +276,9 @@ void AC_PlayerCharacter::ResetDashDir(const struct FInputActionValue& inputValue
 	DashDir = FVector::ZeroVector;
 }
 
-void AC_PlayerCharacter::ResetDashCount(float InDeltaTime)
+void AC_PlayerCharacter::ResetDashCount()
 {
-	DashTimer -= InDeltaTime;
+	DashTimer -= GetWorld()->GetDeltaSeconds();
 
 	if (DashTimer <= 0.0f) {
 		CurDashCount = MaxDashCount;
@@ -284,12 +290,24 @@ void AC_PlayerCharacter::ResetDashCount(float InDeltaTime)
 void AC_PlayerCharacter::OnFire(const struct FInputActionValue& inputValue)
 {
 	bIsFire = !bIsFire;
+}
 
-	switch (mWeaponType)
-	{
-		case EWeaponType::Plasma:	{Fire_Plasma();}	break;
-		case EWeaponType::Sniper:	{Fire_Sniper();}	break;
-		case EWeaponType::Shotgun:	{Fire_Shotgun();}	break;
+void AC_PlayerCharacter::PlayerFire()
+{
+	if (!bIsFire)
+		return;
+
+	AttackTimer += GetWorld()->GetDeltaSeconds();
+
+	if (AttackTimer >= AttackRate) {
+		switch (mWeaponType)
+		{
+			case EWeaponType::Plasma: { Fire_Plasma(); }	break;
+			case EWeaponType::Sniper: { Fire_Sniper(); }	break;
+			case EWeaponType::Shotgun: { Fire_Shotgun(); }	break;
+		}
+
+		AttackTimer = 0.0f;
 	}
 }
 

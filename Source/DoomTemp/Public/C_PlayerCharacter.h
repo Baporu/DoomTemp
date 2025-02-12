@@ -119,6 +119,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Stats")
 	int32 MeleeDamage = 5;
 
+	// 발사 속도
+	UPROPERTY(EditAnywhere, Category = "Input")
+	float AttackRate = 0.5f;
+	float AttackTimer;
+
 	// Player Mode Input Action
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputAction* IA_UseMode;
@@ -134,9 +139,10 @@ public:
 
 	void OnDash(const struct FInputActionValue& inputValue);
 	void ResetDashDir(const struct FInputActionValue& inputValue);
-	void ResetDashCount(float InDeltaTime);
+	void ResetDashCount();
 
 	void OnFire(const struct FInputActionValue& inputValue);
+	void PlayerFire();
 	void Fire_Plasma();
 	void Fire_Sniper();
 	void Fire_Shotgun();
