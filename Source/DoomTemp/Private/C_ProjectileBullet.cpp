@@ -4,6 +4,9 @@
 #include "C_ProjectileBullet.h"
 #include "Components/SphereComponent.h"
 #include "Enemy/C_Enemy.h"
+#include "../../../../../../../Source/Runtime/Engine/Classes/Kismet/GameplayStatics.h"
+#include "C_PlayerCharacter.h"
+#include "C_GunSkeletalMeshComponent.h"
 
 AC_ProjectileBullet::AC_ProjectileBullet()
 {
@@ -12,9 +15,23 @@ AC_ProjectileBullet::AC_ProjectileBullet()
 	CollisionComp->OnComponentHit.AddDynamic(this, &AC_ProjectileBullet::OnBulletHit);
 }
 
+void AC_ProjectileBullet::BeginPlay()
+{
+	Super::BeginPlay();
+
+	AC_PlayerCharacter* player = Cast<AC_PlayerCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+	
+	if (player) {
+		FVector firePos = player->ShotgunMesh->GetSocketLocation(TEXT("FirePosition"));
+		firePos -= player->GetActorForwardVector() * 20;
+		Dir = (GetActorLocation() - firePos);
+	}
+}
+
 void AC_ProjectileBullet::Tick(float DeltaTime)
 {
-	FVector movePos = GetActorLocation() + GetActorForwardVector() * BulletSpeed * DeltaTime;
+// 	Dir = GetActorForwardVector();
+	FVector movePos = GetActorLocation() + Dir * BulletSpeed * DeltaTime;
 	SetActorLocation(movePos, true);
 
 	LifeTimer -= DeltaTime;

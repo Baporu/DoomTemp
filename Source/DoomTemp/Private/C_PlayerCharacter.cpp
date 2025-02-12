@@ -12,6 +12,7 @@
 #include "C_PlasmaGun.h"
 #include "C_SniperGun.h"
 #include "C_ShotGun.h"
+#include "../../../../../../../Source/Runtime/Engine/Classes/Components/ArrowComponent.h"
 
 // Sets default values
 AC_PlayerCharacter::AC_PlayerCharacter()
@@ -65,7 +66,7 @@ AC_PlayerCharacter::AC_PlayerCharacter()
 	// Set Collision Preset
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Player"));
 
-	// Set Gun Mesh Components
+	// 총기마다 메쉬 컴포넌트 설정
 	{
 		{
 			// Create Gun Mesh Component
@@ -105,7 +106,7 @@ AC_PlayerCharacter::AC_PlayerCharacter()
 		}
  		{
 			// Create Gun Mesh Component
-			ShotgunMesh = CreateDefaultSubobject<UC_GunSkeletalMeshComponent>(TEXT("ShotgunMesh"));
+			ShotgunMesh = CreateDefaultSubobject<UC_ShotGun>(TEXT("ShotgunMesh"));
 			// Attach Mesh Component to Camera Component
 			ShotgunMesh->SetupAttachment(GetMesh());
 			// Load Skeletal Mesh
@@ -119,6 +120,8 @@ AC_PlayerCharacter::AC_PlayerCharacter()
 				// Set Mesh Component's Location and Rotation
 				ShotgunMesh->SetRelativeLocationAndRotation(FVector(30.0, 0.0, 0.0), FRotator(0.0, -90.0, 0.0));
 			}
+
+
  		}
 	}
 
@@ -338,6 +341,16 @@ void AC_PlayerCharacter::OnUseMode(const struct FInputActionValue& inputValue)
 		case EWeaponType::Plasma:	{ PlasmaMesh->OnUseMode(); }	break;
 		case EWeaponType::Sniper:	{ SniperMesh->OnUseMode(); }	break;
 		case EWeaponType::Shotgun:	{ ShotgunMesh->OnUseMode(); }	break;
+	}
+}
+
+void AC_PlayerCharacter::OnChangeWeapon(const struct FInputActionValue& inputValue)
+{
+	switch (mWeaponType)
+	{
+		case EWeaponType::Plasma:	{ ChangeWeapon(EWeaponType::Sniper); }	break;
+		case EWeaponType::Sniper:	{ ChangeWeapon(EWeaponType::Shotgun); }	break;
+		case EWeaponType::Shotgun:	{ ChangeWeapon(EWeaponType::Plasma); }	break;
 	}
 }
 

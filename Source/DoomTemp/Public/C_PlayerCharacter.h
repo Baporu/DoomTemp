@@ -128,6 +128,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputAction* IA_UseMode;
 
+	// Change Weapon Input Action
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	class UInputAction* IA_ChangeWeapon;
+
 
 	void OnLookUp(const struct FInputActionValue& inputValue);
 	void OnTurn(const struct FInputActionValue& inputValue);
@@ -149,6 +153,7 @@ public:
 
 	void OnUseMode(const struct FInputActionValue& inputValue);
 
+	void OnChangeWeapon(const struct FInputActionValue& inputValue);
 	void ChangeWeapon(EWeaponType InChangeType);
 	void SetWeaponActive(EWeaponType InChangeType, bool InActive);
 
