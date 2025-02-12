@@ -141,14 +141,15 @@ void AC_PlayerCharacter::BeginPlay()
 		}
 	}
 
-	// 연사 속도 초기화
-	AttackTimer = AttackRate;
-
 	// 모든 무기 비활성화 후 현재 무기만 활성화
 	SetWeaponActive(EWeaponType::Plasma, false);
 	SetWeaponActive(EWeaponType::Sniper, false);
 	SetWeaponActive(EWeaponType::Shotgun, false);
 	SetWeaponActive(mWeaponType, true);
+
+	// 발사 속도 초기화
+	FireRate = GetCurrentGun()->GetFireRate();
+	FireTimer = FireRate;
 
 // 	for (int32 i = 0; i < 3; i++) {
 // 		if (Guns[i] != nullptr) {
@@ -294,12 +295,14 @@ void AC_PlayerCharacter::OnFire(const struct FInputActionValue& inputValue)
 
 void AC_PlayerCharacter::PlayerFire()
 {
-	if (!bIsFire)
+	if (!bIsFire) {
+		FireTimer = FireRate;
 		return;
+	}
 
-	AttackTimer += GetWorld()->GetDeltaSeconds();
+	FireTimer += GetWorld()->GetDeltaSeconds();
 
-	if (AttackTimer >= AttackRate) {
+	if (FireTimer >= FireRate) {
 		switch (mWeaponType)
 		{
 			case EWeaponType::Plasma: { Fire_Plasma(); }	break;
@@ -307,7 +310,7 @@ void AC_PlayerCharacter::PlayerFire()
 			case EWeaponType::Shotgun: { Fire_Shotgun(); }	break;
 		}
 
-		AttackTimer = 0.0f;
+		FireTimer = 0.0f;
 	}
 }
 
@@ -358,5 +361,16 @@ void AC_PlayerCharacter::SetWeaponActive(EWeaponType InChangeType, bool InActive
 UCameraComponent* AC_PlayerCharacter::GetCameraComponent()
 {
 	return FPSCamComp;
+}
+
+UC_GunSkeletalMeshComponent* AC_PlayerCharacter::GetCurrentGun()
+{
+	switch (mWeaponType) {
+		case EWeaponType::Plasma:	{ return PlasmaMesh; }
+		case EWeaponType::Sniper:	{ return SniperMesh; }
+		case EWeaponType::Shotgun:	{ return ShotgunMesh; }
+	}
+
+	return ShotgunMesh;
 }
 

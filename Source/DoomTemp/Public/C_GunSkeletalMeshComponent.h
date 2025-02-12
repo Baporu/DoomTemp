@@ -24,6 +24,9 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	int32 CurrentAmmo;
 
+	UPROPERTY(EditDefaultsOnly)
+	float FireRate = 1.0f;
+
 public:
 	// Bullet Blueprint
 	UPROPERTY(EditDefaultsOnly, Category = BulletFactory)
@@ -31,8 +34,6 @@ public:
 
 	// Using Mode or Not
 	bool bUsingMode = false;
-	// Is Firing or Not
-	bool bIsFire = false;
 
 	// 일반 조준 크로스헤어 UI 위젯 공장
 	UPROPERTY(EditAnywhere, Category = GunUI)
@@ -48,4 +49,6 @@ public:
 	virtual void OnStartMode();
 	virtual void OnUseMode();
 	virtual void OnEndMode();
+
+	float GetFireRate();
 };

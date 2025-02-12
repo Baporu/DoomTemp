@@ -28,7 +28,6 @@ AC_GunBullet::AC_GunBullet()
 	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	// 8. 외관 크기 설정
 	MeshComp->SetRelativeScale3D(FVector(0.25));
-	MeshComp->SetRelativeLocation(FVector(0.0, 0.0, -12.5));
 }
 
 // Called when the game starts or when spawned

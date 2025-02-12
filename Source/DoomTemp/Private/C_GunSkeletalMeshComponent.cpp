@@ -15,13 +15,9 @@ void UC_GunSkeletalMeshComponent::BeginPlay()
 
 void UC_GunSkeletalMeshComponent::OnFire()
 {
-	if (CurrentAmmo <= 0)
-		return;
-
-	bIsFire = !bIsFire;
-
 	FTransform firePos = GetSocketTransform(TEXT("FirePosition"));
-	// Fix Bullet Scale
+	// 무기의 크기에 따라 Socket의 Transform도 달라지는 경우가 있는데,
+	// 그럴 경우 총알의 크기가 같이 변경되는 일을 방지하기 위해 크기를 1.0으로 고정한다.
 	firePos.SetScale3D(FVector(1.0));
 
 	GetWorld()->SpawnActor<AC_GunBullet>(BulletFactory, firePos);
@@ -36,10 +32,15 @@ void UC_GunSkeletalMeshComponent::OnStartMode()
 
 void UC_GunSkeletalMeshComponent::OnUseMode()
 {
-
+	bUsingMode = !bUsingMode;
 }
 
 void UC_GunSkeletalMeshComponent::OnEndMode()
 {
 
+}
+
+float UC_GunSkeletalMeshComponent::GetFireRate()
+{
+	return FireRate;
 }

@@ -97,7 +97,7 @@ public:
 	bool bIsFire = false;
 
 	// Player Weapon State
-	UPROPERTY(VisibleAnywhere, Category = "Guns")
+	UPROPERTY(EditAnywhere, Category = "Guns")
 	EWeaponType mWeaponType = EWeaponType::Sniper;
 	UPROPERTY(EditDefaultsOnly, Category = "Guns")
 	class UC_GunSkeletalMeshComponent* PlasmaMesh;
@@ -121,8 +121,8 @@ public:
 
 	// 발사 속도
 	UPROPERTY(EditAnywhere, Category = "Input")
-	float AttackRate = 0.5f;
-	float AttackTimer;
+	float FireRate = 1.0f;
+	float FireTimer;
 
 	// Player Mode Input Action
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
@@ -153,5 +153,6 @@ public:
 	void SetWeaponActive(EWeaponType InChangeType, bool InActive);
 
 	UCameraComponent* GetCameraComponent();
+	UC_GunSkeletalMeshComponent* GetCurrentGun();
 
 };
