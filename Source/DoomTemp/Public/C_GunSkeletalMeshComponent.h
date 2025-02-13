@@ -25,6 +25,8 @@ protected:
 	int32 CurrentAmmo;
 
 	UPROPERTY(EditDefaultsOnly)
+	int32 BulletDamage = 0;
+	UPROPERTY(EditDefaultsOnly)
 	float FireRate = 1.0f;
 
 public:

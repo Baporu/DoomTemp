@@ -12,7 +12,6 @@
 #include "C_PlasmaGun.h"
 #include "C_SniperGun.h"
 #include "C_ShotGun.h"
-#include "../../../../../../../Source/Runtime/Engine/Classes/Components/ArrowComponent.h"
 
 // Sets default values
 AC_PlayerCharacter::AC_PlayerCharacter()
@@ -151,7 +150,7 @@ void AC_PlayerCharacter::BeginPlay()
 	SetWeaponActive(mWeaponType, true);
 
 	// 발사 속도 초기화
-	FireRate = GetCurrentGun()->GetFireRate();
+	SetFireRate(GetCurrentGun()->GetFireRate());
 	FireTimer = FireRate;
 
 // 	for (int32 i = 0; i < 3; i++) {
@@ -193,13 +192,14 @@ void AC_PlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		PlayerInput->BindAction(IA_Jump, ETriggerEvent::Started, this, &AC_PlayerCharacter::OnJump);
 		
 		PlayerInput->BindAction(IA_Dash, ETriggerEvent::Started, this, &AC_PlayerCharacter::OnDash);
-		//PlayerInput->BindAction(IA_Move, ETriggerEvent::Completed, this, &AC_PlayerCharacter::ResetDashDir);
-
+		
 		PlayerInput->BindAction(IA_Fire, ETriggerEvent::Started, this, &AC_PlayerCharacter::OnFire);
 		PlayerInput->BindAction(IA_Fire, ETriggerEvent::Completed, this, &AC_PlayerCharacter::OnFire);
 
 		PlayerInput->BindAction(IA_UseMode, ETriggerEvent::Started, this, &AC_PlayerCharacter::OnUseMode);
 		PlayerInput->BindAction(IA_UseMode, ETriggerEvent::Completed, this, &AC_PlayerCharacter::OnUseMode);
+
+		PlayerInput->BindAction(IA_ChangeWeapon, ETriggerEvent::Started, this, &AC_PlayerCharacter::OnChangeWeapon);
 	}
 }
 
@@ -221,6 +221,20 @@ void AC_PlayerCharacter::OnMove(const struct FInputActionValue& inputValue)
 
 	MoveDir.X = value.X;
 	MoveDir.Y = value.Y;
+
+	if (value.X > 0.0)
+		DashDir.X = 1.0;
+	else if (value.X < 0.0)
+		DashDir.X = -1.0;
+	else
+		DashDir.X = 0.0;
+
+	if (value.Y > 0.0)
+		DashDir.Y = 1.0;
+	else if (value.Y < 0.0)
+		DashDir.Y = -1.0;
+	else
+		DashDir.Y = 0.0;
 }
 
 void AC_PlayerCharacter::OnJump(const struct FInputActionValue& inputValue)
@@ -242,42 +256,16 @@ void AC_PlayerCharacter::PlayerMove()
 
 void AC_PlayerCharacter::OnDash(const struct FInputActionValue& inputValue)
 {
-	if (CurDashCount <= 0)
+	if (CurDashCount <= 0 || DashDir == FVector::ZeroVector)
 		return;
 
-	/*
-	// Player Doesn't Dash Up or Down
-	DashDir.Z = 0;
-
-	// Dash Direction Should Be an Unit Vector
-	if (DashDir.X > 0)
-		DashDir.X = GetActorForwardVector().X;
-	else if (DashDir.X < 0)
-		DashDir.X = GetActorForwardVector().X * -1;
-	else
-		DashDir.X = 0.0;
-
-	if (DashDir.Y > 0)
-		DashDir.Y = GetActorRightVector().Y;
-	else if (DashDir.Y < 0)
-		DashDir.Y = GetActorRightVector().Y * -1;
-	else
-		DashDir.Y = 0.0;
-
-	// Dash Distance Should Be Same in any Direction
 	DashDir.Normalize();
-	
-	// Dash Function
-	FVector dashLocation = GetActorLocation() + DashDir * DashDist;
-	SetActorLocation(dashLocation, true);
-	*/
+	UE_LOG(LogTemp, Warning, TEXT("DashDir X: %f, Y: %f, Z: %f"), DashDir.X, DashDir.Y, DashDir.Z);
 
-	//CurDashCount--;
-}
+	SetActorLocation(GetActorLocation() + DashDir * DashDistance, true);
 
-void AC_PlayerCharacter::ResetDashDir(const struct FInputActionValue& inputValue)
-{
 	DashDir = FVector::ZeroVector;
+	CurDashCount--;
 }
 
 void AC_PlayerCharacter::ResetDashCount()
@@ -359,6 +347,8 @@ void AC_PlayerCharacter::ChangeWeapon(EWeaponType InChangeType)
 	SetWeaponActive(mWeaponType, false);
 	mWeaponType = InChangeType;
 	SetWeaponActive(InChangeType, true);
+	
+	FireRate = GetCurrentGun()->GetFireRate();
 }
 
 void AC_PlayerCharacter::SetWeaponActive(EWeaponType InChangeType, bool InActive)
@@ -371,7 +361,7 @@ void AC_PlayerCharacter::SetWeaponActive(EWeaponType InChangeType, bool InActive
 	}
 }
 
-void AC_PlayerCharacter::TakeDamage(int32 InDamage)
+void AC_PlayerCharacter::PlayerHit(int32 InDamage)
 {
 	CurrentHP -= InDamage;
 	UE_LOG(LogTemp, Warning, TEXT("Player Take Damage"));
@@ -380,6 +370,11 @@ void AC_PlayerCharacter::TakeDamage(int32 InDamage)
 		GEngine->AddOnScreenDebugMessage(0, 5.0f, FColor::Red, TEXT("Player Dead"));
 		UE_LOG(LogTemp, Log, TEXT("Player Dead"));
 	}
+}
+
+void AC_PlayerCharacter::SetFireRate(float InFireRate)
+{
+	FireRate = InFireRate;
 }
 
 UCameraComponent* AC_PlayerCharacter::GetCameraComponent()

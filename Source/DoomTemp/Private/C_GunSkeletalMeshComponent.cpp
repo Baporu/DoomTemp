@@ -3,8 +3,6 @@
 
 #include "C_GunSkeletalMeshComponent.h"
 #include "C_GunBullet.h"
-#include "C_PlayerCharacter.h"
-#include "Kismet/GameplayStatics.h"
 
 void UC_GunSkeletalMeshComponent::BeginPlay()
 {
@@ -20,7 +18,8 @@ void UC_GunSkeletalMeshComponent::OnFire()
 	// 그럴 경우 총알의 크기가 같이 변경되는 일을 방지하기 위해 크기를 1.0으로 고정한다.
 	firePos.SetScale3D(FVector(1.0));
 
-	GetWorld()->SpawnActor<AC_GunBullet>(BulletFactory, firePos);
+	AC_GunBullet* bullet = GetWorld()->SpawnActor<AC_GunBullet>(BulletFactory, firePos);
+	bullet->OnBulletInit(BulletDamage);
 
 	--CurrentAmmo;
 }

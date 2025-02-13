@@ -27,14 +27,3 @@ AC_BounceBullet::AC_BounceBullet()
 	// Add Overlap Function
 	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &AC_BounceBullet::OnBulletOverlap);
 }
-
-void AC_BounceBullet::OnBulletOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	AC_Enemy* enemy = Cast<AC_Enemy>(OtherActor);
-
-	if (enemy != nullptr) {
-		enemy->SetHP(Damage);
-
-		Destroy();
-	}
-}

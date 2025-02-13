@@ -3,6 +3,7 @@
 
 #include "C_GunBullet.h"
 #include "Components/SphereComponent.h"
+#include "Enemy/C_Enemy.h"
 
 // Sets default values
 AC_GunBullet::AC_GunBullet()
@@ -19,7 +20,7 @@ AC_GunBullet::AC_GunBullet()
 	CollisionComp->SetSphereRadius(13.0);
 	// 4. 루트로 등록
 	SetRootComponent(CollisionComp);
-
+	
 	// 5. 외관 컴포넌트 등록하기
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
 	// 6. 부모 컴포넌트 지정
@@ -42,5 +43,21 @@ void AC_GunBullet::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
+}
+
+void AC_GunBullet::OnBulletOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	AC_Enemy* enemy = Cast<AC_Enemy>(OtherActor);
+
+	if (enemy != nullptr) {
+		enemy->SetHP(Damage);
+
+		Destroy();
+	}
+}
+
+void AC_GunBullet::OnBulletInit(int32 InBulletDamage)
+{
+	Damage = InBulletDamage;
 }
 
