@@ -132,11 +132,20 @@ public:
 	// Melee Attack Damage
 	UPROPERTY(EditDefaultsOnly, Category = "Stats")
 	int32 MeleeDamage = 5;
+	UPROPERTY(EditDefaultsOnly, Category = "Stats")
+	float MeleeDistance = 3000.0f;
+	UPROPERTY(EditDefaultsOnly, Category = "Debug")
+	float DebugExtent = 100.0f;
 
 	// Fire Rate
 	UPROPERTY(EditAnywhere, Category = "Stats")
 	float FireRate = 1.0f;
 	float FireTimer;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	class UInputAction* IA_Punch;
+	UPROPERTY(VisibleAnywhere, Category = "Debug")
+	class AActor* target;
 
 
 	void OnLookUp(const struct FInputActionValue& inputValue);
@@ -164,6 +173,8 @@ public:
 
 	void PlayerHit(int32 InDamage);
 	void SetFireRate(float InFireRate);
+
+	void OnPunch(const struct FInputActionValue& inputValue);
 
 	UCameraComponent* GetCameraComponent();
 	UC_GunSkeletalMeshComponent* GetCurrentGun();

@@ -12,6 +12,7 @@
 #include "C_PlasmaGun.h"
 #include "C_SniperGun.h"
 #include "C_ShotGun.h"
+#include "Enemy/C_Enemy.h"
 
 // Sets default values
 AC_PlayerCharacter::AC_PlayerCharacter()
@@ -200,6 +201,8 @@ void AC_PlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		PlayerInput->BindAction(IA_UseMode, ETriggerEvent::Completed, this, &AC_PlayerCharacter::OnUseMode);
 
 		PlayerInput->BindAction(IA_ChangeWeapon, ETriggerEvent::Started, this, &AC_PlayerCharacter::OnChangeWeapon);
+
+		PlayerInput->BindAction(IA_Punch, ETriggerEvent::Started, this, &AC_PlayerCharacter::OnPunch);
 	}
 }
 
@@ -375,6 +378,38 @@ void AC_PlayerCharacter::PlayerHit(int32 InDamage)
 void AC_PlayerCharacter::SetFireRate(float InFireRate)
 {
 	FireRate = InFireRate;
+}
+
+void AC_PlayerCharacter::OnPunch(const struct FInputActionValue& inputValue)
+{
+// 	FVector startPos = FPSCamComp->GetComponentLocation();
+// 	FVector endPos = startPos + FPSCamComp->GetForwardVector() * MeleeDistance;
+// 	TArray<FHitResult> hitInfos;
+// 	FCollisionQueryParams params;
+// 	params.AddIgnoredActor(this);
+// 
+// 	bool bHit = GetWorld()->SweepMultiByChannel(hitInfos, startPos, endPos, FQuat::Identity, ECC_GameTraceChannel2, FCollisionShape::MakeBox(FVector3f(DebugExtent)), params);
+// 	DrawDebugBox(GetWorld(), startPos + (endPos - startPos) * 0.5f, FVector(DebugExtent * 0.5f), FColor::Green, false, 2.0f, 0U, 1.0f);
+// 
+// 	if (bHit) {
+// 		float minDist = MeleeDistance;
+// 
+// 		for (FHitResult hitInfo : hitInfos) {
+// 			AC_Enemy* enemy = Cast<AC_Enemy>(hitInfo.GetActor());
+// 
+// 			if (enemy == nullptr)
+// 				continue;
+// 
+// 			if (hitInfo.Distance < minDist) {
+// 				minDist = hitInfo.Distance;
+// 				target = hitInfo.GetActor();
+// 			}
+// 		}
+// 		
+// 		if (target) {
+// 			SetActorLocation(target->GetActorLocation(), true);
+// 		}
+// 	}
 }
 
 UCameraComponent* AC_PlayerCharacter::GetCameraComponent()
