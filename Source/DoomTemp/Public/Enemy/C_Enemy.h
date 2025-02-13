@@ -4,7 +4,8 @@
 #include "GameFramework/Character.h"
 #include "C_Enemy.generated.h"
 
-UCLASS()
+// abstract : Unreal Editor에서 추상 배이스 클래스로 취급하여 Map에 배치할 수 없음
+UCLASS(abstract)
 class DOOMTEMP_API AC_Enemy : public ACharacter
 {
 	GENERATED_BODY()

@@ -18,7 +18,6 @@ AC_Enemy::AC_Enemy()
     C_Helpers::CreateActorComponent<UC_EnemyFSM>(this, &FSM, "FSM");
 
     /***** Weapon *****/
-    // 여기 왜 에러가 나는 거지....?????????????????????????
     C_Helpers::CreateActorComponent<UC_EWeaponComp>(this, &Weapon, "Weapon");
 }
 

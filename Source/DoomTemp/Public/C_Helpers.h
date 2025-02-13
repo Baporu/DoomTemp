@@ -50,6 +50,11 @@ public:
 			*OutObject = asset.Object;
 	}
 
+	template<typename T>
+	static void GetAssetDynamic(T** OutObject, FString InPath)
+	{
+		*OutObject = Cast<T>(StaticLoadObject(T::StaticClass(), nullptr, *InPath));
+	}
 
 	template<typename T>
 	static void GetClass(TSubclassOf<T>* OutClass, FString InPath)
@@ -58,13 +63,11 @@ public:
 		*OutClass = asset.Class;
 	}
 
-
 	template<typename T>
 	static T* GetComponent(AActor* InActor)
 	{
 		return Cast<T>( InActor->GetComponentByClass(T::StaticClass()));
 	}
-
 
 	template<typename T>
 	static T* GetComponent(AActor* InActor, const FString& InName)
@@ -77,5 +80,12 @@ public:
 				return myComp;
 
 		return nullptr;
+	}
+
+
+	/***** Attach *****/
+	static void AttachTo(AActor* InActor, USceneComponent* InParent, FName InSocketName)
+	{
+		InActor->AttachToComponent(InParent, FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), InSocketName);
 	}
 };

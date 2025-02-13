@@ -20,17 +20,19 @@ class DOOMTEMP_API UC_EWeaponComp : public UActorComponent
 {
 	GENERATED_BODY()
 
+	/***** BP에서 만든 AC_EWeapon을 요소로 갖는 TArray 배열 *****/
 private:
+	// Enemy가 소유한 weapon들의 배열
 	// Spawn 시 class type을 TSubclassOf로 명시
 	// TArray : 그것에 대한 배열
-	// BP에서 만든 AC_EWeapon을 요소로 갖는 TArray 배열 선언
     UPROPERTY(EditAnywhere, Category = "Settings")
 	TArray<TSubclassOf<class AC_EWeapon>> WeaponClasses;
 
+	/***** 장착 중인 무기 상태 체크 *****/
 public:
 	FORCEINLINE bool IsUnarmedMode() { return WeaponType == EEWeaponType::MAX; }
 	FORCEINLINE bool IsScratchMode() { return WeaponType == EEWeaponType::SCRATCH; }
-	FORCEINLINE bool IsFireballMode() { return WeaponType == EEWeaponType::FIREBALL; }
+	//FORCEINLINE bool IsFireballMode() { return WeaponType == EEWeaponType::FIREBALL; }
 
 public:	
 	UC_EWeaponComp();
@@ -41,25 +43,31 @@ protected:
 public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	// 현재 장착한 무기 return
 private:
-	// 현재 무기 return
 	AC_EWeapon* GetCurWeapon();
 
+	// 무기 장착 해제
 public:
 	void SetUnarmedMode();
 
 private:
+	// 무기 장착
 	void SetMode(EEWeaponType InType);
+	// 장착 중인 무기 상태 변경
 	void ChangeType(EEWeaponType InType);
 
+public:
+	void BeginEquip();
+	void EndEquip();
 
 public:
 	FWeaponTypeChanged OnWeaponTypeChanged;
 
 private:
-	EEWeaponType WeaponType = EEWeaponType::MAX;
+	EEWeaponType WeaponType = EEWeaponType::MAX;	// 아무것도 선택 X
 
 private:
-	class AC_Enemy* Owner;
-	TArray<class AC_EWeapon*> Weapons;
+	class AC_Enemy* Owner;	// Enemy
+	TArray<class AC_EWeapon*> Weapons;	// 무기 배열 변수
 };
