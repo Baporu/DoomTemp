@@ -40,6 +40,11 @@ float AC_Enemy::GetMeleeRange()
 	return MeleeRange;
 }
 
+int32 AC_Enemy::GetMleeDamage()
+{
+    return MeleeDamage;
+}
+
 //float AC_Enemy::GetLongRange()
 //{
 //	return LongRange;

@@ -20,7 +20,8 @@ void UC_EWeaponComp::BeginPlay()
 	// Spawn 시 옵션을 AlwaysSpawn으로 설정
 	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-	// 받은 타입을 Spawn
+	
+	// 게임이 시작되면 WeaponClasses에 들어 있는 무기들을 World에 스폰시킴
 	for(TSubclassOf<AC_EWeapon> weaponClass : WeaponClasses)
 		if (!!weaponClass)
 		{

@@ -64,6 +64,7 @@ public:
 public:
 	/***** Getters *****/
 	float GetMeleeRange();
+	int32 GetMleeDamage();
 	//float GetLongRange();
 	float GetSpeed();
 

@@ -7,11 +7,11 @@ AC_EnemyA::AC_EnemyA()
     PrimaryActorTick.bCanEverTick = true;
 
     /***** Skeletal Mesh *****/
-    ConstructorHelpers::FObjectFinder<USkeletalMesh> skeleton(L"/Script/Engine.SkeletalMesh'/Game/zombie-number-1-animated/zom_1.zom_1'");
+    ConstructorHelpers::FObjectFinder<USkeletalMesh> skeleton(L"/Script/Engine.SkeletalMesh'/Game/Zombies/Base_Mesh/Zombies_Body.Zombies_Body'");
     if (skeleton.Succeeded())
     {
         GetMesh()->SetSkeletalMesh(skeleton.Object);
-        GetMesh()->SetRelativeLocation( FVector(0.f, 0.f, -90.f) );
+        GetMesh()->SetRelativeLocationAndRotation( FVector(0.f, 0.f, -90.f), FRotator(0.f, -90.f, 0.f) );
     }
 
 

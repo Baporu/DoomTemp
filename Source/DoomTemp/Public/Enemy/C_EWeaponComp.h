@@ -22,11 +22,12 @@ class DOOMTEMP_API UC_EWeaponComp : public UActorComponent
 
 	/***** BP에서 만든 AC_EWeapon을 요소로 갖는 TArray 배열 *****/
 private:
-	// Enemy가 소유한 weapon들의 배열
-	// Spawn 시 class type을 TSubclassOf로 명시
-	// TArray : 그것에 대한 배열
+	// Enemy가 소유한 weapon들
+	// TSubclassOf<class AC_EWeapon> : AC_EWeapon의 파생 클래스를 TArray의 원소로 가짐
+	// └ 즉, AC_EWeapon의 파생 클래스가 Enemy가 소유할 수 있는 Weapon이 됨
     UPROPERTY(EditAnywhere, Category = "Settings")
 	TArray<TSubclassOf<class AC_EWeapon>> WeaponClasses;
+
 
 	/***** 장착 중인 무기 상태 체크 *****/
 public:

@@ -12,6 +12,7 @@ class DOOMTEMP_API AC_EWeapon : public AActor
 	GENERATED_BODY()
 	
 protected:
+	// Weapon을 부착할 소켓 이름
     UPROPERTY(EditDefaultsOnly, Category = "Equip")
 	FName WeaponSocketName;
 
@@ -53,6 +54,6 @@ private:
 	bool bFiring;		// 발사하고 있는가
 	bool bReload;		// 재장전 중인가
 
-private:
+protected:
 	class AC_Enemy* Owner;
 };
