@@ -157,6 +157,8 @@ public:
 	void ChangeWeapon(EWeaponType InChangeType);
 	void SetWeaponActive(EWeaponType InChangeType, bool InActive);
 
+	void TakeDamage(int32 InDamage);
+
 	UCameraComponent* GetCameraComponent();
 	UC_GunSkeletalMeshComponent* GetCurrentGun();
 

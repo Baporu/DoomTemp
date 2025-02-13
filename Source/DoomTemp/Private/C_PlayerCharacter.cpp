@@ -74,7 +74,7 @@ AC_PlayerCharacter::AC_PlayerCharacter()
 			// Attach Mesh Component to Camera Component
 			PlasmaMesh->SetupAttachment(GetMesh());
 			// Load Skeletal Mesh
-			ConstructorHelpers::FObjectFinder<USkeletalMesh> GunMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/SHS/Designs/Experimental_Rifle_Coilgun/vector.vector'"));
+			ConstructorHelpers::FObjectFinder<USkeletalMesh> GunMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/Experimental_Rifle_Coilgun/vector.vector'"));
 
 			// If Skeletal Mesh Loaded
 			if (GunMesh.Succeeded()) {
@@ -82,7 +82,7 @@ AC_PlayerCharacter::AC_PlayerCharacter()
 				PlasmaMesh->SetSkeletalMesh(GunMesh.Object);
 
 				// Set Mesh Component's Rotation and Scale
-				PlasmaMesh->SetRelativeRotation(FRotator(0.0, -90.0, 0.0));
+				PlasmaMesh->SetRelativeRotation(FRotator(0.0, 90.0, 0.0));
 				PlasmaMesh->SetRelativeScale3D(FVector(0.01));
 			}
 		}
@@ -368,6 +368,17 @@ void AC_PlayerCharacter::SetWeaponActive(EWeaponType InChangeType, bool InActive
 		case EWeaponType::Plasma:	{ PlasmaMesh->SetVisibility(InActive); }	break;
 		case EWeaponType::Sniper:	{ SniperMesh->SetVisibility(InActive); }	break;
 		case EWeaponType::Shotgun:	{ ShotgunMesh->SetVisibility(InActive); }	break;
+	}
+}
+
+void AC_PlayerCharacter::TakeDamage(int32 InDamage)
+{
+	CurrentHP -= InDamage;
+	UE_LOG(LogTemp, Warning, TEXT("Player Take Damage"));
+
+	if (CurrentHP <= 0) {
+		GEngine->AddOnScreenDebugMessage(0, 5.0f, FColor::Red, TEXT("Player Dead"));
+		UE_LOG(LogTemp, Log, TEXT("Player Dead"));
 	}
 }
 

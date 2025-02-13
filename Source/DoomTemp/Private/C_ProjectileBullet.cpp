@@ -30,6 +30,8 @@ void AC_ProjectileBullet::BeginPlay()
 
 void AC_ProjectileBullet::Tick(float DeltaTime)
 {
+	Super::Tick(DeltaTime);
+
 // 	Dir = GetActorForwardVector();
 	FVector movePos = GetActorLocation() + Dir * BulletSpeed * DeltaTime;
 	SetActorLocation(movePos, true);

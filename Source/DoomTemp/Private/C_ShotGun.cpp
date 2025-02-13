@@ -7,8 +7,6 @@
 void UC_ShotGun::BeginPlay()
 {
 	Super::BeginPlay();
-	SetComponentTickEnabled(true);
-		
 }
 
 void UC_ShotGun::OnFire()
