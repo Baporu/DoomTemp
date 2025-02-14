@@ -4,6 +4,7 @@
 #include <GameFramework/CharacterMovementComponent.h>
 #include "Enemy/C_EnemyFSM.h"
 #include "C_PlayerCharacter.h"
+#include "Enemy/C_EWeaponComp.h"
 
 
 AC_Enemy::AC_Enemy()
@@ -17,13 +18,12 @@ AC_Enemy::AC_Enemy()
     C_Helpers::CreateActorComponent<UC_EnemyFSM>(this, &FSM, "FSM");
 
     /***** Weapon *****/
-    //C_Helpers::CreateActorComponent<UCWeaponComponent>(this, &Weapon, "Weapon");
+    C_Helpers::CreateActorComponent<UC_EWeaponComp>(this, &Weapon, "Weapon");
 }
 
 void AC_Enemy::BeginPlay()
 {
 	Super::BeginPlay();
-	
     
 }
 
@@ -38,6 +38,11 @@ void AC_Enemy::Tick(float DeltaTime)
 float AC_Enemy::GetMeleeRange()
 {
 	return MeleeRange;
+}
+
+int32 AC_Enemy::GetMleeDamage()
+{
+    return MeleeDamage;
 }
 
 //float AC_Enemy::GetLongRange()
@@ -89,7 +94,10 @@ void AC_Enemy::OnDamaged(int32 InDamage, enum class EAttackType InAttackType)
     // 1. HP를 깎는다
     SetHP(InDamage);
 
-    // 2. Enemy 상태 변경
+    // 2. Attack Type을 알려줌
+    FSM->SetAttackType(InAttackType);
+
+    // 3. Enemy 상태 변경
     CheckState();
 }
 

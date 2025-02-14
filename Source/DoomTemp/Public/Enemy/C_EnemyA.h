@@ -17,4 +17,8 @@ protected:
 
 public:
 	virtual void Tick(float DeltaTime) override;
+
+//private:
+//	UPROPERTY(EditAnywhere, Category="Weapon")
+//	TSubclassOf<class AC_EWeaponScratch> WeaponScratch;
 };

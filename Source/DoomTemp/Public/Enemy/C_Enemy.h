@@ -4,7 +4,8 @@
 #include "GameFramework/Character.h"
 #include "C_Enemy.generated.h"
 
-UCLASS()
+// abstract : Unreal Editor에서 추상 배이스 클래스로 취급하여 Map에 배치할 수 없음
+UCLASS(abstract)
 class DOOMTEMP_API AC_Enemy : public ACharacter
 {
 	GENERATED_BODY()
@@ -47,8 +48,11 @@ protected:
 
 
 	/***** Weapon *****/
-    UPROPERTY(VisibleAnywhere, Category = "Weapon")
-	class AC_EWeapon* Weapon;
+    //UPROPERTY(VisibleAnywhere, Category = "Weapon")
+	//class AC_EWeapon* Weapon;
+	// Weapon component 안에 Weapon이 있으니까 Weapon Comp로 Weapon에 접근 가능
+    UPROPERTY(VisibleAnywhere)
+	class UC_EWeaponComp* Weapon;
 	#pragma endregion
 
 
@@ -60,6 +64,7 @@ public:
 public:
 	/***** Getters *****/
 	float GetMeleeRange();
+	int32 GetMleeDamage();
 	//float GetLongRange();
 	float GetSpeed();
 
