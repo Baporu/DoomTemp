@@ -18,6 +18,12 @@ public:
 	// Sets default values for this actor's properties
 	AC_ProjectileBullet();
 
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
+	FVector Dir;
+
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -28,8 +34,6 @@ public:
 	float LifeTimer = 2.0f;
 
 
-	UFUNCTION()
-	void OnBulletOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION()
 	void OnBulletHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& HitResult);
 };

@@ -12,6 +12,7 @@
 #include "C_PlasmaGun.h"
 #include "C_SniperGun.h"
 #include "C_ShotGun.h"
+#include "Enemy/C_Enemy.h"
 
 // Sets default values
 AC_PlayerCharacter::AC_PlayerCharacter()
@@ -20,7 +21,7 @@ AC_PlayerCharacter::AC_PlayerCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 
-	// Set Character Default Mesh's Location
+	// Character 클래스 기본 메쉬 위치 설정 (= 총기 기본 위치)
 	GetMesh()->SetRelativeLocation(FVector(-50.0, 10.0, 50.0));
 
 	// Create FPS Camera Component
@@ -65,7 +66,7 @@ AC_PlayerCharacter::AC_PlayerCharacter()
 	// Set Collision Preset
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Player"));
 
-	// Set Gun Mesh Components
+	// 총기마다 메쉬 컴포넌트 설정
 	{
 		{
 			// Create Gun Mesh Component
@@ -73,15 +74,16 @@ AC_PlayerCharacter::AC_PlayerCharacter()
 			// Attach Mesh Component to Camera Component
 			PlasmaMesh->SetupAttachment(GetMesh());
 			// Load Skeletal Mesh
-			ConstructorHelpers::FObjectFinder<USkeletalMesh> GunMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/SHS/Designs/Experimental_Rifle_Coilgun/vector.vector'"));
+			ConstructorHelpers::FObjectFinder<USkeletalMesh> GunMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/Experimental_Rifle_Coilgun/vector.vector'"));
 
 			// If Skeletal Mesh Loaded
 			if (GunMesh.Succeeded()) {
 				// Set Loaded Mesh
 				PlasmaMesh->SetSkeletalMesh(GunMesh.Object);
 
-				// Set Mesh Component's Location and Rotation
-				PlasmaMesh->SetRelativeRotation(FRotator(0.0, -90.0, 0.0));
+				// Set Mesh Component's Rotation and Scale
+				PlasmaMesh->SetRelativeRotation(FRotator(0.0, 90.0, 0.0));
+				PlasmaMesh->SetRelativeScale3D(FVector(0.01));
 			}
 		}
 		{
@@ -98,13 +100,13 @@ AC_PlayerCharacter::AC_PlayerCharacter()
 				SniperMesh->SetSkeletalMesh(GunMesh.Object);
 
 				// Set Mesh Component's Location and Rotation
-				SniperMesh->SetRelativeLocationAndRotation(FVector(10.0, 50.0, 10.0), FRotator(0.0, -90.0, 0.0));
+				SniperMesh->SetRelativeLocationAndRotation(FVector(10.0, 45.0, 10.0), FRotator(0.0, -90.0, 0.0));
 				SniperMesh->SetRelativeScale3D(FVector(0.15));
 			}
 		}
  		{
 			// Create Gun Mesh Component
-			ShotgunMesh = CreateDefaultSubobject<UC_GunSkeletalMeshComponent>(TEXT("ShotgunMesh"));
+			ShotgunMesh = CreateDefaultSubobject<UC_ShotGun>(TEXT("ShotgunMesh"));
 			// Attach Mesh Component to Camera Component
 			ShotgunMesh->SetupAttachment(GetMesh());
 			// Load Skeletal Mesh
@@ -116,8 +118,10 @@ AC_PlayerCharacter::AC_PlayerCharacter()
 				ShotgunMesh->SetSkeletalMesh(GunMesh.Object);
 
 				// Set Mesh Component's Location and Rotation
-				ShotgunMesh->SetRelativeLocationAndRotation(FVector(-30.0f, 0.0f, -150.0f), FRotator(0.0f, -90.0f, 0.0f));
+				ShotgunMesh->SetRelativeLocationAndRotation(FVector(30.0, 0.0, 0.0), FRotator(0.0, -90.0, 0.0));
 			}
+
+
  		}
 	}
 
@@ -129,6 +133,7 @@ void AC_PlayerCharacter::BeginPlay()
 	Super::BeginPlay();
 	
 
+	// 플레이어 컨트롤러 가져오고 IMC와 매핑
 	auto pc = Cast<APlayerController>(Controller);
 
 	if (pc) {
@@ -139,10 +144,15 @@ void AC_PlayerCharacter::BeginPlay()
 		}
 	}
 
+	// 모든 무기 비활성화 후 현재 무기만 활성화
 	SetWeaponActive(EWeaponType::Plasma, false);
 	SetWeaponActive(EWeaponType::Sniper, false);
-	//SetWeaponActive(EWeaponType::Shotgun, false);
+	SetWeaponActive(EWeaponType::Shotgun, false);
 	SetWeaponActive(mWeaponType, true);
+
+	// 발사 속도 초기화
+	SetFireRate(GetCurrentGun()->GetFireRate());
+	FireTimer = FireRate;
 
 // 	for (int32 i = 0; i < 3; i++) {
 // 		if (Guns[i] != nullptr) {
@@ -162,7 +172,8 @@ void AC_PlayerCharacter::Tick(float DeltaTime)
 
 
 	PlayerMove();
-	ResetDashCount(DeltaTime);
+	PlayerFire();
+	ResetDashCount();
 }
 
 // Called to bind functionality to input
@@ -182,13 +193,16 @@ void AC_PlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		PlayerInput->BindAction(IA_Jump, ETriggerEvent::Started, this, &AC_PlayerCharacter::OnJump);
 		
 		PlayerInput->BindAction(IA_Dash, ETriggerEvent::Started, this, &AC_PlayerCharacter::OnDash);
-		//PlayerInput->BindAction(IA_Move, ETriggerEvent::Completed, this, &AC_PlayerCharacter::ResetDashDir);
-
+		
 		PlayerInput->BindAction(IA_Fire, ETriggerEvent::Started, this, &AC_PlayerCharacter::OnFire);
 		PlayerInput->BindAction(IA_Fire, ETriggerEvent::Completed, this, &AC_PlayerCharacter::OnFire);
 
 		PlayerInput->BindAction(IA_UseMode, ETriggerEvent::Started, this, &AC_PlayerCharacter::OnUseMode);
 		PlayerInput->BindAction(IA_UseMode, ETriggerEvent::Completed, this, &AC_PlayerCharacter::OnUseMode);
+
+		PlayerInput->BindAction(IA_ChangeWeapon, ETriggerEvent::Started, this, &AC_PlayerCharacter::OnChangeWeapon);
+
+		PlayerInput->BindAction(IA_Punch, ETriggerEvent::Started, this, &AC_PlayerCharacter::OnPunch);
 	}
 }
 
@@ -210,6 +224,20 @@ void AC_PlayerCharacter::OnMove(const struct FInputActionValue& inputValue)
 
 	MoveDir.X = value.X;
 	MoveDir.Y = value.Y;
+
+	if (value.X > 0.0)
+		DashDir.X = 1.0;
+	else if (value.X < 0.0)
+		DashDir.X = -1.0;
+	else
+		DashDir.X = 0.0;
+
+	if (value.Y > 0.0)
+		DashDir.Y = 1.0;
+	else if (value.Y < 0.0)
+		DashDir.Y = -1.0;
+	else
+		DashDir.Y = 0.0;
 }
 
 void AC_PlayerCharacter::OnJump(const struct FInputActionValue& inputValue)
@@ -231,47 +259,21 @@ void AC_PlayerCharacter::PlayerMove()
 
 void AC_PlayerCharacter::OnDash(const struct FInputActionValue& inputValue)
 {
-	if (CurDashCount <= 0)
+	if (CurDashCount <= 0 || DashDir == FVector::ZeroVector)
 		return;
 
-	/*
-	// Player Doesn't Dash Up or Down
-	DashDir.Z = 0;
-
-	// Dash Direction Should Be an Unit Vector
-	if (DashDir.X > 0)
-		DashDir.X = GetActorForwardVector().X;
-	else if (DashDir.X < 0)
-		DashDir.X = GetActorForwardVector().X * -1;
-	else
-		DashDir.X = 0.0;
-
-	if (DashDir.Y > 0)
-		DashDir.Y = GetActorRightVector().Y;
-	else if (DashDir.Y < 0)
-		DashDir.Y = GetActorRightVector().Y * -1;
-	else
-		DashDir.Y = 0.0;
-
-	// Dash Distance Should Be Same in any Direction
 	DashDir.Normalize();
-	
-	// Dash Function
-	FVector dashLocation = GetActorLocation() + DashDir * DashDist;
-	SetActorLocation(dashLocation, true);
-	*/
+	UE_LOG(LogTemp, Warning, TEXT("DashDir X: %f, Y: %f, Z: %f"), DashDir.X, DashDir.Y, DashDir.Z);
 
-	//CurDashCount--;
-}
+	SetActorLocation(GetActorLocation() + DashDir * DashDistance, true);
 
-void AC_PlayerCharacter::ResetDashDir(const struct FInputActionValue& inputValue)
-{
 	DashDir = FVector::ZeroVector;
+	CurDashCount--;
 }
 
-void AC_PlayerCharacter::ResetDashCount(float InDeltaTime)
+void AC_PlayerCharacter::ResetDashCount()
 {
-	DashTimer -= InDeltaTime;
+	DashTimer -= GetWorld()->GetDeltaSeconds();
 
 	if (DashTimer <= 0.0f) {
 		CurDashCount = MaxDashCount;
@@ -283,12 +285,26 @@ void AC_PlayerCharacter::ResetDashCount(float InDeltaTime)
 void AC_PlayerCharacter::OnFire(const struct FInputActionValue& inputValue)
 {
 	bIsFire = !bIsFire;
+}
 
-	switch (mWeaponType)
-	{
-		case EWeaponType::Plasma:	{Fire_Plasma();}	break;
-		case EWeaponType::Sniper:	{Fire_Sniper();}	break;
-		case EWeaponType::Shotgun:	{Fire_Shotgun();}	break;
+void AC_PlayerCharacter::PlayerFire()
+{
+	if (!bIsFire) {
+		FireTimer = FireRate;
+		return;
+	}
+
+	FireTimer += GetWorld()->GetDeltaSeconds();
+
+	if (FireTimer >= FireRate) {
+		switch (mWeaponType)
+		{
+			case EWeaponType::Plasma: { Fire_Plasma(); }	break;
+			case EWeaponType::Sniper: { Fire_Sniper(); }	break;
+			case EWeaponType::Shotgun: { Fire_Shotgun(); }	break;
+		}
+
+		FireTimer = 0.0f;
 	}
 }
 
@@ -319,11 +335,23 @@ void AC_PlayerCharacter::OnUseMode(const struct FInputActionValue& inputValue)
 	}
 }
 
+void AC_PlayerCharacter::OnChangeWeapon(const struct FInputActionValue& inputValue)
+{
+	switch (mWeaponType)
+	{
+		case EWeaponType::Plasma:	{ ChangeWeapon(EWeaponType::Sniper); }	break;
+		case EWeaponType::Sniper:	{ ChangeWeapon(EWeaponType::Shotgun); }	break;
+		case EWeaponType::Shotgun:	{ ChangeWeapon(EWeaponType::Plasma); }	break;
+	}
+}
+
 void AC_PlayerCharacter::ChangeWeapon(EWeaponType InChangeType)
 {
 	SetWeaponActive(mWeaponType, false);
 	mWeaponType = InChangeType;
 	SetWeaponActive(InChangeType, true);
+	
+	FireRate = GetCurrentGun()->GetFireRate();
 }
 
 void AC_PlayerCharacter::SetWeaponActive(EWeaponType InChangeType, bool InActive)
@@ -332,12 +360,71 @@ void AC_PlayerCharacter::SetWeaponActive(EWeaponType InChangeType, bool InActive
 	{
 		case EWeaponType::Plasma:	{ PlasmaMesh->SetVisibility(InActive); }	break;
 		case EWeaponType::Sniper:	{ SniperMesh->SetVisibility(InActive); }	break;
-		//case EWeaponType::Shotgun:	{ ShotgunMesh->SetVisibility(InActive); }	break;
+		case EWeaponType::Shotgun:	{ ShotgunMesh->SetVisibility(InActive); }	break;
 	}
+}
+
+void AC_PlayerCharacter::PlayerHit(int32 InDamage)
+{
+	CurrentHP -= InDamage;
+	UE_LOG(LogTemp, Warning, TEXT("Player Take Damage"));
+
+	if (CurrentHP <= 0) {
+		GEngine->AddOnScreenDebugMessage(0, 5.0f, FColor::Red, TEXT("Player Dead"));
+		UE_LOG(LogTemp, Log, TEXT("Player Dead"));
+	}
+}
+
+void AC_PlayerCharacter::SetFireRate(float InFireRate)
+{
+	FireRate = InFireRate;
+}
+
+void AC_PlayerCharacter::OnPunch(const struct FInputActionValue& inputValue)
+{
+// 	FVector startPos = FPSCamComp->GetComponentLocation();
+// 	FVector endPos = startPos + FPSCamComp->GetForwardVector() * MeleeDistance;
+// 	TArray<FHitResult> hitInfos;
+// 	FCollisionQueryParams params;
+// 	params.AddIgnoredActor(this);
+// 
+// 	bool bHit = GetWorld()->SweepMultiByChannel(hitInfos, startPos, endPos, FQuat::Identity, ECC_GameTraceChannel2, FCollisionShape::MakeBox(FVector3f(DebugExtent)), params);
+// 	DrawDebugBox(GetWorld(), startPos + (endPos - startPos) * 0.5f, FVector(DebugExtent * 0.5f), FColor::Green, false, 2.0f, 0U, 1.0f);
+// 
+// 	if (bHit) {
+// 		float minDist = MeleeDistance;
+// 
+// 		for (FHitResult hitInfo : hitInfos) {
+// 			AC_Enemy* enemy = Cast<AC_Enemy>(hitInfo.GetActor());
+// 
+// 			if (enemy == nullptr)
+// 				continue;
+// 
+// 			if (hitInfo.Distance < minDist) {
+// 				minDist = hitInfo.Distance;
+// 				target = hitInfo.GetActor();
+// 			}
+// 		}
+// 		
+// 		if (target) {
+// 			SetActorLocation(target->GetActorLocation(), true);
+// 		}
+// 	}
 }
 
 UCameraComponent* AC_PlayerCharacter::GetCameraComponent()
 {
 	return FPSCamComp;
+}
+
+UC_GunSkeletalMeshComponent* AC_PlayerCharacter::GetCurrentGun()
+{
+	switch (mWeaponType) {
+		case EWeaponType::Plasma:	{ return PlasmaMesh; }
+		case EWeaponType::Sniper:	{ return SniperMesh; }
+		case EWeaponType::Shotgun:	{ return ShotgunMesh; }
+	}
+
+	return ShotgunMesh;
 }
 

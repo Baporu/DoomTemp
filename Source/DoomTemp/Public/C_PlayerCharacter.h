@@ -47,34 +47,38 @@ public:
 
 
 public:
-	// 1ÀÎÄª Ä«¸Þ¶ó ÄÄÆ÷³ÍÆ®
-	UPROPERTY(EditAnywhere)
+	// Basic Components
+	// FPS Camera Component
+	UPROPERTY(EditAnywhere, Category = "Basics")
 	class UCameraComponent* FPSCamComp;
-
 	// FPS Player Mesh
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Basics")
 	class USkeletalMeshComponent* FPSMeshComp;
 
 	// Input Mapping Context
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputMappingContext* IMC_FPS;
 
-	// Camera Input Action
+	// Camera
+	// Camera Input Actions
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputAction* IA_LookUp;
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputAction* IA_Turn;
 
+	// Movement
 	// Player Movement Input Action
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputAction* IA_Move;
 	// Movement Direction
 	FVector MoveDir;
 
+	// Jump
 	// Player Jump Input Action
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputAction* IA_Jump;
 
+	// Dash
 	// Player Dash Input Action
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputAction* IA_Dash;
@@ -84,12 +88,13 @@ public:
 	int32 CurDashCount = MaxDashCount;
 
 	FVector DashDir = FVector::ZeroVector;
-	float DashSpeed = 5.0f;
+	float DashDistance = 500.0f;
 	UPROPERTY(EditDefaultsOnly, Category = "Stats")
 	float DashCoolTime = 4.0f;
 	// Dash Count Reset Timer
 	float DashTimer = DashCoolTime;
 
+	// Attack
 	// Player Fire Input Action
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputAction* IA_Fire;
@@ -97,7 +102,7 @@ public:
 	bool bIsFire = false;
 
 	// Player Weapon State
-	UPROPERTY(VisibleAnywhere, Category = "Guns")
+	UPROPERTY(EditAnywhere, Category = "Guns")
 	EWeaponType mWeaponType = EWeaponType::Sniper;
 	UPROPERTY(EditDefaultsOnly, Category = "Guns")
 	class UC_GunSkeletalMeshComponent* PlasmaMesh;
@@ -106,10 +111,19 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Guns")
 	class UC_GunSkeletalMeshComponent* ShotgunMesh;
 
+	// Player Mode Input Action
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	class UInputAction* IA_UseMode;
+
+	// Change Weapon Input Action
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	class UInputAction* IA_ChangeWeapon;
+
 	// Guns Array
 // 	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
 // 	TSubclassOf<class UC_GunSkeletalMeshComponent> Guns[3];
 
+	// Stats
 	// HP
 	UPROPERTY(EditDefaultsOnly, Category = "Stats")
 	int32 MaxHP = 100;
@@ -118,10 +132,20 @@ public:
 	// Melee Attack Damage
 	UPROPERTY(EditDefaultsOnly, Category = "Stats")
 	int32 MeleeDamage = 5;
+	UPROPERTY(EditDefaultsOnly, Category = "Stats")
+	float MeleeDistance = 3000.0f;
+	UPROPERTY(EditDefaultsOnly, Category = "Debug")
+	float DebugExtent = 100.0f;
 
-	// Player Mode Input Action
+	// Fire Rate
+	UPROPERTY(EditAnywhere, Category = "Stats")
+	float FireRate = 1.0f;
+	float FireTimer;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
-	class UInputAction* IA_UseMode;
+	class UInputAction* IA_Punch;
+	UPROPERTY(VisibleAnywhere, Category = "Debug")
+	class AActor* target;
 
 
 	void OnLookUp(const struct FInputActionValue& inputValue);
@@ -133,19 +157,26 @@ public:
 	void OnJump(const struct FInputActionValue& inputValue);
 
 	void OnDash(const struct FInputActionValue& inputValue);
-	void ResetDashDir(const struct FInputActionValue& inputValue);
-	void ResetDashCount(float InDeltaTime);
+	void ResetDashCount();
 
 	void OnFire(const struct FInputActionValue& inputValue);
+	void PlayerFire();
 	void Fire_Plasma();
 	void Fire_Sniper();
 	void Fire_Shotgun();
 
 	void OnUseMode(const struct FInputActionValue& inputValue);
 
+	void OnChangeWeapon(const struct FInputActionValue& inputValue);
 	void ChangeWeapon(EWeaponType InChangeType);
 	void SetWeaponActive(EWeaponType InChangeType, bool InActive);
 
+	void PlayerHit(int32 InDamage);
+	void SetFireRate(float InFireRate);
+
+	void OnPunch(const struct FInputActionValue& inputValue);
+
 	UCameraComponent* GetCameraComponent();
+	UC_GunSkeletalMeshComponent* GetCurrentGun();
 
 };

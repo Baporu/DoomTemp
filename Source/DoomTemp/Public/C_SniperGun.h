@@ -32,6 +32,9 @@ public:
 	// Sniper FX
 	UPROPERTY(EditDefaultsOnly, Category = SniperUI)
 	class UParticleSystem* SniperEffect;
+	
+	UPROPERTY(EditDefaultsOnly)
+	int32 SnipeDamage = 40;
 
 
 	// Mouse Left Click Event
@@ -39,5 +42,4 @@ public:
 	// Mouse Right Click Event
 	virtual void OnUseMode() override;
 
-	void SniperAttack();
 };

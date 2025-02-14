@@ -7,6 +7,7 @@
 #include "C_PlayerCharacter.h"
 #include "Camera/CameraComponent.h"
 #include "Runtime/UMG/Public/Blueprint/UserWidget.h"
+#include "Enemy/C_Enemy.h"
 
 void UC_SniperGun::BeginPlay()
 {
@@ -21,39 +22,6 @@ void UC_SniperGun::BeginPlay()
 }
 
 void UC_SniperGun::OnFire()
-{
-	bIsFire = !bIsFire;
-
-	if (bIsFire) {
-		SniperAttack();
-	}
-}
-
-void UC_SniperGun::OnUseMode()
-{
-	bUsingMode = !bUsingMode;
-
-	if (bUsingMode) {
-		// 스나이퍼 조준 UI 등록
-		SniperUI->AddToViewport();
-		// 카메라의 시야각인 FOV(Field Of View) 조절
-		FPSCam->SetFieldOfView(45.0f);
-
-		// 일반 조준 UI 제거
-		CrossHairUI->RemoveFromParent();
-	}
-	else {
-		// 스나이퍼 조준 UI 제거
-		SniperUI->RemoveFromParent();
-		// 카메라의 FOV를 원래대로 복원
-		FPSCam->SetFieldOfView(90.0f);
-
-		// 일반 조준 UI 등록
-		CrossHairUI->AddToViewport();
-	}
-}
-
-void UC_SniperGun::SniperAttack()
 {
 	if (CurrentAmmo <= 0)
 		return;
@@ -88,12 +56,12 @@ void UC_SniperGun::SniperAttack()
 				hitComp->AddForceAtLocation(force, hitInfo.ImpactPoint);
 			}
 
-			// Check Whether Hit Actor is Enemy or Not
-// 			auto enemy = hitInfo.GetActor()->GetDefaultSubobjectByName(TEXT("FSM"));
-// 
-// 			if (enemy) {
-// 				
-// 			}
+			// 맞은 대상이 Enemy인지 아닌지 판별
+			AC_Enemy* enemy = Cast<AC_Enemy>(hitInfo.GetActor());
+
+			if (enemy) {
+				enemy->SetHP(SnipeDamage);
+			}
 		}
 
 		// Debug LineTrace
@@ -102,6 +70,30 @@ void UC_SniperGun::SniperAttack()
 
 	else {
 		Super::OnFire();
+	}
+}
+
+void UC_SniperGun::OnUseMode()
+{
+	bUsingMode = !bUsingMode;
+
+	if (bUsingMode) {
+		// 스나이퍼 조준 UI 등록
+		SniperUI->AddToViewport();
+		// 카메라의 시야각인 FOV(Field Of View) 조절
+		FPSCam->SetFieldOfView(45.0f);
+
+		// 일반 조준 UI 제거
+		CrossHairUI->RemoveFromParent();
+	}
+	else {
+		// 스나이퍼 조준 UI 제거
+		SniperUI->RemoveFromParent();
+		// 카메라의 FOV를 원래대로 복원
+		FPSCam->SetFieldOfView(90.0f);
+
+		// 일반 조준 UI 등록
+		CrossHairUI->AddToViewport();
 	}
 }
 

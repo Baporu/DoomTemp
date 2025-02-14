@@ -24,6 +24,10 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 
+protected:
+	UPROPERTY(VisibleAnywhere)
+	int32 Damage = 0;
+
 public:
 	// 충돌체 컴포넌트
 	UPROPERTY(VisibleAnywhere, Category = Collision)
@@ -32,7 +36,9 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = BodyMesh)
 	class UStaticMeshComponent* MeshComp;
 
-	UPROPERTY(EditDefaultsOnly)
-	int32 Damage = 10;
 
+	UFUNCTION()
+	void OnBulletOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	void OnBulletInit(int32 InBulletDamage);
 };

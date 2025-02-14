@@ -14,4 +14,8 @@ class DOOMTEMP_API UC_PlasmaGun : public UC_GunSkeletalMeshComponent
 {
 	GENERATED_BODY()
 	
+
+public:
+	// Mouse Left Click Event
+	virtual void OnFire() override;
 };
