@@ -29,6 +29,9 @@ AC_GunBullet::AC_GunBullet()
 	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	// 8. 외관 크기 설정
 	MeshComp->SetRelativeScale3D(FVector(0.25));
+
+	// Add Overlap Function
+	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &AC_GunBullet::OnBulletOverlap);
 }
 
 // Called when the game starts or when spawned

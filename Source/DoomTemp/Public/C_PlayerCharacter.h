@@ -6,7 +6,8 @@
 #include "GameFramework/Character.h"
 #include "C_PlayerCharacter.generated.h"
 
-// 플레이어의 무기 종류
+// Define Weapon Type
+// Used by Player Weapons and Drops
 UENUM()
 enum class EWeaponType : uint8 {
 	Plasma,
@@ -134,8 +135,6 @@ public:
 	int32 MeleeDamage = 5;
 	UPROPERTY(EditDefaultsOnly, Category = "Stats")
 	float MeleeDistance = 3000.0f;
-	UPROPERTY(EditDefaultsOnly, Category = "Debug")
-	float DebugExtent = 100.0f;
 
 	// Fire Rate
 	UPROPERTY(EditAnywhere, Category = "Stats")
@@ -144,8 +143,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputAction* IA_Punch;
-	UPROPERTY(VisibleAnywhere, Category = "Debug")
-	class AActor* target;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	class UInputAction* IA_Saw;
 
 
 	void OnLookUp(const struct FInputActionValue& inputValue);
@@ -175,6 +175,8 @@ public:
 	void SetFireRate(float InFireRate);
 
 	void OnPunch(const struct FInputActionValue& inputValue);
+	
+	void OnGetDrop();
 
 	UCameraComponent* GetCameraComponent();
 	UC_GunSkeletalMeshComponent* GetCurrentGun();

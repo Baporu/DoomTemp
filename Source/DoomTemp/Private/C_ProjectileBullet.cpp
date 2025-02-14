@@ -8,7 +8,6 @@
 AC_ProjectileBullet::AC_ProjectileBullet()
 {
 	// Add Overlap Function
-	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &AC_ProjectileBullet::OnBulletOverlap);
 	CollisionComp->OnComponentHit.AddDynamic(this, &AC_ProjectileBullet::OnBulletHit);
 }
 

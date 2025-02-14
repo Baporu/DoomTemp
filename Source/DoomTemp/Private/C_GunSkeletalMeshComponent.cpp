@@ -40,6 +40,13 @@ void UC_GunSkeletalMeshComponent::OnEndMode()
 
 }
 
+void UC_GunSkeletalMeshComponent::IncreaseAmmo() {
+	CurrentAmmo += 10;
+
+	if (CurrentAmmo > MaxAmmo)
+		CurrentAmmo = MaxAmmo;
+}
+
 float UC_GunSkeletalMeshComponent::GetFireRate()
 {
 	return FireRate;

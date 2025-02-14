@@ -398,6 +398,10 @@ void AC_PlayerCharacter::OnPunch(const struct FInputActionValue& inputValue)
 // 	}
 }
 
+void AC_PlayerCharacter::OnGetDrop() {
+	GetCurrentGun()->IncreaseAmmo();
+}
+
 UCameraComponent* AC_PlayerCharacter::GetCameraComponent()
 {
 	return FPSCamComp;

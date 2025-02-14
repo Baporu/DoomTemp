@@ -52,5 +52,7 @@ public:
 	virtual void OnUseMode();
 	virtual void OnEndMode();
 
+	void IncreaseAmmo();
+
 	float GetFireRate();
 };

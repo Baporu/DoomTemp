@@ -23,7 +23,4 @@ AC_BounceBullet::AC_BounceBullet()
 
 	// 생명 시간 주기
 	InitialLifeSpan = 2.0f;
-
-	// Add Overlap Function
-	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &AC_BounceBullet::OnBulletOverlap);
 }
