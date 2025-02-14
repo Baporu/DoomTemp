@@ -9,9 +9,9 @@ AC_EWeaponScratch::AC_EWeaponScratch()
     /***** Scratch Comp *****/
     C_Helpers::CreateComponent<USphereComponent>(this, &ScratchComp, "Scratch_L", RootComponent);
     ScratchComp->SetCollisionProfileName( FName("EnemyAttack") );
-    ScratchComp->SetRelativeScale3D( FVector(30.f) );
+    ScratchComp->SetRelativeScale3D( FVector(0.4f) );
     ScratchComp->OnComponentBeginOverlap.AddDynamic(this, &AC_EWeaponScratch::OnEWeaponScratchOverlap);
-
+    ScratchComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
     /***** Equip *****/
     // Weapon을 부착할 소켓 이름

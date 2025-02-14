@@ -11,7 +11,7 @@ AC_EnemyA::AC_EnemyA()
     if (skeleton.Succeeded())
     {
         GetMesh()->SetSkeletalMesh(skeleton.Object);
-        GetMesh()->SetRelativeLocationAndRotation( FVector(0.f, 0.f, -90.f), FRotator(0.f, -90.f, 0.f) );
+        GetMesh()->SetRelativeLocation( FVector(0.f, 0.f, -90.f) );
     }
 
 
