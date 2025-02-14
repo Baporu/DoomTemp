@@ -172,6 +172,7 @@ void AC_PlayerCharacter::Tick(float DeltaTime)
 
 
 	PlayerMove();
+	FireTimer += DeltaTime;
 	PlayerFire();
 	ResetDashCount();
 }
@@ -224,20 +225,6 @@ void AC_PlayerCharacter::OnMove(const struct FInputActionValue& inputValue)
 
 	MoveDir.X = value.X;
 	MoveDir.Y = value.Y;
-
-	if (value.X > 0.0)
-		DashDir.X = 1.0;
-	else if (value.X < 0.0)
-		DashDir.X = -1.0;
-	else
-		DashDir.X = 0.0;
-
-	if (value.Y > 0.0)
-		DashDir.Y = 1.0;
-	else if (value.Y < 0.0)
-		DashDir.Y = -1.0;
-	else
-		DashDir.Y = 0.0;
 }
 
 void AC_PlayerCharacter::OnJump(const struct FInputActionValue& inputValue)
@@ -252,6 +239,9 @@ void AC_PlayerCharacter::PlayerMove()
 
 	// Call Character Class's Method
 	AddMovementInput(MoveDir);
+
+	DashDir = MoveDir;
+	DashDir.Z = 0.0;
 
 	// Reset Direction
 	MoveDir = FVector::ZeroVector;
@@ -289,12 +279,8 @@ void AC_PlayerCharacter::OnFire(const struct FInputActionValue& inputValue)
 
 void AC_PlayerCharacter::PlayerFire()
 {
-	if (!bIsFire) {
-		FireTimer = FireRate;
+	if (!bIsFire)
 		return;
-	}
-
-	FireTimer += GetWorld()->GetDeltaSeconds();
 
 	if (FireTimer >= FireRate) {
 		switch (mWeaponType)
