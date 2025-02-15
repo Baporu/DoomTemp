@@ -119,3 +119,10 @@ void UC_EWeaponComp::EndEquip()
 	GetCurWeapon()->EndEquip();
 }
 
+
+// Enemy 사망 시 Enemy가 들고 있던 모든 Weapon들 Destroy
+void UC_EWeaponComp::WeaponDestroy()
+{
+	for(AC_EWeapon* weapon : Weapons)
+		weapon->Destroy();
+}

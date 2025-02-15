@@ -82,3 +82,7 @@ void AC_EWeapon::UnEquip()
 		AttachToComponent(Owner->GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), WeaponSocketName);
 }
 
+//void AC_EWeapon::OnEnemyDestroy()
+//{
+//	Destroy();
+//}

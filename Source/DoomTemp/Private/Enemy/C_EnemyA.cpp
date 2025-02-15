@@ -16,16 +16,14 @@ AC_EnemyA::AC_EnemyA()
 
 
     /***** Animation *****/
-    //ConstructorHelpers::FClassFinder<UAnimInstance> tmpClass(L"/Game/DYL/Designs/zombie-number-1-animated/source/zom_1.zom_1");
-    //if (tmpClass.Succeeded())
-    //    GetMesh()->SetAnimInstanceClass(tmpClass.Class);
+    ConstructorHelpers::FClassFinder<UAnimInstance> tmpAnim(L"/Script/Engine.AnimBlueprint'/Game/DYL/Blueprints/Enemy/Animations/ABP_EnemyA.ABP_EnemyA'_C");
+    if (tmpAnim.Succeeded())
+        GetMesh()->SetAnimInstanceClass(tmpAnim.Class);
 }
 
 void AC_EnemyA::BeginPlay()
 {
     Super::BeginPlay();
-
-    //HP = 0;
 }
 
 void AC_EnemyA::Tick(float DeltaTime)

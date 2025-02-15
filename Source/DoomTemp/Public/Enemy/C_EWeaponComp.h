@@ -63,6 +63,10 @@ public:
 	void EndEquip();
 
 public:
+	// Enemy 사망 시 Enemy가 들고 있던 모든 Weapon들 Destroy
+	void WeaponDestroy();
+
+public:
 	FWeaponTypeChanged OnWeaponTypeChanged;
 
 private:

@@ -108,5 +108,8 @@ void AC_Enemy::OnDead()
     GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Cyan, FString("Enemy Dead !!!!!"));
     // 2. 죽음 애니메이션이 재생된다
 
+
+    // 3. 들고 있던 Weapon을 Destroy한다
+    Weapon->WeaponDestroy();
 }
 
