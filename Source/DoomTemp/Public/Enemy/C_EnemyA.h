@@ -4,6 +4,7 @@
 #include "Enemy/C_Enemy.h"
 #include "C_EnemyA.generated.h"
 
+
 UCLASS()
 class DOOMTEMP_API AC_EnemyA : public AC_Enemy
 {
@@ -18,7 +19,7 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 
-//private:
-//	UPROPERTY(EditAnywhere, Category="Weapon")
-//	TSubclassOf<class AC_EWeaponScratch> WeaponScratch;
+//protected:
+//	void SetMeleeDamage();
+//	void SetSpeed();
 };

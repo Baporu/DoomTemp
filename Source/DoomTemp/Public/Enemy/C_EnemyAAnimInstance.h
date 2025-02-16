@@ -17,5 +17,5 @@ public:
 	EEnemyState AnimState = EEnemyState::IDLE;
 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "FSM")
-	EEnemyMovement EnemyMovement = EEnemyMovement::WALK;
+	EEnemyMovement EnemyMovement = EEnemyMovement::MAX;
 };

@@ -26,8 +26,7 @@ void AC_EWeaponScratch::OnEWeaponScratchOverlap(UPrimitiveComponent* OverlappedC
     CheckNull(player);
 
     // 2. player에게 데미지를 입힌다
-    //player->
-    Owner->GetMleeDamage();
-    GEngine->AddOnScreenDebugMessage(0, 1, FColor::Emerald, L"Mlee Attack Succeeded!");
+    player->PlayerHit(Owner->GetMeleeDamage());
+    GEngine->AddOnScreenDebugMessage(0, 1, FColor::Emerald, L"Melee Attack Succeeded!");
 }
 

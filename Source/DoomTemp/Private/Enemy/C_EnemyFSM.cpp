@@ -89,6 +89,9 @@ void UC_EnemyFSM::SpawnState()
 
 	// 3. Idle 상태로 전환한다
 	EnemyState = EEnemyState::IDLE;
+
+	// 4. 움직이기 시작한다
+	EnemyMovement = EEnemyMovement::WALK;
 }
 
 void UC_EnemyFSM::IdleState()
@@ -99,6 +102,7 @@ void UC_EnemyFSM::IdleState()
 	{
 		// 이동 상태로 전환
 		EnemyState = EEnemyState::MOVE;
+		EnemyMovement = EEnemyMovement::WALK;
 		CurTime = 0.f;
 
 		// 랜덤 위치 정하기
@@ -109,30 +113,35 @@ void UC_EnemyFSM::IdleState()
 
 void UC_EnemyFSM::MoveState()
 {
-	FString DebugMessage = UEnum::GetValueAsString(EnemyMovement);
-	GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Magenta, DebugMessage);
+	/*** Debug ***/
+    FString DebugMessage = UEnum::GetValueAsString(EnemyMovement);
+    GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Magenta, DebugMessage);
 
 
-	/***** 이동 *****/
+	/*** 상태에 따른 Speed 변경 ***/
+	Self->ChangeSpeed();
+
+
+	/*** 이동 : Walk, Flinch 상태일 때 가능 ***/
 	FVector destination = Target->GetActorLocation();
 	FVector dir = Target->GetActorLocation() - Self->GetActorLocation();
 	Self->AddMovementInput(dir.GetSafeNormal());
-
-
-	/*** 순찰 ***/
+	
+	
+	/*** 순찰 : Walk, Flinch 상태일 때 가능 ***/
 	auto ns = UNavigationSystemV1::GetNavigationSystem(GetWorld());
 	FPathFindingQuery query;
 	FAIMoveRequest req;
-
+	
 	req.SetAcceptanceRadius(3);
 	req.SetGoalLocation(destination);
-
+	
 	MyAI->BuildPathfindingQuery(req, query);
-
+	
 	FPathFindingResult rslt = ns->FindPathSync(query);
-
-
-	// 목적지까지의 길 찾기 성공 여부 확인
+	
+	
+	/*** 목적지까지의 길 찾기 성공 여부 확인 ***/
 	if (rslt.Result == ENavigationQueryResult::Success)
 		MyAI->MoveToLocation(destination);
 	else
@@ -141,9 +150,24 @@ void UC_EnemyFSM::MoveState()
 		if(result == EPathFollowingRequestResult::AlreadyAtGoal)
 			GetRandomPositionInNavMesh(Self->GetActorLocation(), 500, RandPos);
 	}
+	
+
+	switch (EnemyMovement)
+	{
+		case EEnemyMovement::WALK:
+			WalkMovement();
+			break;
+		case EEnemyMovement::FLINCH:
+			FlinchMovement();
+			break;
+		case EEnemyMovement::STAGGER:
+			StaggerMovement();
+			break;
+	}
 
 
-	/***** 근거리 공격 상태로 전환 *****/
+
+	/*** 근거리 공격 상태로 전환 ***/
 	if ( dir.Size() <= MeleeRange )
 	{
 		MyAI->StopMovement();
@@ -223,6 +247,31 @@ void UC_EnemyFSM::DeadState()
 	}
 }
 
+
+void UC_EnemyFSM::WalkMovement()
+{
+
+}
+
+void UC_EnemyFSM::FlinchMovement()
+{
+
+}
+
+void UC_EnemyFSM::StaggerMovement()
+{
+
+}
+
+
+/***** Getters *****/
+EEnemyMovement UC_EnemyFSM::GetEnemyMovement()
+{
+	return EnemyMovement;
+}
+
+
+/***** Setters *****/
 void UC_EnemyFSM::SetEnemyMovement(EEnemyMovement InVal)
 {
 	EnemyMovement = InVal;

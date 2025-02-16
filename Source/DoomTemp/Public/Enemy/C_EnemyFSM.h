@@ -57,7 +57,7 @@ protected:
 
 	// Sub state - 어떻게 움직이고 있는가
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "FSM")
-	EEnemyMovement EnemyMovement = EEnemyMovement::WALK;
+	EEnemyMovement EnemyMovement = EEnemyMovement::MAX;
 
 
 	// Sub state - 어떤 공격을 받았는가
@@ -99,6 +99,7 @@ protected:
 	//float LongRange;	// 장거리 공격 범위
 
 
+	/***** Main State *****/
 public:
 	// 등장
 	void SpawnState();
@@ -118,6 +119,25 @@ public:
 	// 죽음
 	void DeadState();
 
+
+	/***** Sub State *****/
+public:
+	// 걷기
+	void WalkMovement();
+
+	// 비틀거림 (Flinch)
+	void FlinchMovement();
+
+	// 주춤거림 (Stager)
+	void StaggerMovement();
+
+
+	/***** Getters *****/
+public:
+	EEnemyMovement GetEnemyMovement();
+
+
+	/***** Setters *****/
 public:
 	void SetEnemyMovement(EEnemyMovement InVal);
 	void SetEnemyState(EEnemyState InVal);
