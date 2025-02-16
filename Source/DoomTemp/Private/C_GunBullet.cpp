@@ -4,6 +4,7 @@
 #include "C_GunBullet.h"
 #include "Components/SphereComponent.h"
 #include "Enemy/C_Enemy.h"
+#include "C_PlayerCharacter.h"
 
 // Sets default values
 AC_GunBullet::AC_GunBullet()
@@ -53,7 +54,7 @@ void AC_GunBullet::OnBulletOverlap(UPrimitiveComponent* OverlappedComponent, AAc
 	AC_Enemy* enemy = Cast<AC_Enemy>(OtherActor);
 
 	if (enemy != nullptr) {
-		enemy->SetHP(Damage);
+		enemy->OnDamaged(Damage, EAttackType::Gun);
 
 		Destroy();
 	}
