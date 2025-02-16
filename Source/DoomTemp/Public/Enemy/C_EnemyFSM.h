@@ -142,4 +142,11 @@ public:
 	void SetEnemyMovement(EEnemyMovement InVal);
 	void SetEnemyState(EEnemyState InVal);
 	void SetAttackType(EAttackType InVal);
+
+
+public:
+	// 이동 및 순찰
+	void Move();
+	// 거리에 따른 근거리 공격 상태로 전환
+	void CheckDistance(float InDistance);
 };

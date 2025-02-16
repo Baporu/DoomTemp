@@ -81,17 +81,18 @@ bool UC_EnemyFSM::GetRandomPositionInNavMesh(FVector InCenterLocation, float InR
 
 void UC_EnemyFSM::SpawnState()
 {
-	// 1. Spawn VFX를 소환한다
+	// 1. 랜덤 위치 정하기
+	GetRandomPositionInNavMesh(Self->GetActorLocation(), 500, RandPos);
+
+	// 2. Spawn VFX를 소환한다
 	
 
-	// 2. Spawn 애니메이션을 재생한다
+	// 3. Spawn 애니메이션을 재생한다
 
 
 	// 3. Idle 상태로 전환한다
 	EnemyState = EEnemyState::IDLE;
-
-	// 4. 움직이기 시작한다
-	EnemyMovement = EEnemyMovement::WALK;
+	EnemyMovement = EEnemyMovement::MAX;
 }
 
 void UC_EnemyFSM::IdleState()
@@ -104,9 +105,6 @@ void UC_EnemyFSM::IdleState()
 		EnemyState = EEnemyState::MOVE;
 		EnemyMovement = EEnemyMovement::WALK;
 		CurTime = 0.f;
-
-		// 랜덤 위치 정하기
-		GetRandomPositionInNavMesh( Self->GetActorLocation(), 500, RandPos);
 	}
 }
 
@@ -118,61 +116,60 @@ void UC_EnemyFSM::MoveState()
     GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Magenta, DebugMessage);
 
 
-	/*** 상태에 따른 Speed 변경 ***/
-	Self->ChangeSpeed();
+	/*** Sub state인 Movement에 따른 Speed 설정 ***/
+	Self->SetEnemySpeed();
 
 
-	/*** 이동 : Walk, Flinch 상태일 때 가능 ***/
-	FVector destination = Target->GetActorLocation();
-	FVector dir = Target->GetActorLocation() - Self->GetActorLocation();
-	Self->AddMovementInput(dir.GetSafeNormal());
+	/*** Sub state에 따른 행동 실행 ***/
+	switch (EnemyMovement)
+	{
+	case EEnemyMovement::WALK:
+		WalkMovement();
+		break;
+	case EEnemyMovement::FLINCH:
+		FlinchMovement();
+		break;
+	case EEnemyMovement::STAGGER:
+		StaggerMovement();
+		break;
+	}
+
+	///*** 이동 : Walk, Flinch 상태일 때 가능 ***/
+	//FVector destination = Target->GetActorLocation();
+	//FVector dir = Target->GetActorLocation() - Self->GetActorLocation();
+	//Self->AddMovementInput(dir.GetSafeNormal());
 	
 	
 	/*** 순찰 : Walk, Flinch 상태일 때 가능 ***/
-	auto ns = UNavigationSystemV1::GetNavigationSystem(GetWorld());
-	FPathFindingQuery query;
-	FAIMoveRequest req;
-	
-	req.SetAcceptanceRadius(3);
-	req.SetGoalLocation(destination);
-	
-	MyAI->BuildPathfindingQuery(req, query);
-	
-	FPathFindingResult rslt = ns->FindPathSync(query);
-	
-	
-	/*** 목적지까지의 길 찾기 성공 여부 확인 ***/
-	if (rslt.Result == ENavigationQueryResult::Success)
-		MyAI->MoveToLocation(destination);
-	else
-	{
-		auto result = MyAI->MoveToLocation(RandPos);
-		if(result == EPathFollowingRequestResult::AlreadyAtGoal)
-			GetRandomPositionInNavMesh(Self->GetActorLocation(), 500, RandPos);
-	}
-	
-
-	switch (EnemyMovement)
-	{
-		case EEnemyMovement::WALK:
-			WalkMovement();
-			break;
-		case EEnemyMovement::FLINCH:
-			FlinchMovement();
-			break;
-		case EEnemyMovement::STAGGER:
-			StaggerMovement();
-			break;
-	}
+	//auto ns = UNavigationSystemV1::GetNavigationSystem(GetWorld());
+	//FPathFindingQuery query;
+	//FAIMoveRequest req;
+	//
+	//req.SetAcceptanceRadius(3);
+	//req.SetGoalLocation(destination);
+	//
+	//MyAI->BuildPathfindingQuery(req, query);
+	//
+	//FPathFindingResult rslt = ns->FindPathSync(query);
+	//
+	//
+	///*** 목적지까지의 길 찾기 성공 여부 확인 ***/
+	//if (rslt.Result == ENavigationQueryResult::Success)
+	//	MyAI->MoveToLocation(destination);
+	//else
+	//{
+	//	auto result = MyAI->MoveToLocation(RandPos);
+	//	if(result == EPathFollowingRequestResult::AlreadyAtGoal)
+	//		GetRandomPositionInNavMesh(Self->GetActorLocation(), 500, RandPos);
+	//}
 
 
-
-	/*** 근거리 공격 상태로 전환 ***/
-	if ( dir.Size() <= MeleeRange )
-	{
-		MyAI->StopMovement();
-		EnemyState = EEnemyState::ATTACK;
-	}
+	///*** 근거리 공격 상태로 전환 ***/
+	//if ( dir.Size() <= MeleeRange )
+	//{
+	//	MyAI->StopMovement();
+	//	EnemyState = EEnemyState::ATTACK;
+	//}
 }
 
 
@@ -201,6 +198,7 @@ void UC_EnemyFSM::AttackState()
 	{
 		// 상태를 이동으로 전환한다
 		EnemyState = EEnemyState::MOVE;
+		EnemyMovement = EEnemyMovement::WALK;
 		// 랜덤 위치 정하기
 		GetRandomPositionInNavMesh(Self->GetActorLocation(), 500, RandPos);
 	}
@@ -213,21 +211,22 @@ void UC_EnemyFSM::DamageState()
 	switch (AttackType)
 	{
 		case EAttackType::Fist:
-			GEngine->AddOnScreenDebugMessage(0, 1, FColor::Orange, L"-----Damage FIST-----");
+			Self->OnDamageFist();
 			break;
 		case EAttackType::Gun:
-			GEngine->AddOnScreenDebugMessage(0, 1, FColor::Orange, L"-----Damage GUN-----");
+			Self->OnDamageGun();
 			break;
 		case EAttackType::GloryKill:
-			GEngine->AddOnScreenDebugMessage(0, 1, FColor::Orange, L"-----Damage GLORYKILL-----");
+			Self->OnDamageGloryKill();
 			break;
 		case EAttackType::Chainsaw:
-			GEngine->AddOnScreenDebugMessage(0, 1, FColor::Orange, L"-----Damage CHAINSAW-----");
+			Self->OnDamageChainsaw();
 			break;
 	}
 
 	// 2. Enemy 상태를 IDLE로 변경
 	EnemyState = EEnemyState::IDLE;
+	EnemyMovement = EEnemyMovement::WALK;
 }
 
 
@@ -250,16 +249,21 @@ void UC_EnemyFSM::DeadState()
 
 void UC_EnemyFSM::WalkMovement()
 {
-
+	// player를 향해 움직인다
+	Move();
 }
 
 void UC_EnemyFSM::FlinchMovement()
 {
+	// 몸이 파란색으로 반짝인다
 
+	// player를 향해 움직인다
+	Move();
 }
 
 void UC_EnemyFSM::StaggerMovement()
 {
+	// 몸이 빨간색으로 움직인다
 
 }
 
@@ -285,4 +289,51 @@ void UC_EnemyFSM::SetEnemyState(EEnemyState InVal)
 void UC_EnemyFSM::SetAttackType(EAttackType InVal)
 {
 	AttackType = InVal;
+}
+
+void UC_EnemyFSM::Move()
+{
+	/*** 이동 : Walk, Flinch 상태일 때 가능 ***/
+	FVector destination = Target->GetActorLocation();
+	FVector dir = Target->GetActorLocation() - Self->GetActorLocation();
+	Self->AddMovementInput(dir.GetSafeNormal());
+
+	/*** 순찰 : Walk, Flinch 상태일 때 가능 ***/
+	auto ns = UNavigationSystemV1::GetNavigationSystem(GetWorld());
+	FPathFindingQuery query;
+	FAIMoveRequest req;
+
+	req.SetAcceptanceRadius(3);
+	req.SetGoalLocation(destination);
+
+	MyAI->BuildPathfindingQuery(req, query);
+
+	FPathFindingResult rslt = ns->FindPathSync(query);
+
+
+	/*** 목적지까지의 길 찾기 성공 여부 확인 ***/
+	if (rslt.Result == ENavigationQueryResult::Success)
+		MyAI->MoveToLocation(destination);
+	else
+	{
+		auto result = MyAI->MoveToLocation(RandPos);
+		if (result == EPathFollowingRequestResult::AlreadyAtGoal)
+			GetRandomPositionInNavMesh(Self->GetActorLocation(), 500, RandPos);
+	}
+
+
+	/*** 거리에 따른 근거리 공격 상태로 전환 ***/
+	CheckDistance(dir.Size());
+}
+
+
+void UC_EnemyFSM::CheckDistance(float InDistance)
+{
+	/*** 거리에 따른 근거리 공격 상태로 전환 ***/
+	if (InDistance <= MeleeRange)
+	{
+		MyAI->StopMovement();
+		EnemyState = EEnemyState::ATTACK;
+		EnemyMovement = EEnemyMovement::MAX;
+	}
 }

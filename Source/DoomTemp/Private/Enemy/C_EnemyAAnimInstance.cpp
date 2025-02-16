@@ -6,5 +6,4 @@ void UC_EnemyAAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
     Super::NativeUpdateAnimation( DeltaSeconds );
 
-
 }

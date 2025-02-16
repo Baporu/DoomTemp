@@ -36,7 +36,7 @@ protected:
 	int32 HPStaggered = HP * 0.33;	// 주춤거리는 상태
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Info")
-	float MeleeRange = 80.f;			// 근거리 인식 거리
+	float MeleeRange = 100.f;			// 근거리 인식 거리
 
 	int32 MeleeDamageMax = 15;
 	int32 MeleeDamage = MeleeDamageMax;				// 근거리 공격 시 가할 데미지
@@ -84,10 +84,18 @@ protected:
 
 	/***** Functions *****/
 public:
-	void CheckState();		// 주춤거리는 상태인지, 비틀거리는 상태인지, 죽었는지 체크
-	void OnDamaged(int32 InVal, enum class EAttackType InAttackType);
+	void CheckSubState();		// 주춤거리는 상태인지, 비틀거리는 상태인지, 죽었는지 체크
+	void OnDamaged(int32 InDamage, enum class EAttackType InAttackType);
 	void OnDead();			// Enemy 사망 시 처리할 일
 
-	void ChangeSpeed();			// Enemy 상태에 따른 Speed 변경
+	void SetEnemySpeed();			// Enemy 상태에 따른 Speed 변경
 	void ChangeMeleeDamage();	// Enemy 상태에 따른 Melee Attack Damage 변경
+
+
+	/***** Damage Events *****/
+public:
+	void OnDamageFist();
+	void OnDamageGun();
+	void OnDamageGloryKill();
+	void OnDamageChainsaw();
 };

@@ -14,7 +14,7 @@ class DOOMTEMP_API UC_EnemyAAnimInstance : public UAnimInstance
 
 public:
     UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "FSM")
-	EEnemyState AnimState = EEnemyState::IDLE;
+	EEnemyState AnimState = EEnemyState::MAX;
 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "FSM")
 	EEnemyMovement EnemyMovement = EEnemyMovement::MAX;

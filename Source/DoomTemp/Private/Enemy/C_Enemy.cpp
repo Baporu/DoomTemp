@@ -32,7 +32,7 @@ void AC_Enemy::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	/***** Enemy 상태 체크 *****/
-    CheckState();
+    CheckSubState();
 }
 
 
@@ -81,7 +81,7 @@ void AC_Enemy::SetSpeed(float InVal)
 
 
 /***** Enemy 상태 체크 *****/
-void AC_Enemy::CheckState()
+void AC_Enemy::CheckSubState()
 {
     /* Enemy Move : Walk > Flinch > Stagger > Dead */
 
@@ -106,16 +106,16 @@ void AC_Enemy::CheckState()
 
 
 /***** 데미지 처리 *****/
-void AC_Enemy::OnDamaged(int32 InVal, enum class EAttackType InAttackType)
+void AC_Enemy::OnDamaged(int32 InDamage, enum class EAttackType InAttackType)
 {
     // 1. HP를 깎는다
-    SetHP(InVal);
+    SetHP(InDamage);
 
     // 2. Attack Type을 알려줌
     FSM->SetAttackType(InAttackType);
 
     // 3. Enemy 상태 변경
-    CheckState();
+    FSM->SetEnemyState(EEnemyState::DAMAGE);
 }
 
 
@@ -133,7 +133,7 @@ void AC_Enemy::OnDead()
 
 
 // Enemy 상태에 따른 Speed 변경
-void AC_Enemy::ChangeSpeed()
+void AC_Enemy::SetEnemySpeed()
 {
     auto movement = FSM->GetEnemyMovement();
 
@@ -163,3 +163,57 @@ void AC_Enemy::ChangeMeleeDamage()
         SetMeleeDamage(0);   // STAGGER || DEAD
 }
 
+
+/***** Damage Events *****/
+void AC_Enemy::OnDamageFist()
+{
+    GEngine->AddOnScreenDebugMessage(0, 1, FColor::Orange, L"-----Get Damage FIST-----");
+    // 1. 맞는 애니메이션 재생
+
+    // 2. 맞은 위치에 피 튀기는 VFX 나올 컴포넌트 부착
+
+    // 3. 부착한 컴포넌트에서 맞은 부분의 normal 방향으로 피 튀기는 VFX 소환
+
+    // 4. Enemy HP에 따른 Sub State 변경 및 죽음 처리
+    CheckSubState();
+}
+
+void AC_Enemy::OnDamageGun()
+{
+    GEngine->AddOnScreenDebugMessage(0, 1, FColor::Orange, L"-----Get Damage GUN-----");
+    // 1. 맞는 애니메이션 재생
+
+    // 2. 맞은 위치에 피 튀기는 VFX 나올 컴포넌트 부착
+
+    // 3. 부착한 컴포넌트에서 맞은 부분의 normal 방향으로 피 튀기는 VFX 소환
+
+    // 4. Enemy HP에 따른 Sub State 변경 및 죽음 처리
+    CheckSubState();
+}
+
+void AC_Enemy::OnDamageGloryKill()
+{
+    GEngine->AddOnScreenDebugMessage(0, 1, FColor::Orange, L"-----Get Damage GLORYKILL-----");
+    // 1. 맞는 애니메이션 재생
+
+    // 2. 맞은 위치에 피 뿜어져 나오는 VFX 나올 컴포넌트 부착
+
+    // 3. 부착한 컴포넌트에서 맞은 부분의 normal 방향으로 피 뿜어져 나오는 VFX 소환
+
+    // 4. Enemy HP에 따른 Sub State 변경 및 죽음 처리
+    CheckSubState();
+}
+
+void AC_Enemy::OnDamageChainsaw()
+{
+    GEngine->AddOnScreenDebugMessage(0, 1, FColor::Orange, L"-----Get Damage CHAINSAW-----");
+
+    // 1. 맞는 애니메이션 재생
+
+    // 2. 맞은 위치에 피 뿜어져 나오는 VFX 나올 컴포넌트 부착
+
+    // 3. 부착한 컴포넌트에서 맞은 부분의 normal 방향으로 피 뿜어져 나오는 VFX 소환
+
+    // 4. Enemy HP에 따른 Sub State 변경 및 죽음 처리
+    CheckSubState();
+}
