@@ -29,10 +29,10 @@ protected:
 	int32 Damage = 0;
 
 public:
-	// 충돌체 컴포넌트
+	// Collision Component
 	UPROPERTY(VisibleAnywhere, Category = Collision)
 	class USphereComponent* CollisionComp;
-	// 외관 컴포넌트
+	// Mesh Component
 	UPROPERTY(VisibleAnywhere, Category = BodyMesh)
 	class UStaticMeshComponent* MeshComp;
 

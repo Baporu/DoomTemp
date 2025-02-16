@@ -37,10 +37,10 @@ public:
 	// Using Mode or Not
 	bool bUsingMode = false;
 
-	// 일반 조준 크로스헤어 UI 위젯 공장
+	// Cross-hair UI Widget
 	UPROPERTY(EditAnywhere, Category = GunUI)
 	TSubclassOf<class UUserWidget> CrossHairUIFactory;
-	// 크로스헤어 UI 위젯 인스턴스
+	// Cross-hair UI Widget Instance
 	class UUserWidget* CrossHairUI;
 
 
@@ -53,6 +53,7 @@ public:
 	virtual void OnEndMode();
 
 	void IncreaseAmmo();
+	void OnGunChanged();
 
 	float GetFireRate();
 };

@@ -89,6 +89,7 @@ public:
 	int32 CurDashCount = MaxDashCount;
 
 	FVector DashDir = FVector::ZeroVector;
+	UPROPERTY(EditDefaultsOnly, Category = "Stats")
 	float DashDistance = 500.0f;
 	UPROPERTY(EditDefaultsOnly, Category = "Stats")
 	float DashCoolTime = 4.0f;
@@ -105,6 +106,7 @@ public:
 	// Player Weapon State
 	UPROPERTY(EditAnywhere, Category = "Guns")
 	EWeaponType mWeaponType = EWeaponType::Sniper;
+	// Weapon Instances
 	UPROPERTY(EditDefaultsOnly, Category = "Guns")
 	class UC_GunSkeletalMeshComponent* PlasmaMesh;
 	UPROPERTY(EditDefaultsOnly, Category = "Guns")
@@ -112,7 +114,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Guns")
 	class UC_GunSkeletalMeshComponent* ShotgunMesh;
 
-	// Player Mode Input Action
+	// Mode Use Input Action
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputAction* IA_UseMode;
 
@@ -133,6 +135,7 @@ public:
 	// Melee Attack Damage
 	UPROPERTY(EditDefaultsOnly, Category = "Stats")
 	int32 MeleeDamage = 5;
+	// Dash Distance During Melee Attack
 	UPROPERTY(EditDefaultsOnly, Category = "Stats")
 	float MeleeDistance = 3000.0f;
 

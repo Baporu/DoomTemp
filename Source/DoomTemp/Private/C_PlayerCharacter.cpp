@@ -21,7 +21,7 @@ AC_PlayerCharacter::AC_PlayerCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 
-	// Character 클래스 기본 메쉬 위치 설정 (= 총기 기본 위치)
+	// Set Character Class Default Mesh's Locaiton (Meaning Gun Meshes' Default Location)
 	GetMesh()->SetRelativeLocation(FVector(-50.0, 10.0, 50.0));
 
 	// Create FPS Camera Component
@@ -66,7 +66,7 @@ AC_PlayerCharacter::AC_PlayerCharacter()
 	// Set Collision Preset
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Player"));
 
-	// 총기마다 메쉬 컴포넌트 설정
+	// Set Mesh Component For Each Guns
 	{
 		{
 			// Create Gun Mesh Component
@@ -133,7 +133,7 @@ void AC_PlayerCharacter::BeginPlay()
 	Super::BeginPlay();
 	
 
-	// 플레이어 컨트롤러 가져오고 IMC와 매핑
+	// Get Player Controller and Map with IMC
 	auto pc = Cast<APlayerController>(Controller);
 
 	if (pc) {
@@ -144,13 +144,13 @@ void AC_PlayerCharacter::BeginPlay()
 		}
 	}
 
-	// 모든 무기 비활성화 후 현재 무기만 활성화
+	// Disable All Weapon Meshes, and then Enable Current Weapon Mesh
 	SetWeaponActive(EWeaponType::Plasma, false);
 	SetWeaponActive(EWeaponType::Sniper, false);
 	SetWeaponActive(EWeaponType::Shotgun, false);
 	SetWeaponActive(mWeaponType, true);
 
-	// 발사 속도 초기화
+	// Set Fire Rate
 	SetFireRate(GetCurrentGun()->GetFireRate());
 	FireTimer = FireRate;
 
@@ -333,10 +333,20 @@ void AC_PlayerCharacter::OnChangeWeapon(const struct FInputActionValue& inputVal
 
 void AC_PlayerCharacter::ChangeWeapon(EWeaponType InChangeType)
 {
+	// Reset Mode Use
+	switch (mWeaponType)
+	{
+		case EWeaponType::Plasma: { PlasmaMesh->OnGunChanged(); }	break;
+		case EWeaponType::Sniper: { SniperMesh->OnGunChanged(); }	break;
+		case EWeaponType::Shotgun: { ShotgunMesh->OnGunChanged(); }	break;
+	}
+
+	// Change Gun Mesh
 	SetWeaponActive(mWeaponType, false);
 	mWeaponType = InChangeType;
 	SetWeaponActive(InChangeType, true);
 	
+	// Change Fire Rate
 	FireRate = GetCurrentGun()->GetFireRate();
 }
 
@@ -368,6 +378,10 @@ void AC_PlayerCharacter::SetFireRate(float InFireRate)
 
 void AC_PlayerCharacter::OnPunch(const struct FInputActionValue& inputValue)
 {
+	// Enable Punch Collider
+	
+	// Punch Animation
+
 // 	FVector startPos = FPSCamComp->GetComponentLocation();
 // 	FVector endPos = startPos + FPSCamComp->GetForwardVector() * MeleeDistance;
 // 	TArray<FHitResult> hitInfos;

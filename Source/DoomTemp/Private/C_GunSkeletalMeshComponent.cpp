@@ -47,6 +47,12 @@ void UC_GunSkeletalMeshComponent::IncreaseAmmo() {
 		CurrentAmmo = MaxAmmo;
 }
 
+void UC_GunSkeletalMeshComponent::OnGunChanged() {
+	// If Weapon is Using Mode, Reset Mode Before Being Changed
+	if (bUsingMode)
+		OnUseMode();
+}
+
 float UC_GunSkeletalMeshComponent::GetFireRate()
 {
 	return FireRate;

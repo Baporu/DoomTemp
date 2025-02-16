@@ -60,7 +60,7 @@ void UC_SniperGun::OnFire()
 			AC_Enemy* enemy = Cast<AC_Enemy>(hitInfo.GetActor());
 
 			if (enemy) {
-				enemy->SetHP(SnipeDamage);
+				enemy->OnDamaged(SnipeDamage, EAttackType::Gun);
 			}
 		}
 

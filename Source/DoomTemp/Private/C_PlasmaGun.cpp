@@ -8,11 +8,11 @@ void UC_PlasmaGun::OnFire()
 	if (CurrentAmmo <= 0)
 		return;
 
-	// 모드를 사용 중일 때
+	// When Firing While Use Mode
 	if (bUsingMode) {
 
 	}
-	// 그냥 발사만 할 때
+	// When Firing Without Using Mode
 	else {
 		Super::OnFire();
 	}
