@@ -100,6 +100,7 @@ public:
 	// Player Fire Input Action
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputAction* IA_Fire;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Guns")
 	// Is Firing or Not
 	bool bIsFire = false;
 

@@ -15,9 +15,6 @@ class DOOMTEMP_API UC_SniperGun : public UC_GunSkeletalMeshComponent
 	GENERATED_BODY()
 	
 
-private:
-	class UCameraComponent* FPSCam;
-
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

@@ -19,6 +19,8 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+	class UCameraComponent* FPSCam;
+
 	UPROPERTY(EditDefaultsOnly)
 	int32 MaxAmmo = 100;
 	UPROPERTY(VisibleAnywhere)

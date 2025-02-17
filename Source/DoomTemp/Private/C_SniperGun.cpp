@@ -13,9 +13,6 @@ void UC_SniperGun::BeginPlay()
 {
 	Super::BeginPlay();
 
-	AC_PlayerCharacter* player = Cast<AC_PlayerCharacter>(UGameplayStatics::GetActorOfClass(GetWorld(), AC_PlayerCharacter::StaticClass()));
-	FPSCam = player->GetCameraComponent();
-
 	SniperUI = CreateWidget<UUserWidget>(GetWorld(), SniperUIFactory);
 	CrossHairUI = CreateWidget<UUserWidget>(GetWorld(), CrossHairUIFactory);
 	CrossHairUI->AddToViewport();

@@ -49,7 +49,7 @@ AC_PlayerCharacter::AC_PlayerCharacter()
 		FPSMeshComp->SetSkeletalMesh(TempMesh.Object);
 
 		// Set Mesh Component's Location and Rotation
-		FPSMeshComp->SetRelativeLocationAndRotation(FVector(-30.0f, 0.0f, -150.0f), FRotator(0.0f, -90.0f, 0.0f));
+		FPSMeshComp->SetRelativeLocationAndRotation(FVector(20.0f, 0.0f, -150.0f), FRotator(0.0f, -90.0f, 0.0f));
 	}
 
 	// Update Yaw Only
@@ -72,9 +72,9 @@ AC_PlayerCharacter::AC_PlayerCharacter()
 			// Create Gun Mesh Component
 			PlasmaMesh = CreateDefaultSubobject<UC_PlasmaGun>(TEXT("PlasmaMesh"));
 			// Attach Mesh Component to Camera Component
-			PlasmaMesh->SetupAttachment(GetMesh());
+			PlasmaMesh->SetupAttachment(FPSMeshComp);
 			// Load Skeletal Mesh
-			ConstructorHelpers::FObjectFinder<USkeletalMesh> GunMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/Experimental_Rifle_Coilgun/vector.vector'"));
+			ConstructorHelpers::FObjectFinder<USkeletalMesh> GunMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/textured_gun/vector.vector'"));
 
 			// If Skeletal Mesh Loaded
 			if (GunMesh.Succeeded()) {
@@ -82,15 +82,15 @@ AC_PlayerCharacter::AC_PlayerCharacter()
 				PlasmaMesh->SetSkeletalMesh(GunMesh.Object);
 
 				// Set Mesh Component's Rotation and Scale
-				PlasmaMesh->SetRelativeRotation(FRotator(0.0, 90.0, 0.0));
-				PlasmaMesh->SetRelativeScale3D(FVector(0.01));
+				PlasmaMesh->SetRelativeLocation(FVector(-42.0, -3.0, 120.0));
+				PlasmaMesh->SetRelativeScale3D(FVector(0.08));
 			}
 		}
 		{
 			// Create Gun Mesh Component
 			SniperMesh = CreateDefaultSubobject<UC_SniperGun>(TEXT("SniperMesh"));
 			// Attach Mesh Component to Camera Component
-			SniperMesh->SetupAttachment(GetMesh());
+			SniperMesh->SetupAttachment(FPSMeshComp);
 			// Load Skeletal Mesh
 			ConstructorHelpers::FObjectFinder<USkeletalMesh> GunMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/SV-98_Sniper/source/vector.vector'"));
 
@@ -100,7 +100,7 @@ AC_PlayerCharacter::AC_PlayerCharacter()
 				SniperMesh->SetSkeletalMesh(GunMesh.Object);
 
 				// Set Mesh Component's Location and Rotation
-				SniperMesh->SetRelativeLocationAndRotation(FVector(10.0, 45.0, 10.0), FRotator(0.0, -90.0, 0.0));
+				SniperMesh->SetRelativeLocation(FVector(-56.0, 5.5, 140.0));
 				SniperMesh->SetRelativeScale3D(FVector(0.15));
 			}
 		}
@@ -108,7 +108,7 @@ AC_PlayerCharacter::AC_PlayerCharacter()
 			// Create Gun Mesh Component
 			ShotgunMesh = CreateDefaultSubobject<UC_ShotGun>(TEXT("ShotgunMesh"));
 			// Attach Mesh Component to Camera Component
-			ShotgunMesh->SetupAttachment(GetMesh());
+			ShotgunMesh->SetupAttachment(FPSMeshComp);
 			// Load Skeletal Mesh
 			ConstructorHelpers::FObjectFinder<USkeletalMesh> GunMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/package/Skeleton_mesh/SKM_Shotgun.SKM_Shotgun'"));
 
@@ -118,7 +118,8 @@ AC_PlayerCharacter::AC_PlayerCharacter()
 				ShotgunMesh->SetSkeletalMesh(GunMesh.Object);
 
 				// Set Mesh Component's Location and Rotation
-				ShotgunMesh->SetRelativeLocationAndRotation(FVector(30.0, 0.0, 0.0), FRotator(0.0, -90.0, 0.0));
+				ShotgunMesh->SetRelativeLocation(FVector(-10.0, 27.0, 136.0));
+				ShotgunMesh->SetRelativeScale3D(FVector(1.5));
 			}
 
 
