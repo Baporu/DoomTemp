@@ -103,6 +103,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Guns")
 	// Is Firing or Not
 	bool bIsFire = false;
+	// Shotgun Fire
+	bool bShotgun = false;
 
 	// Player Weapon State
 	UPROPERTY(EditAnywhere, Category = "Guns")

@@ -275,7 +275,19 @@ void AC_PlayerCharacter::ResetDashCount()
 
 void AC_PlayerCharacter::OnFire(const struct FInputActionValue& inputValue)
 {
-	bIsFire = !bIsFire;
+	if (mWeaponType == EWeaponType::Shotgun && ShotgunMesh->bUsingMode == false) {
+		bIsFire = false;
+		bShotgun = !bShotgun;
+
+		if (bShotgun)
+			if (FireTimer >= FireRate) {
+				Fire_Shotgun();
+
+				FireTimer = 0.0f;
+			}
+	}
+	else
+		bIsFire = !bIsFire;
 }
 
 void AC_PlayerCharacter::PlayerFire()
@@ -284,6 +296,7 @@ void AC_PlayerCharacter::PlayerFire()
 		return;
 
 	if (FireTimer >= FireRate) {
+
 		switch (mWeaponType)
 		{
 			case EWeaponType::Plasma: { Fire_Plasma(); }	break;
