@@ -100,8 +100,11 @@ public:
 	// Player Fire Input Action
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputAction* IA_Fire;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Guns")
 	// Is Firing or Not
 	bool bIsFire = false;
+	// Shotgun Fire
+	bool bShotgun = false;
 
 	// Player Weapon State
 	UPROPERTY(EditAnywhere, Category = "Guns")
@@ -150,6 +153,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputAction* IA_Saw;
 
+	UPROPERTY()
+	class UC_PlayerAnimInstance* Anim;
+
 
 	void OnLookUp(const struct FInputActionValue& inputValue);
 	void OnTurn(const struct FInputActionValue& inputValue);
@@ -178,6 +184,7 @@ public:
 	void SetFireRate(float InFireRate);
 
 	void OnPunch(const struct FInputActionValue& inputValue);
+	void OnPunchEnd();
 	
 	void OnGetDrop();
 

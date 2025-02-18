@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "C_PlayerCharacter.h"
 #include "C_GunSkeletalMeshComponent.generated.h"
 
 /**
@@ -30,6 +31,12 @@ protected:
 	float FireRate = 1.0f;
 
 public:
+	UPROPERTY()
+	AC_PlayerCharacter* me;
+
+	UPROPERTY()
+	class UCameraComponent* FPSCam;
+
 	// Bullet Blueprint
 	UPROPERTY(EditDefaultsOnly, Category = BulletFactory)
 	TSubclassOf<class AC_GunBullet> BulletFactory;
