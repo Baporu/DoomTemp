@@ -13,9 +13,22 @@ class DOOMTEMP_API UC_EnemyAAnimInstance : public UAnimInstance
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
 public:
+	/***** Enemy Main state *****/
     UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "FSM")
-	EEnemyState AnimState = EEnemyState::MAX;
+	EEnemyState MainAnimState = EEnemyState::MAX;
 
+
+	/***** Enemy Sub state - movement *****/ 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "FSM")
-	EEnemyMovement EnemyMovement = EEnemyMovement::MAX;
+	EEnemyMovement SubAnimMovement = EEnemyMovement::MAX;
+
+
+	/***** Enemy Sub state - 공격 상태 재생 여부 *****/
+    UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "FSM")
+	bool bAttackPlay = false;
+
+
+	/***** Attack Notify *****/
+	UFUNCTION()
+	void AnimNotify_EAttackEnd();
 };

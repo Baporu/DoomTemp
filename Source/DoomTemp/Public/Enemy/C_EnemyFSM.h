@@ -31,9 +31,11 @@ enum class EEnemyMovement : uint8
 	MAX
 };
 
+
 /***** Sub State - Attack Type *****/
 // Player에서 관리중 / 전방 선언
 enum class EAttackType;
+
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class DOOMTEMP_API UC_EnemyFSM : public UActorComponent
@@ -80,7 +82,7 @@ protected:
 	float IdleDelayTime = 3.f;		// 대기 시간
 	float CurTime = 0.f;			// 경과 시간
 	UPROPERTY(EditDefaultsOnly, Category = "FSM")
-	float AttackDelayTime = 2.f;	// 공격 대기 시간
+	float AttackDelayTime = 2.6f;	// 공격 대기 시간
     UPROPERTY(EditAnywhere, Category = "FSM")
 	float DamageDelayTime = 2.f;	// 피격 대기 시간
 	UPROPERTY(EditAnywhere, Category = "FSM")
@@ -99,6 +101,10 @@ protected:
 	//float LongRange;	// 장거리 공격 범위
 
 
+	/***** Animation *****/
+	UPROPERTY()
+	class UC_EnemyAAnimInstance* Anim;
+
 	/***** Main State *****/
 public:
 	// 등장
@@ -112,6 +118,7 @@ public:
 
 	// 공격
 	void AttackState();
+	void OnAttackEnd();	// Attack Notify 제어용
 
 	// 피격
 	void DamageState();
@@ -135,13 +142,14 @@ public:
 	/***** Getters *****/
 public:
 	EEnemyMovement GetEnemyMovement();
-
+	EEnemyState GetEnemyState();
 
 	/***** Setters *****/
 public:
 	void SetEnemyMovement(EEnemyMovement InVal);
 	void SetEnemyState(EEnemyState InVal);
 	void SetAttackType(EAttackType InVal);
+	void SetAnimState(EEnemyState InVal);
 
 
 public:

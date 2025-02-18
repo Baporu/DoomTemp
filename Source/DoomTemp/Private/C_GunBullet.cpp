@@ -54,7 +54,7 @@ void AC_GunBullet::OnBulletOverlap(UPrimitiveComponent* OverlappedComponent, AAc
 	AC_Enemy* enemy = Cast<AC_Enemy>(OtherActor);
 
 	if (enemy != nullptr) {
-		enemy->OnDamaged(Damage, EAttackType::Gun);
+		enemy->OnDamageProcess(Damage, EAttackType::Gun);
 
 		Destroy();
 	}

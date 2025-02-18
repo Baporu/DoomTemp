@@ -27,10 +27,9 @@ protected:
 	int32 HPMax = 200;
 	int32 HP = HPMax;
 
-	float SpeedMax = 180.f;
+	float SpeedMax = 80.f;
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Info")
     float Speed = SpeedMax;
-	float SpeedFlinch = SpeedMax * 0.7;
 
 	int32 HPFlinched = HP * 0.5;		// 비틀거리는 상태
 	int32 HPStaggered = HP * 0.33;	// 주춤거리는 상태
@@ -74,6 +73,7 @@ public:
 	int32 GetMeleeDamage();
 	float GetSpeed();
 	
+	UC_EnemyFSM* GetEnemyFSM();
 	
 	/***** Setters *****/
 protected:
@@ -85,7 +85,7 @@ protected:
 	/***** Functions *****/
 public:
 	void CheckSubState();		// 주춤거리는 상태인지, 비틀거리는 상태인지, 죽었는지 체크
-	void OnDamaged(int32 InDamage, enum class EAttackType InAttackType);
+	void OnDamageProcess(int32 InDamage, enum class EAttackType InAttackType);
 	void OnDead();			// Enemy 사망 시 처리할 일
 
 	void SetEnemySpeed();			// Enemy 상태에 따른 Speed 변경
