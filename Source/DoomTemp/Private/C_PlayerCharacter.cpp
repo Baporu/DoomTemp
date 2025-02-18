@@ -13,6 +13,7 @@
 #include "C_SniperGun.h"
 #include "C_ShotGun.h"
 #include "Enemy/C_Enemy.h"
+#include "C_PlayerAnimInstance.h"
 
 // Sets default values
 AC_PlayerCharacter::AC_PlayerCharacter()
@@ -133,6 +134,15 @@ void AC_PlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+
+	PlasmaMesh->me = this;
+	PlasmaMesh->FPSCam = FPSCamComp;
+	SniperMesh->me = this;
+	SniperMesh->FPSCam = FPSCamComp;
+	ShotgunMesh->me = this;
+	ShotgunMesh->FPSCam = FPSCamComp;
+
+	Anim = Cast<UC_PlayerAnimInstance>(FPSMeshComp->GetAnimInstance());
 
 	// Get Player Controller and Map with IMC
 	auto pc = Cast<APlayerController>(Controller);
@@ -395,6 +405,8 @@ void AC_PlayerCharacter::OnPunch(const struct FInputActionValue& inputValue)
 	// Enable Punch Collider
 	
 	// Punch Animation
+	SetWeaponActive(mWeaponType, false);
+	Anim->bIsPunching = true;
 
 // 	FVector startPos = FPSCamComp->GetComponentLocation();
 // 	FVector endPos = startPos + FPSCamComp->GetForwardVector() * MeleeDistance;
@@ -424,6 +436,11 @@ void AC_PlayerCharacter::OnPunch(const struct FInputActionValue& inputValue)
 // 			SetActorLocation(target->GetActorLocation(), true);
 // 		}
 // 	}
+}
+
+void AC_PlayerCharacter::OnPunchEnd()
+{
+	SetWeaponActive(mWeaponType, true);
 }
 
 void AC_PlayerCharacter::OnGetDrop() {

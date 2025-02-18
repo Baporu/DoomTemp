@@ -153,6 +153,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputAction* IA_Saw;
 
+	UPROPERTY()
+	class UC_PlayerAnimInstance* Anim;
+
 
 	void OnLookUp(const struct FInputActionValue& inputValue);
 	void OnTurn(const struct FInputActionValue& inputValue);
@@ -181,6 +184,7 @@ public:
 	void SetFireRate(float InFireRate);
 
 	void OnPunch(const struct FInputActionValue& inputValue);
+	void OnPunchEnd();
 	
 	void OnGetDrop();
 

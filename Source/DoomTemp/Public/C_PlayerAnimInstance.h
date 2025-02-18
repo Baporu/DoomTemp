@@ -16,9 +16,17 @@ class DOOMTEMP_API UC_PlayerAnimInstance : public UAnimInstance
 	
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool bIsFire = false;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = PlayerAnim)
+	class UAnimMontage* ShootMontage;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = PlayerAnim)
+	bool bIsPunching = false;
 
 
 	void NativeUpdateAnimation(float DeltaSeconds) override;
+
+	void PlayShootAnim();
+	
+	UFUNCTION()
+	void AnimNotify_OnPunchEnd();
 };

@@ -6,19 +6,19 @@
 #include "Kismet/GameplayStatics.h"
 #include "C_PlayerCharacter.h"
 #include "Camera/CameraComponent.h"
+#include "C_PlayerAnimInstance.h"
 
 void UC_GunSkeletalMeshComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	AC_PlayerCharacter* player = Cast<AC_PlayerCharacter>(UGameplayStatics::GetActorOfClass(GetWorld(), AC_PlayerCharacter::StaticClass()));
-	FPSCam = player->GetCameraComponent();
 
 	CurrentAmmo = MaxAmmo;
 }
 
 void UC_GunSkeletalMeshComponent::OnFire()
 {
+	me->Anim->PlayShootAnim();
+
 	FTransform firePos = GetSocketTransform(TEXT("FirePosition"));
 	firePos.SetRotation(FPSCam->GetComponentRotation().Quaternion());
 	// 무기의 크기에 따라 Socket의 Transform도 달라지는 경우가 있는데,

@@ -8,10 +8,29 @@ void UC_PlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
-	AC_PlayerCharacter* player = Cast<AC_PlayerCharacter>(TryGetPawnOwner());
+// 	AC_PlayerCharacter* player = Cast<AC_PlayerCharacter>(TryGetPawnOwner());
+// 
+// 	if (!player)
+// 		return;
+}
 
-	if (!player)
+void UC_PlayerAnimInstance::PlayShootAnim()
+{
+	if (!ShootMontage)
 		return;
 
-	bIsFire = player->bIsFire;
+	Montage_Play(ShootMontage);
+}
+
+void UC_PlayerAnimInstance::AnimNotify_OnPunchEnd()
+{
+	GEngine->AddOnScreenDebugMessage(0, 1.0f, FColor::Blue, TEXT("Punch Ended"));
+	UE_LOG(LogTemp, Warning, TEXT("LOOOOOOOOOOOOOOG"));
+
+	AC_PlayerCharacter* player = Cast<AC_PlayerCharacter>(TryGetPawnOwner());
+
+	if (player) {
+		bIsPunching = false;
+		player->OnPunchEnd();
+	}
 }

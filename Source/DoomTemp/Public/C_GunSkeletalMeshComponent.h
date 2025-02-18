@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "C_PlayerCharacter.h"
 #include "C_GunSkeletalMeshComponent.generated.h"
 
 /**
@@ -19,8 +20,6 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	class UCameraComponent* FPSCam;
-
 	UPROPERTY(EditDefaultsOnly)
 	int32 MaxAmmo = 100;
 	UPROPERTY(VisibleAnywhere)
@@ -32,6 +31,12 @@ protected:
 	float FireRate = 1.0f;
 
 public:
+	UPROPERTY()
+	AC_PlayerCharacter* me;
+
+	UPROPERTY()
+	class UCameraComponent* FPSCam;
+
 	// Bullet Blueprint
 	UPROPERTY(EditDefaultsOnly, Category = BulletFactory)
 	TSubclassOf<class AC_GunBullet> BulletFactory;
