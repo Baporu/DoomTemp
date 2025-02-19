@@ -19,6 +19,13 @@ public:
 	AC_BounceBullet();
 
 public:
+	// Collision Component
+	UPROPERTY(VisibleAnywhere, Category = Basics)
+	class USphereComponent* CollisionComp;
+	// Mesh Component
+	UPROPERTY(VisibleAnywhere, Category = Basics)
+	class UStaticMeshComponent* MeshComp;
+
 	// Movement Component
 	UPROPERTY(VisibleAnywhere, Category = Movement)
 	class UProjectileMovementComponent* MovementComp;

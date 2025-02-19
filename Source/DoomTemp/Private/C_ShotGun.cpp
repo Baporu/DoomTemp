@@ -5,6 +5,7 @@
 #include "C_GunBullet.h"
 #include "C_Pellet.h"
 #include "C_PlayerCharacter.h"
+#include "C_PlayerAnimInstance.h"
 
 void UC_ShotGun::BeginPlay()
 {
@@ -21,7 +22,8 @@ void UC_ShotGun::OnFire()
 {
 	if (CurrentAmmo <= 0)
 		return;
-
+	me->Anim->PlayShootAnim();
+	
 	FTransform firePos = GetSocketTransform(TEXT("FirePosition"));
 	// 무기의 크기에 따라 Socket의 Transform도 달라지는 경우가 있는데,
 	// 그럴 경우 총알의 크기가 같이 변경되는 일을 방지하기 위해 크기를 1.0으로 고정한다.

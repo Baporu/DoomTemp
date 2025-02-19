@@ -14,6 +14,7 @@
 #include "C_ShotGun.h"
 #include "Enemy/C_Enemy.h"
 #include "C_PlayerAnimInstance.h"
+#include "Components/BoxComponent.h"
 
 // Sets default values
 AC_PlayerCharacter::AC_PlayerCharacter()
@@ -52,6 +53,15 @@ AC_PlayerCharacter::AC_PlayerCharacter()
 		// Set Mesh Component's Location and Rotation
 		FPSMeshComp->SetRelativeLocationAndRotation(FVector(20.0f, 0.0f, -150.0f), FRotator(0.0f, -90.0f, 0.0f));
 	}
+
+	MeleeComp = CreateDefaultSubobject<UBoxComponent>(TEXT("MeleeComp"));
+	
+	MeleeComp->SetupAttachment(FPSCamComp);
+	MeleeComp->SetRelativeLocation(FVector(215.0, 0.0, 0.0));
+	MeleeComp->SetRelativeScale3D(FVector(5.0, 3.0, 1.0));
+
+	MeleeComp->SetCollisionProfileName(TEXT("PlayerAttack"));
+	MeleeComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	// Update Yaw Only
 	bUseControllerRotationPitch = false;
@@ -403,19 +413,23 @@ void AC_PlayerCharacter::SetFireRate(float InFireRate)
 void AC_PlayerCharacter::OnPunch(const struct FInputActionValue& inputValue)
 {
 	// Enable Punch Collider
-	
-	// Punch Animation
+
+	// Deactivate Weapon Mesh
 	SetWeaponActive(mWeaponType, false);
+	// Start Punch Animation
 	Anim->bIsPunching = true;
 
+	// Enable Colldier Component
+	MeleeComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+
+// 	// Teleport to Enemy
 // 	FVector startPos = FPSCamComp->GetComponentLocation();
 // 	FVector endPos = startPos + FPSCamComp->GetForwardVector() * MeleeDistance;
 // 	TArray<FHitResult> hitInfos;
 // 	FCollisionQueryParams params;
 // 	params.AddIgnoredActor(this);
 // 
-// 	bool bHit = GetWorld()->SweepMultiByChannel(hitInfos, startPos, endPos, FQuat::Identity, ECC_GameTraceChannel2, FCollisionShape::MakeBox(FVector3f(DebugExtent)), params);
-// 	DrawDebugBox(GetWorld(), startPos + (endPos - startPos) * 0.5f, FVector(DebugExtent * 0.5f), FColor::Green, false, 2.0f, 0U, 1.0f);
+// 	bool bHit = GetWorld()->SweepMultiByChannel(hitInfos, startPos, endPos, FQuat::Identity, ECC_GameTraceChannel2, FCollisionShape::);
 // 
 // 	if (bHit) {
 // 		float minDist = MeleeDistance;
@@ -440,6 +454,9 @@ void AC_PlayerCharacter::OnPunch(const struct FInputActionValue& inputValue)
 
 void AC_PlayerCharacter::OnPunchEnd()
 {
+	// Disable Punch Collider
+	
+	// Activate Weapon Mesh
 	SetWeaponActive(mWeaponType, true);
 }
 

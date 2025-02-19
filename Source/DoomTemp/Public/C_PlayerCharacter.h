@@ -55,6 +55,9 @@ public:
 	// FPS Player Mesh
 	UPROPERTY(EditAnywhere, Category = "Basics")
 	class USkeletalMeshComponent* FPSMeshComp;
+	// Collider to Check Enemy
+	UPROPERTY(EditDefaultsOnly, Category = "Basics")
+	class UBoxComponent* MeleeComp;
 
 	// Input Mapping Context
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
