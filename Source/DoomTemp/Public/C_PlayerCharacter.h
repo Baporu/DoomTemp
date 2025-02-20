@@ -55,6 +55,9 @@ public:
 	// FPS Player Mesh
 	UPROPERTY(EditAnywhere, Category = "Basics")
 	class USkeletalMeshComponent* FPSMeshComp;
+	// Collider to Check Enemy
+	UPROPERTY(EditDefaultsOnly, Category = "Basics")
+	class UBoxComponent* MeleeComp;
 
 	// Input Mapping Context
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
@@ -135,13 +138,6 @@ public:
 	int32 MaxHP = 100;
 	int32 CurrentHP;
 
-	// Melee Attack Damage
-	UPROPERTY(EditDefaultsOnly, Category = "Stats")
-	int32 MeleeDamage = 5;
-	// Dash Distance During Melee Attack
-	UPROPERTY(EditDefaultsOnly, Category = "Stats")
-	float MeleeDistance = 3000.0f;
-
 	// Fire Rate
 	UPROPERTY(EditAnywhere, Category = "Stats")
 	float FireRate = 1.0f;
@@ -149,9 +145,14 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputAction* IA_Punch;
-
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputAction* IA_Saw;
+
+	// Melee Attack Damage
+	UPROPERTY(EditDefaultsOnly, Category = "Stats")
+	int32 MeleeDamage = 5;
+	UPROPERTY(VisibleAnywhere, Category = "Melee")
+	class AC_Enemy* MeleeTarget;
 
 	UPROPERTY()
 	class UC_PlayerAnimInstance* Anim;
@@ -185,10 +186,18 @@ public:
 
 	void OnPunch(const struct FInputActionValue& inputValue);
 	void OnPunchEnd();
+
+	void OnSaw(const struct FInputActionValue& inputValue);
 	
 	void OnGetDrop();
+	
 
 	UCameraComponent* GetCameraComponent();
 	UC_GunSkeletalMeshComponent* GetCurrentGun();
+
+	UFUNCTION()
+	void OnMeleeOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	void MeleeDash();
 
 };

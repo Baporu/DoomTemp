@@ -28,10 +28,12 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(EditDefaultsOnly)
-	float BulletSpeed = 5000.0f;
-
-	float LifeTimer = 2.0f;
+	// Collision Component
+	UPROPERTY(VisibleAnywhere, Category = Basics)
+	class USphereComponent* CollisionComp;
+	// Mesh Component
+	UPROPERTY(VisibleAnywhere, Category = Basics)
+	class UStaticMeshComponent* MeshComp;
 
 
 	UFUNCTION()

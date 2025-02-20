@@ -25,18 +25,15 @@ public:
 
 
 protected:
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(EditDefaultsOnly, Category = Stats)
+	float BulletSpeed = 5000.0f;
+	UPROPERTY(EditDefaultsOnly, Category = Stats)
+	float LifeTime = 2.0f;
+
+	UPROPERTY(VisibleAnywhere, Category = Stats)
 	int32 Damage = 0;
 
 public:
-	// Collision Component
-	UPROPERTY(VisibleAnywhere, Category = Collision)
-	class USphereComponent* CollisionComp;
-	// Mesh Component
-	UPROPERTY(VisibleAnywhere, Category = BodyMesh)
-	class UStaticMeshComponent* MeshComp;
-
-
 	UFUNCTION()
 	void OnBulletOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
