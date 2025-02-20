@@ -27,7 +27,6 @@ AC_ProjectileBullet::AC_ProjectileBullet()
 
 	// Add Overlap Function
 	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &AC_GunBullet::OnBulletOverlap);
-	// Add Overlap Function
 	CollisionComp->OnComponentHit.AddDynamic(this, &AC_ProjectileBullet::OnBulletHit);
 }
 
