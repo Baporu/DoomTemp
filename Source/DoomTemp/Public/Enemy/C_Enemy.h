@@ -59,6 +59,10 @@ protected:
 	#pragma endregion
 
 
+	/***** Animation Montage *****/
+	FString SectionName;
+
+
 public:
 	bool bIsFlinched = false;
 	bool bIsStaggered = false;
@@ -69,7 +73,7 @@ public:
 public:
 	float GetMeleeRange();
 	//float GetLongRange();
-
+	
 	int32 GetMeleeDamage();
 	float GetSpeed();
 	

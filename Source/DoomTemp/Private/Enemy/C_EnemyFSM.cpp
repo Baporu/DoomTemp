@@ -21,11 +21,13 @@ UC_EnemyFSM::UC_EnemyFSM()
 void UC_EnemyFSM::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	EnemyState = EEnemyState::SPAWN;
+	EnemyMovement = EEnemyMovement::MAX;
 
 	/***** Target & Self *****/
 	auto actor = UGameplayStatics::GetActorOfClass( GetWorld(), AC_PlayerCharacter::StaticClass() );
 	CheckNull(actor);
+
 	Target = Cast<AC_PlayerCharacter>( actor );
 	Self = Cast<AC_EnemyA>( GetOwner() );
 
@@ -46,6 +48,8 @@ void UC_EnemyFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	UE_LOG(LogTemp, Error, TEXT(">>> Enemy Main State: %s / Sub State : %s"), *UEnum::GetValueAsString(EnemyState), *UEnum::GetValueAsString(EnemyMovement));
+
 	switch (EnemyState)
 	{
 		case EEnemyState::IDLE:
@@ -63,7 +67,7 @@ void UC_EnemyFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 		case EEnemyState::DEAD:
 			DeadState();
 			break;
-		case EEnemyState::MAX:
+		case EEnemyState::SPAWN:
 			SpawnState();
 			break;
 	}
@@ -84,16 +88,16 @@ void UC_EnemyFSM::SpawnState()
 	// 1. 랜덤 위치 정하기
 	GetRandomPositionInNavMesh(Self->GetActorLocation(), 500, RandPos);
 
-	// 2. Spawn VFX를 소환한다
-
-
-	// 3. Idle 상태로 전환한다
-	EnemyState = EEnemyState::IDLE;
-	EnemyMovement = EEnemyMovement::MAX;
-
-	// 4. 애니메이션 상태 동기화
+	// 2. 애니메이션 재생
 	Anim->MainAnimState = EnemyState;
 	Anim->SubAnimMovement = EnemyMovement;
+
+	// 3. Spawn VFX를 소환한다
+
+	// 4. Idle 상태로 전환한다
+	EnemyState = EEnemyState::IDLE;
+	EnemyMovement = EEnemyMovement::MAX;
+	//CurTime = 0.f;	// IDLE에서 더하고 있던 CurTime 초기화
 }
 
 void UC_EnemyFSM::IdleState()
@@ -105,9 +109,11 @@ void UC_EnemyFSM::IdleState()
 		// 1. 이동 상태로 전환
 		EnemyState = EEnemyState::MOVE;
 		EnemyMovement = EEnemyMovement::WALK;
+
+		// 2. 경과 시간 초기화
 		CurTime = 0.f;
 
-		// 2. 애니메이션 상태 동기화
+		// 3. 애니메이션 상태 동기화
 		Anim->MainAnimState = EnemyState;
 		Anim->SubAnimMovement = EnemyMovement;
 	}
@@ -132,7 +138,6 @@ void UC_EnemyFSM::MoveState()
 		break;
 	}
 
-
 	/*** Sub state에 따른 애니메이션 동기화 ***/
 	Anim->MainAnimState = EnemyState;
 	Anim->SubAnimMovement = EnemyMovement;
@@ -144,7 +149,7 @@ void UC_EnemyFSM::AttackState()
 	/*** 타겟이 있는지 체크 - 타겟이 죽었는데 공격하면 안되니까 ***/
 	CheckNull(Target);
 
-	if(Anim->bAttackPlay) return;
+	//if(Anim->bAttackPlay) return;
 
 	/*** 일정 시간이 지나면 공격 ***/
 	CurTime += GetWorld()->DeltaTimeSeconds;
@@ -153,7 +158,7 @@ void UC_EnemyFSM::AttackState()
 	if (CurTime > AttackDelayTime)
 	{
 		// 2. 근거리 공격을 한다
-		//GEngine->AddOnScreenDebugMessage(0, 1, FColor::Blue, L"Melee Attack!!!!!");
+		GEngine->AddOnScreenDebugMessage(0, 1, FColor::Blue, L"Melee Attack!!!!!");
 
         //// 원거리 공격을 한다
         //GEngine->AddOnScreenDebugMessage(0, 1, FColor::Blue, L"Long Range Attack!!!!!");
@@ -172,19 +177,20 @@ void UC_EnemyFSM::AttackState()
 	// 만약 Player가 근거리 범위에서 벗어났다면
 	if (distance > MeleeRange)
 	{
-		// 1. 상태를 이동으로 전환한다
+		// Debug
+		//GEngine->AddOnScreenDebugMessage(0, 1, FColor::Blue, L">>> Out /of /Distance");
+		UE_LOG(LogTemp, Error, TEXT(">>> Player Out of Range"));
+	
+		// 새로운 랜덤 위치 정하기
+		GetRandomPositionInNavMesh(Self->GetActorLocation(), 500, RandPos);
+
+		// 상태를 이동으로 전환한다
 		EnemyState = EEnemyState::MOVE;
 		EnemyMovement = EEnemyMovement::WALK;
-
-		// 2. 애니메이션 상태 동기화
+	
+		// 애니메이션 상태 동기화
 		Anim->MainAnimState = EnemyState;
 		Anim->SubAnimMovement = EnemyMovement;
-
-		// 3. 공격 애니메이션 재생 비활성화
-		Anim->bAttackPlay = false;
-
-		// 3. 랜덤 위치 정하기
-		GetRandomPositionInNavMesh(Self->GetActorLocation(), 500, RandPos);
 	}
 }
 
@@ -221,7 +227,7 @@ void UC_EnemyFSM::DamageState()
 	{
 		// Enemy 상태를 IDLE로 변경
 		EnemyState = EEnemyState::IDLE;
-		EnemyMovement = EEnemyMovement::WALK;
+		EnemyMovement = EEnemyMovement::MAX;
 
 		// 경과 시간 초기화
 		CurTime = 0.f;
@@ -268,8 +274,6 @@ void UC_EnemyFSM::FlinchMovement()
 
 	// 몸이 파란색으로 반짝인다
 
-	// player를 향해 움직인다
-	Move();
 }
 
 void UC_EnemyFSM::StaggerMovement()
@@ -294,6 +298,11 @@ EEnemyState UC_EnemyFSM::GetEnemyState()
 	return EnemyState;
 }
 
+AAIController* UC_EnemyFSM::GetMyAI()
+{
+	return MyAI;
+}
+
 
 /***** Setters *****/
 void UC_EnemyFSM::SetEnemyMovement(EEnemyMovement InVal)
@@ -316,15 +325,21 @@ void UC_EnemyFSM::SetAnimState(EEnemyState InVal)
 	Anim->MainAnimState = InVal;
 }
 
+void UC_EnemyFSM::SetAnimSubStateMovement(EEnemyMovement InVal)
+{
+	Anim->SubAnimMovement = InVal;
+}
+
 
 void UC_EnemyFSM::Move()
 {
-	/*** 이동 : Walk, Flinch 상태일 때 가능 ***/
+	/*** 이동 : Walk 상태일 때 가능 ***/
 	FVector destination = Target->GetActorLocation();
 	FVector dir = Target->GetActorLocation() - Self->GetActorLocation();
-	Self->AddMovementInput(dir.GetSafeNormal());
+	//Self->AddMovementInput(dir.GetSafeNormal());
 
-	/*** 순찰 : Walk, Flinch 상태일 때 가능 ***/
+
+	/*** 순찰 : Walk 상태일 때 가능 ***/
 	auto ns = UNavigationSystemV1::GetNavigationSystem(GetWorld());
 	FPathFindingQuery query;
 	FAIMoveRequest req;
@@ -346,8 +361,8 @@ void UC_EnemyFSM::Move()
 		if (result == EPathFollowingRequestResult::AlreadyAtGoal)
 			GetRandomPositionInNavMesh(Self->GetActorLocation(), 500, RandPos);
 	}
-
-
+	UE_LOG(LogTemp, Warning, TEXT(">>> Enemy Nav Move : %s"), *UEnum::GetValueAsString( rslt.Result ) );
+	
 	/*** 거리에 따른 근거리 공격 상태로 전환 ***/
 	CheckDistance(dir.Size());
 }
@@ -356,7 +371,7 @@ void UC_EnemyFSM::Move()
 void UC_EnemyFSM::CheckDistance(float InDistance)
 {
 	/*** 거리에 따른 근거리 공격 상태로 전환 ***/
-	if (InDistance <= MeleeRange)
+	if (InDistance < MeleeRange)
 	{
 		// 1. 움직임을 멈춘다
 		MyAI->StopMovement();
@@ -374,5 +389,20 @@ void UC_EnemyFSM::CheckDistance(float InDistance)
 
 		// 5. 공격 상태 전환 시 대기 시간 없이 바로 플레이 되도록
 		CurTime = AttackDelayTime;
+	}
+}
+
+// Animation Montage를 실행하는 부분이 많아서 함수로 만들었음
+void UC_EnemyFSM::PlayEnemyMontage(FString* InSectionName)
+{
+	if (InSectionName->Contains(TEXT("Damage")))
+	{
+		// Damage Animation Montage 실행
+		Self->PlayAnimMontage(Anim->EnemyMontage, 2.f, FName(*InSectionName));
+	}
+	else
+	{
+		// Spawn Animation Montage 실행
+		Self->PlayAnimMontage(Anim->EnemyMontageSpawn, 3.f, FName(*InSectionName));
 	}
 }

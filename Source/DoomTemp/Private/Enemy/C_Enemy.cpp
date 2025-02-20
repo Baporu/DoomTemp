@@ -7,6 +7,7 @@
 #include "Enemy/C_EWeaponComp.h"
 #include "Enemy/C_EnemyAAnimInstance.h"
 #include "Components/CapsuleComponent.h"
+#include "Runtime/AIModule/Classes/AIController.h"
 
 
 AC_Enemy::AC_Enemy()
@@ -105,7 +106,14 @@ void AC_Enemy::CheckSubState()
         GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     }
 
+    // 애니메이션 상태 동기화
+    FSM->SetAnimState(FSM->GetEnemyState());
+    FSM->SetAnimSubStateMovement(FSM->GetEnemyMovement());
+
+    // Speed 조절
     SetEnemySpeed();
+
+    // 공격력 조절
     ChangeMeleeDamage();
 }
 
@@ -113,13 +121,17 @@ void AC_Enemy::CheckSubState()
 /***** 데미지 처리 *****/
 void AC_Enemy::OnDamageProcess(int32 InDamage, enum class EAttackType InAttackType)
 {
-    // 1. HP를 깎는다
+    // HP를 깎는다
     SetHP(InDamage);
 
-    // 2. Enemy 상태 변경
-    CheckSubState();
+    // 길찾기 기능 정지
+    FSM->GetMyAI()->StopMovement();
 
-    // 3. Attack Type에 따른 애니메이션 및 이펙트 실행
+    // Enemy 상태 변경
+    //CheckSubState();
+
+
+    // Attack Type에 따른 애니메이션 및 이펙트 실행
     switch (InAttackType)
     {
     	case EAttackType::Fist:
@@ -161,7 +173,7 @@ void AC_Enemy::SetEnemySpeed()
     if (movement == EEnemyMovement::WALK)
         SetSpeed(SpeedMax);
     else
-        SetSpeed(0);   // STAGGER || DEAD
+        SetSpeed(0);   // FLINCH, STAGGER, ATTACK, DEAD
 
     // 2. 변경 내용 적용
     GetCharacterMovement()->MaxWalkSpeed = Speed;
@@ -183,7 +195,7 @@ void AC_Enemy::ChangeMeleeDamage()
     else if (movement == EEnemyMovement::FLINCH)
         SetMeleeDamage(MeleeDamageFlinch);
     else
-        SetMeleeDamage(0);   // STAGGER || DEAD
+        SetMeleeDamage(0);   // STAGGER, DEAD
 }
 
 
@@ -193,14 +205,15 @@ void AC_Enemy::OnDamageFist()
     GEngine->AddOnScreenDebugMessage(0, 1, FColor::Orange, L"-----Get Damage FIST-----");
 
     // 1. 맞는 애니메이션 재생
-    FSM->SetAnimState(FSM->GetEnemyState());
+    SectionName = FString::Printf(TEXT("Damage%d"), 0);
+    FSM->PlayEnemyMontage(&SectionName);
 
     // 2. 맞은 위치에 피 튀기는 VFX 나올 컴포넌트 부착
 
     // 3. 부착한 컴포넌트에서 맞은 부분의 normal 방향으로 피 튀기는 VFX 소환
 
     // 4. Enemy HP에 따른 Sub State 변경 및 죽음 처리
-    CheckSubState();
+    //CheckSubState();
 }
 
 void AC_Enemy::OnDamageGun()
@@ -208,14 +221,15 @@ void AC_Enemy::OnDamageGun()
     //GEngine->AddOnScreenDebugMessage(0, 1, FColor::Orange, L"-----Get Damage GUN-----");
 
     // 1. 맞는 애니메이션 재생
-    FSM->SetAnimState(FSM->GetEnemyState());
+    SectionName = FString::Printf(TEXT("Damage%d"), 0);
+    FSM->PlayEnemyMontage(&SectionName);
 
     // 2. 맞은 위치에 피 튀기는 VFX 나올 컴포넌트 부착
 
     // 3. 부착한 컴포넌트에서 맞은 부분의 normal 방향으로 피 튀기는 VFX 소환
 
     // 4. Enemy HP에 따른 Sub State 변경 및 죽음 처리
-    CheckSubState();
+    //CheckSubState();
 }
 
 void AC_Enemy::OnDamageGloryKill()
@@ -223,14 +237,15 @@ void AC_Enemy::OnDamageGloryKill()
     GEngine->AddOnScreenDebugMessage(0, 1, FColor::Orange, L"-----Get Damage GLORYKILL-----");
 
     // 1. 맞는 애니메이션 재생
-    FSM->SetAnimState(FSM->GetEnemyState());
+    SectionName = FString::Printf(TEXT("Damage%d"), 0);
+    FSM->PlayEnemyMontage(&SectionName);
 
     // 2. 맞은 위치에 피 뿜어져 나오는 VFX 나올 컴포넌트 부착
 
     // 3. 부착한 컴포넌트에서 맞은 부분의 normal 방향으로 피 뿜어져 나오는 VFX 소환
 
     // 4. Enemy HP에 따른 Sub State 변경 및 죽음 처리
-    CheckSubState();
+    //CheckSubState();
 }
 
 void AC_Enemy::OnDamageChainsaw()
@@ -238,12 +253,13 @@ void AC_Enemy::OnDamageChainsaw()
     GEngine->AddOnScreenDebugMessage(0, 1, FColor::Orange, L"-----Get Damage CHAINSAW-----");
 
     // 1. 맞는 애니메이션 재생
-    FSM->SetAnimState(FSM->GetEnemyState());
+    SectionName = FString::Printf(TEXT("Damage%d"), 0);
+    FSM->PlayEnemyMontage(&SectionName);
 
     // 2. 맞은 위치에 피 뿜어져 나오는 VFX 나올 컴포넌트 부착
 
     // 3. 부착한 컴포넌트에서 맞은 부분의 normal 방향으로 피 뿜어져 나오는 VFX 소환
 
     // 4. Enemy HP에 따른 Sub State 변경 및 죽음 처리
-    CheckSubState();
+    //CheckSubState();
 }

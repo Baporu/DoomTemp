@@ -16,7 +16,8 @@ enum class EEnemyState : uint8
     ATTACK,				// 공격
 	DAMAGE,				// 피격
 	DEAD,				// 죽음
-	MAX					// 등장
+	SPAWN,				// 등장
+	MAX					
 };
 
 
@@ -55,7 +56,7 @@ protected:
 	/***** State *****/
 	// Main state
     UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "FSM")
-	EEnemyState EnemyState = EEnemyState::MAX;
+	EEnemyState EnemyState = EEnemyState::IDLE;
 
 	// Sub state - 어떻게 움직이고 있는가
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "FSM")
@@ -84,7 +85,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "FSM")
 	float AttackDelayTime = 2.6f;	// 공격 대기 시간
     UPROPERTY(EditAnywhere, Category = "FSM")
-	float DamageDelayTime = 2.f;	// 피격 대기 시간
+	float DamageDelayTime = 5.f;	// 피격 대기 시간
 	UPROPERTY(EditAnywhere, Category = "FSM")
 	float DestroyDelayTime = 3.f;	// 죽음 후 사라짐 대기 시간
 
@@ -143,6 +144,7 @@ public:
 public:
 	EEnemyMovement GetEnemyMovement();
 	EEnemyState GetEnemyState();
+	AAIController* GetMyAI();
 
 	/***** Setters *****/
 public:
@@ -150,6 +152,7 @@ public:
 	void SetEnemyState(EEnemyState InVal);
 	void SetAttackType(EAttackType InVal);
 	void SetAnimState(EEnemyState InVal);
+	void SetAnimSubStateMovement(EEnemyMovement InVal);
 
 
 public:
@@ -157,4 +160,6 @@ public:
 	void Move();
 	// 거리에 따른 근거리 공격 상태로 전환
 	void CheckDistance(float InDistance);
+	// Animation Montage 재생
+	void PlayEnemyMontage(FString* InSectionName);
 };

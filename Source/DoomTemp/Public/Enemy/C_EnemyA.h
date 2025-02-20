@@ -18,8 +18,4 @@ protected:
 
 public:
 	virtual void Tick(float DeltaTime) override;
-
-//protected:
-//	void SetMeleeDamage();
-//	void SetSpeed();
 };

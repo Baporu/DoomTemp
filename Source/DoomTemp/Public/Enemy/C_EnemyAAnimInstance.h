@@ -28,7 +28,19 @@ public:
 	bool bAttackPlay = false;
 
 
+	/***** Animation Montage *****/
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "FSM")
+	class UAnimMontage* EnemyMontage;
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "FSM")
+	class UAnimMontage* EnemyMontageSpawn;
+
+
 	/***** Attack Notify *****/
 	UFUNCTION()
 	void AnimNotify_EAttackEnd();
+
+
+	/***** Spawn Notify *****/
+	UFUNCTION()
+	void AnimNotify_SpawnEnd();
 };
