@@ -170,10 +170,10 @@ void AC_PlayerCharacter::BeginPlay()
 	}
 
 	// Disable All Weapon Meshes, and then Enable Current Weapon Mesh
-	SetWeaponActive(EWeaponType::Plasma, false);
-	SetWeaponActive(EWeaponType::Sniper, false);
-	SetWeaponActive(EWeaponType::Shotgun, false);
-	SetWeaponActive(mWeaponType, true);
+	SetWeaponActive(EGunType::Plasma, false);
+	SetWeaponActive(EGunType::Sniper, false);
+	SetWeaponActive(EGunType::Shotgun, false);
+	SetWeaponActive(GunType, true);
 
 	// Set Fire Rate
 	SetFireRate(GetCurrentGun()->GetFireRate());
@@ -300,7 +300,7 @@ void AC_PlayerCharacter::ResetDashCount()
 
 void AC_PlayerCharacter::OnFire(const struct FInputActionValue& inputValue)
 {
-	if (mWeaponType == EWeaponType::Shotgun && ShotgunMesh->bUsingMode == false) {
+	if (GunType == EGunType::Shotgun && ShotgunMesh->bUsingMode == false) {
 		bIsFire = false;
 		bShotgun = !bShotgun;
 
@@ -322,11 +322,11 @@ void AC_PlayerCharacter::PlayerFire()
 
 	if (FireTimer >= FireRate) {
 
-		switch (mWeaponType)
+		switch (GunType)
 		{
-			case EWeaponType::Plasma: { Fire_Plasma(); }	break;
-			case EWeaponType::Sniper: { Fire_Sniper(); }	break;
-			case EWeaponType::Shotgun: { Fire_Shotgun(); }	break;
+			case EGunType::Plasma: { Fire_Plasma(); }	break;
+			case EGunType::Sniper: { Fire_Sniper(); }	break;
+			case EGunType::Shotgun: { Fire_Shotgun(); }	break;
 		}
 
 		FireTimer = 0.0f;
@@ -352,50 +352,50 @@ void AC_PlayerCharacter::Fire_Shotgun()
 
 void AC_PlayerCharacter::OnUseMode(const struct FInputActionValue& inputValue)
 {
-	switch (mWeaponType)
+	switch (GunType)
 	{
-		case EWeaponType::Plasma:	{ PlasmaMesh->OnUseMode(); }	break;
-		case EWeaponType::Sniper:	{ SniperMesh->OnUseMode(); }	break;
-		case EWeaponType::Shotgun:	{ ShotgunMesh->OnUseMode(); }	break;
+		case EGunType::Plasma:	{ PlasmaMesh->OnUseMode(); }	break;
+		case EGunType::Sniper:	{ SniperMesh->OnUseMode(); }	break;
+		case EGunType::Shotgun:	{ ShotgunMesh->OnUseMode(); }	break;
 	}
 }
 
 void AC_PlayerCharacter::OnChangeWeapon(const struct FInputActionValue& inputValue)
 {
-	switch (mWeaponType)
+	switch (GunType)
 	{
-		case EWeaponType::Plasma:	{ ChangeWeapon(EWeaponType::Sniper); }	break;
-		case EWeaponType::Sniper:	{ ChangeWeapon(EWeaponType::Shotgun); }	break;
-		case EWeaponType::Shotgun:	{ ChangeWeapon(EWeaponType::Plasma); }	break;
+		case EGunType::Plasma:	{ ChangeWeapon(EGunType::Sniper); }	break;
+		case EGunType::Sniper:	{ ChangeWeapon(EGunType::Shotgun); }	break;
+		case EGunType::Shotgun:	{ ChangeWeapon(EGunType::Plasma); }	break;
 	}
 }
 
-void AC_PlayerCharacter::ChangeWeapon(EWeaponType InChangeType)
+void AC_PlayerCharacter::ChangeWeapon(EGunType InChangeType)
 {
 	// Reset Mode Use
-	switch (mWeaponType)
+	switch (GunType)
 	{
-		case EWeaponType::Plasma: { PlasmaMesh->OnGunChanged(); }	break;
-		case EWeaponType::Sniper: { SniperMesh->OnGunChanged(); }	break;
-		case EWeaponType::Shotgun: { ShotgunMesh->OnGunChanged(); }	break;
+		case EGunType::Plasma: { PlasmaMesh->OnGunChanged(); }	break;
+		case EGunType::Sniper: { SniperMesh->OnGunChanged(); }	break;
+		case EGunType::Shotgun: { ShotgunMesh->OnGunChanged(); }	break;
 	}
 
 	// Change Gun Mesh
-	SetWeaponActive(mWeaponType, false);
-	mWeaponType = InChangeType;
+	SetWeaponActive(GunType, false);
+	GunType = InChangeType;
 	SetWeaponActive(InChangeType, true);
 	
 	// Change Fire Rate
 	FireRate = GetCurrentGun()->GetFireRate();
 }
 
-void AC_PlayerCharacter::SetWeaponActive(EWeaponType InChangeType, bool InActive)
+void AC_PlayerCharacter::SetWeaponActive(EGunType InChangeType, bool InActive)
 {
 	switch (InChangeType)
 	{
-		case EWeaponType::Plasma:	{ PlasmaMesh->SetVisibility(InActive); }	break;
-		case EWeaponType::Sniper:	{ SniperMesh->SetVisibility(InActive); }	break;
-		case EWeaponType::Shotgun:	{ ShotgunMesh->SetVisibility(InActive); }	break;
+		case EGunType::Plasma:	{ PlasmaMesh->SetVisibility(InActive); }	break;
+		case EGunType::Sniper:	{ SniperMesh->SetVisibility(InActive); }	break;
+		case EGunType::Shotgun:	{ ShotgunMesh->SetVisibility(InActive); }	break;
 	}
 }
 
@@ -418,7 +418,7 @@ void AC_PlayerCharacter::SetFireRate(float InFireRate)
 void AC_PlayerCharacter::OnPunch(const struct FInputActionValue& inputValue)
 {
 	// Deactivate Weapon Mesh
-	SetWeaponActive(mWeaponType, false);
+	SetWeaponActive(GunType, false);
 
 	// Dash to Target
 	MeleeDash();
@@ -439,7 +439,7 @@ void AC_PlayerCharacter::OnPunch(const struct FInputActionValue& inputValue)
 void AC_PlayerCharacter::OnPunchEnd()
 {
 	// Activate Weapon Mesh
-	SetWeaponActive(mWeaponType, true);
+	SetWeaponActive(GunType, true);
 
 	MeleeTarget = nullptr;
 }
@@ -447,7 +447,7 @@ void AC_PlayerCharacter::OnPunchEnd()
 void AC_PlayerCharacter::OnSaw(const struct FInputActionValue& inputValue)
 {
 	// Deactivate Weapon Mesh
-	SetWeaponActive(mWeaponType, false);
+	SetWeaponActive(GunType, false);
 
 	// Dash to Target
 	MeleeDash();
@@ -472,10 +472,10 @@ UCameraComponent* AC_PlayerCharacter::GetCameraComponent()
 
 UC_GunSkeletalMeshComponent* AC_PlayerCharacter::GetCurrentGun()
 {
-	switch (mWeaponType) {
-		case EWeaponType::Plasma:	{ return PlasmaMesh; }
-		case EWeaponType::Sniper:	{ return SniperMesh; }
-		case EWeaponType::Shotgun:	{ return ShotgunMesh; }
+	switch (GunType) {
+		case EGunType::Plasma:	{ return PlasmaMesh; }
+		case EGunType::Sniper:	{ return SniperMesh; }
+		case EGunType::Shotgun:	{ return ShotgunMesh; }
 	}
 
 	return ShotgunMesh;

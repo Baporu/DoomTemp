@@ -65,7 +65,7 @@ void ADropBase::OnDropOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 	Player = Cast<AC_PlayerCharacter>(OtherActor);
 
 	if (Player) {
-		CollisionComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+// 		CollisionComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		bIsChase = true;
 	}
 }

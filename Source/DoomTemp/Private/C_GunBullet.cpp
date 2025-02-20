@@ -3,7 +3,7 @@
 
 #include "C_GunBullet.h"
 #include "Enemy/C_Enemy.h"
-#include "C_PlayerCharacter.h"
+#include "C_EnumManager.h"
 
 // Sets default values
 AC_GunBullet::AC_GunBullet()
