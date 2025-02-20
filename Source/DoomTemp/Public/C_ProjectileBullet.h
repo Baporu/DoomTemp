@@ -30,7 +30,7 @@ public:
 
 	// Collision Component
 	UPROPERTY(VisibleAnywhere, Category = Basics)
-	class UCapsuleComponent* CollisionComp;
+	class USphereComponent* CollisionComp;
 	// Mesh Component
 	UPROPERTY(VisibleAnywhere, Category = Basics)
 	class UStaticMeshComponent* MeshComp;

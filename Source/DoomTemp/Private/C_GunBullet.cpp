@@ -18,6 +18,23 @@ void AC_GunBullet::BeginPlay()
 {
 	Super::BeginPlay();
 	
+
+// 	AC_PlayerCharacter* player = Cast<AC_PlayerCharacter>(GetInstigator());
+// 
+// 	if (!player) {
+// 		UE_LOG(LogTemp, Warning, TEXT("Bullet BeginPlay(): Instigator Cast Failed!"));
+// 		return;
+// 	}
+// 
+// 	UC_GunSkeletalMeshComponent* gun = player->GetCurrentGun();
+// 
+// 	if (!gun) {
+// 		UE_LOG(LogTemp, Warning, TEXT("Bullet BeginPlay(): Get Gun Failed!"));
+// 		return;
+// 	}
+// 
+// 	UE_LOG(LogTemp, Warning, TEXT("Bullet BeginPlay(): Get Instigator Succeeded!"));
+// 	Damage = gun->GetBulletDamage();
 }
 
 // Called every frame

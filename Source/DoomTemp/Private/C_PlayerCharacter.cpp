@@ -62,6 +62,7 @@ AC_PlayerCharacter::AC_PlayerCharacter()
 
 	MeleeComp->SetCollisionProfileName(TEXT("PlayerAttack"));
 	MeleeComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	MeleeComp->OnComponentBeginOverlap.AddDynamic(this, &AC_PlayerCharacter::OnMeleeOverlap);
 
 	// Update Yaw Only
 	bUseControllerRotationPitch = false;
@@ -79,6 +80,7 @@ AC_PlayerCharacter::AC_PlayerCharacter()
 
 	// Set Mesh Component For Each Guns
 	{
+		// Plasma Gun Mesh
 		{
 			// Create Gun Mesh Component
 			PlasmaMesh = CreateDefaultSubobject<UC_PlasmaGun>(TEXT("PlasmaMesh"));
@@ -97,6 +99,8 @@ AC_PlayerCharacter::AC_PlayerCharacter()
 				PlasmaMesh->SetRelativeScale3D(FVector(0.08));
 			}
 		}
+
+		// Sniper Gun Mesh
 		{
 			// Create Gun Mesh Component
 			SniperMesh = CreateDefaultSubobject<UC_SniperGun>(TEXT("SniperMesh"));
@@ -115,6 +119,8 @@ AC_PlayerCharacter::AC_PlayerCharacter()
 				SniperMesh->SetRelativeScale3D(FVector(0.15));
 			}
 		}
+
+		// Shotgun Mesh
  		{
 			// Create Gun Mesh Component
 			ShotgunMesh = CreateDefaultSubobject<UC_ShotGun>(TEXT("ShotgunMesh"));
@@ -132,8 +138,6 @@ AC_PlayerCharacter::AC_PlayerCharacter()
 				ShotgunMesh->SetRelativeLocation(FVector(-10.0, 27.0, 136.0));
 				ShotgunMesh->SetRelativeScale3D(FVector(1.5));
 			}
-
-
  		}
 	}
 
@@ -225,6 +229,7 @@ void AC_PlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		PlayerInput->BindAction(IA_ChangeWeapon, ETriggerEvent::Started, this, &AC_PlayerCharacter::OnChangeWeapon);
 
 		PlayerInput->BindAction(IA_Punch, ETriggerEvent::Started, this, &AC_PlayerCharacter::OnPunch);
+		PlayerInput->BindAction(IA_Saw, ETriggerEvent::Started, this, &AC_PlayerCharacter::OnSaw);
 	}
 }
 
@@ -412,52 +417,48 @@ void AC_PlayerCharacter::SetFireRate(float InFireRate)
 
 void AC_PlayerCharacter::OnPunch(const struct FInputActionValue& inputValue)
 {
-	// Enable Punch Collider
-
 	// Deactivate Weapon Mesh
 	SetWeaponActive(mWeaponType, false);
+
+	// Dash to Target
+	MeleeDash();
+
 	// Start Punch Animation
 	Anim->bIsPunching = true;
 
-	// Enable Colldier Component
-	MeleeComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	if (!MeleeTarget)
+		return;
 
-// 	// Teleport to Enemy
-// 	FVector startPos = FPSCamComp->GetComponentLocation();
-// 	FVector endPos = startPos + FPSCamComp->GetForwardVector() * MeleeDistance;
-// 	TArray<FHitResult> hitInfos;
-// 	FCollisionQueryParams params;
-// 	params.AddIgnoredActor(this);
-// 
-// 	bool bHit = GetWorld()->SweepMultiByChannel(hitInfos, startPos, endPos, FQuat::Identity, ECC_GameTraceChannel2, FCollisionShape::);
-// 
-// 	if (bHit) {
-// 		float minDist = MeleeDistance;
-// 
-// 		for (FHitResult hitInfo : hitInfos) {
-// 			AC_Enemy* enemy = Cast<AC_Enemy>(hitInfo.GetActor());
-// 
-// 			if (enemy == nullptr)
-// 				continue;
-// 
-// 			if (hitInfo.Distance < minDist) {
-// 				minDist = hitInfo.Distance;
-// 				target = hitInfo.GetActor();
-// 			}
-// 		}
-// 		
-// 		if (target) {
-// 			SetActorLocation(target->GetActorLocation(), true);
-// 		}
-// 	}
+	if (MeleeTarget->bIsStaggered)
+		MeleeTarget->OnDamageProcess(10000, EAttackType::GloryKill);
+	else
+		MeleeTarget->OnDamageProcess(MeleeDamage, EAttackType::Fist);
+	
 }
 
 void AC_PlayerCharacter::OnPunchEnd()
 {
-	// Disable Punch Collider
-	
 	// Activate Weapon Mesh
 	SetWeaponActive(mWeaponType, true);
+
+	MeleeTarget = nullptr;
+}
+
+void AC_PlayerCharacter::OnSaw(const struct FInputActionValue& inputValue)
+{
+	// Deactivate Weapon Mesh
+	SetWeaponActive(mWeaponType, false);
+
+	// Dash to Target
+	MeleeDash();
+
+	// Start Punch Animation
+	Anim->bIsPunching = true;
+
+	if (!MeleeTarget)
+		return;
+
+	MeleeTarget->OnDamageProcess(10000, EAttackType::Chainsaw);
 }
 
 void AC_PlayerCharacter::OnGetDrop() {
@@ -478,5 +479,56 @@ UC_GunSkeletalMeshComponent* AC_PlayerCharacter::GetCurrentGun()
 	}
 
 	return ShotgunMesh;
+}
+
+void AC_PlayerCharacter::OnMeleeOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	AC_Enemy* enemy = Cast<AC_Enemy>(OtherActor);
+
+	if (!enemy)
+		return;
+
+	// If There is No Target, Set Target
+	if (!MeleeTarget) {
+		MeleeTarget = enemy;
+	}
+	// If There is Target,
+	else {
+		// Get Distances
+		double curDist = FVector::Dist(GetActorLocation(), MeleeTarget->GetActorLocation());
+		double newDist = FVector::Dist(GetActorLocation(), enemy->GetActorLocation());
+
+		// Compare Distance, Then Set Target
+		if (newDist < curDist)
+			MeleeTarget = enemy;
+	}
+}
+
+void AC_PlayerCharacter::MeleeDash()
+{
+	// Enable Target Finding Colldier Component
+	MeleeComp->SetVisibility(true);
+	MeleeComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+
+	// Disable Target Finding Collider Component
+	MeleeComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	MeleeComp->SetVisibility(false);
+
+	if (!MeleeTarget) {
+		// Show Target Not Found UI
+		return;
+	}
+
+	UCapsuleComponent* capsuleComp = Cast<UCapsuleComponent>(RootComponent);
+
+	if (capsuleComp) {
+		capsuleComp->SetCollisionResponseToChannel(ECC_WorldStatic, ECollisionResponse::ECR_Ignore);
+		SetActorLocation(MeleeTarget->GetActorLocation(), true);
+		capsuleComp->SetCollisionResponseToChannel(ECC_WorldStatic, ECollisionResponse::ECR_Block);
+	}
+
+	else {
+		UE_LOG(LogTemp, Error, TEXT("Capsule Component Not Found!!!"));
+	}
 }
 

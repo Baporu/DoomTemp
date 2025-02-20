@@ -2,18 +2,17 @@
 
 
 #include "C_ProjectileBullet.h"
-#include "Components/CapsuleComponent.h"
+#include "Components/SphereComponent.h"
 #include "Enemy/C_Enemy.h"
 
 AC_ProjectileBullet::AC_ProjectileBullet()
 {
 	// 1. 충돌체 등록하기
-	CollisionComp = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CollisionComp"));
+	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionComp"));
 	// 2. 충돌 프로필 설정
 	CollisionComp->SetCollisionProfileName(TEXT("PlayerAttack"));
 	// 3. 충돌체 크기 설정
-	CollisionComp->SetCapsuleHalfHeight(10.0f);
-	CollisionComp->SetCapsuleRadius(5.0f);
+	CollisionComp->SetSphereRadius(13.0);
 	// 4. 루트로 등록
 	SetRootComponent(CollisionComp);
 

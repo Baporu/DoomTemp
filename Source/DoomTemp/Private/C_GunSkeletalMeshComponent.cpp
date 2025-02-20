@@ -4,8 +4,6 @@
 #include "C_GunSkeletalMeshComponent.h"
 #include "C_GunBullet.h"
 #include "Kismet/GameplayStatics.h"
-#include "C_PlayerCharacter.h"
-#include "Camera/CameraComponent.h"
 #include "C_PlayerAnimInstance.h"
 
 void UC_GunSkeletalMeshComponent::BeginPlay()
@@ -19,14 +17,21 @@ void UC_GunSkeletalMeshComponent::OnFire()
 {
 	me->Anim->PlayShootAnim();
 
-	FTransform firePos = GetSocketTransform(TEXT("FirePosition"));
-	firePos.SetRotation(FPSCam->GetComponentRotation().Quaternion());
-	// 무기의 크기에 따라 Socket의 Transform도 달라지는 경우가 있는데,
-	// 그럴 경우 총알의 크기가 같이 변경되는 일을 방지하기 위해 크기를 1.0으로 고정한다.
-	firePos.SetScale3D(FVector(1.0));
+// 	FTransform firePos = GetSocketTransform(TEXT("FirePosition"));
+// 	firePos.SetRotation(FPSCam->GetComponentRotation().Quaternion());
+// 	// Prevents Bullet Scaled by Socket
+// 	firePos.SetScale3D(FVector(1.0));
 
-	AC_GunBullet* bullet = GetWorld()->SpawnActor<AC_GunBullet>(BulletFactory, firePos);
+//	FVector firePos = GetSocketLocation(TEXT("FirePosition"));
+//	FRotator fireRot = FPSCam->GetComponentRotation();
+//	AC_GunBullet* bullet = GetWorld()->SpawnActor<AC_GunBullet>(BulletFactory, firePos, fireRot);
+
+	FTransform firePos = FTransform(FPSCam->GetComponentRotation(), GetSocketLocation(TEXT("FirePosition")));
+	AC_GunBullet* bullet = GetWorld()->SpawnActorDeferred<AC_GunBullet>(BulletFactory, firePos, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+	
 	bullet->OnBulletInit(BulletDamage);
+	bullet->FinishSpawning(firePos);
+//	UGameplayStatics::FinishSpawningActor(bullet, firePos);
 
 	--CurrentAmmo;
 }
@@ -63,3 +68,9 @@ float UC_GunSkeletalMeshComponent::GetFireRate()
 {
 	return FireRate;
 }
+
+// int32 UC_GunSkeletalMeshComponent::GetBulletDamage()
+// {
+// 	return BulletDamage;
+// }
+

@@ -41,6 +41,8 @@ void AC_Pellet::BeginPlay()
 
 void AC_Pellet::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+	Super::EndPlay(EndPlayReason);
+
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), PelletVFX, GetActorLocation());
 }
 
