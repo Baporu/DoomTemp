@@ -36,11 +36,8 @@ public:
 
 public:
 	// Collider Component
-	UPROPERTY(VisibleAnywhere, Category = "Basics | Mesh")
+	UPROPERTY(VisibleAnywhere, Category = "Basics | Components")
 	class UBoxComponent* CollisionComp;
-	// Mesh Component
-	UPROPERTY(VisibleAnywhere, Category = "Basics | Mesh")
-	class UStaticMeshComponent* MeshComp;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Basics | Stats")
 	EDropType DropType;
