@@ -179,6 +179,12 @@ void AC_PlayerCharacter::BeginPlay()
 	SetFireRate(GetCurrentGun()->GetFireRate());
 	FireTimer = FireRate;
 
+	// Set Stats
+	CurrentHP = MaxHP;
+
+	// Set Fuel Timer
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AC_PlayerCharacter::OnFuelTime, (FuelTime / 2), false);
+
 // 	for (int32 i = 0; i < 3; i++) {
 // 		if (Guns[i] != nullptr) {
 // 			UC_GunSkeletalMeshComponent* gun = NewObject<UC_GunSkeletalMeshComponent>(this, Guns[i].GetDefaultObject()->StaticClass(), Guns[i].GetDefaultObject()->MeshName);
@@ -446,6 +452,12 @@ void AC_PlayerCharacter::OnPunchEnd()
 
 void AC_PlayerCharacter::OnSaw(const struct FInputActionValue& inputValue)
 {
+	if (CurrentFuel <= 0)
+		return;
+
+	else
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AC_PlayerCharacter::OnFuelTime, FuelTime, false);
+
 	// Deactivate Weapon Mesh
 	SetWeaponActive(mWeaponType, false);
 
@@ -459,10 +471,6 @@ void AC_PlayerCharacter::OnSaw(const struct FInputActionValue& inputValue)
 		return;
 
 	MeleeTarget->OnDamageProcess(10000, EAttackType::Chainsaw);
-}
-
-void AC_PlayerCharacter::OnGetDrop() {
-	GetCurrentGun()->IncreaseAmmo();
 }
 
 UCameraComponent* AC_PlayerCharacter::GetCameraComponent()
@@ -530,5 +538,14 @@ void AC_PlayerCharacter::MeleeDash()
 	else {
 		UE_LOG(LogTemp, Error, TEXT("Capsule Component Not Found!!!"));
 	}
+}
+
+void AC_PlayerCharacter::OnFuelTime()
+{
+	CurrentFuel++;
+
+	if (CurrentFuel < MaxFuel)
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AC_PlayerCharacter::OnFuelTime, FuelTime, false);
+
 }
 

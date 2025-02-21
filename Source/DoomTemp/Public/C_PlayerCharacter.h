@@ -7,7 +7,7 @@
 #include "C_PlayerCharacter.generated.h"
 
 // Define Weapon Type
-// Used by Player Weapons and Drops
+// Used by Player Weapons
 UENUM()
 enum class EWeaponType : uint8 {
 	Plasma,
@@ -16,7 +16,8 @@ enum class EWeaponType : uint8 {
 	MAX
 };
 
-// 플레이어의 공격 종류
+// Define Player's Attack Type
+// Used by Enemy FSM
 UENUM()
 enum class EAttackType {
 	Fist,
@@ -136,6 +137,7 @@ public:
 	// HP
 	UPROPERTY(EditDefaultsOnly, Category = "Stats")
 	int32 MaxHP = 100;
+	UPROPERTY(EditInstanceOnly, Category = "Stats")
 	int32 CurrentHP;
 
 	// Fire Rate
@@ -153,6 +155,14 @@ public:
 	int32 MeleeDamage = 5;
 	UPROPERTY(VisibleAnywhere, Category = "Melee")
 	class AC_Enemy* MeleeTarget;
+	UPROPERTY(VisibleAnywhere, Category = "Melee")
+	int32 MaxFuel = 3;
+	UPROPERTY(VisibleAnywhere, Category = "Melee")
+	int32 CurrentFuel = 0;
+	// Fuel Regenerate Rate
+	float FuelTime = 30.0f;
+	// Timer Handle
+	FTimerHandle TimerHandle;
 
 	UPROPERTY()
 	class UC_PlayerAnimInstance* Anim;
@@ -188,9 +198,6 @@ public:
 	void OnPunchEnd();
 
 	void OnSaw(const struct FInputActionValue& inputValue);
-	
-	void OnGetDrop();
-	
 
 	UCameraComponent* GetCameraComponent();
 	UC_GunSkeletalMeshComponent* GetCurrentGun();
@@ -199,5 +206,7 @@ public:
 	void OnMeleeOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	void MeleeDash();
+
+	void OnFuelTime();
 
 };
