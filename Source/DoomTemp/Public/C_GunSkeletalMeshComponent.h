@@ -63,5 +63,10 @@ public:
 	void OnGunChanged();
 
 	float GetFireRate();
-// 	int32 GetBulletDamage();
+
+	UFUNCTION(BlueprintPure)
+	int32 GetMaxAmmo() {return MaxAmmo;};
+	UFUNCTION(BlueprintPure)
+	int32 GetCurrentAmmo() {return CurrentAmmo;};
+
 };
