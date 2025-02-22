@@ -4,28 +4,27 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "C_EnumManager.h"
 #include "C_PlayerCharacter.generated.h"
 
-// // Define Weapon Type
-// // Used by Player Weapons and Drops
-// UENUM()
-// enum class EWeaponType : uint8 {
-// 	Plasma,
-// 	Sniper,
-// 	Shotgun,
-// 	MAX
-// };
-// 
-// // 플레이어의 공격 종류
-// UENUM()
-// enum class EAttackType {
-// 	Fist,
-// 	Gun,
-// 	GloryKill,
-// 	Chainsaw,
-// 	MAX
-// };
+// Define Weapon Type
+// Used by Player Weapons and Drops
+UENUM()
+enum class EWeaponType : uint8 {
+	Plasma,
+	Sniper,
+	Shotgun,
+	MAX
+};
+
+// 플레이어의 공격 종류
+UENUM()
+enum class EAttackType {
+	Fist,
+	Gun,
+	GloryKill,
+	Chainsaw,
+	MAX
+};
 
 UCLASS()
 class DOOMTEMP_API AC_PlayerCharacter : public ACharacter
@@ -112,7 +111,7 @@ public:
 
 	// Player Weapon State
 	UPROPERTY(EditAnywhere, Category = "Guns")
-	EGunType GunType = EGunType::Sniper;
+	EWeaponType mWeaponType = EWeaponType::Sniper;
 	// Weapon Instances
 	UPROPERTY(EditDefaultsOnly, Category = "Guns")
 	class UC_GunSkeletalMeshComponent* PlasmaMesh;
@@ -179,8 +178,8 @@ public:
 	void OnUseMode(const struct FInputActionValue& inputValue);
 
 	void OnChangeWeapon(const struct FInputActionValue& inputValue);
-	void ChangeWeapon(EGunType InChangeType);
-	void SetWeaponActive(EGunType InChangeType, bool InActive);
+	void ChangeWeapon(EWeaponType InChangeType);
+	void SetWeaponActive(EWeaponType InChangeType, bool InActive);
 
 	void PlayerHit(int32 InDamage);
 	void SetFireRate(float InFireRate);

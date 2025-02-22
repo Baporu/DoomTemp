@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "C_EnumManager.h"
 #include "DropBase.generated.h"
 
 UCLASS()
@@ -33,8 +32,8 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = BodyMesh)
 	class UStaticMeshComponent* MeshComp;
 
-	UPROPERTY(EditDefaultsOnly)
-	EGunType DropType;
+	//UPROPERTY(EditDefaultsOnly)
+	//enum class EWeaponType* DropType;
 
 	UPROPERTY(VisibleAnywhere)
 	class AC_PlayerCharacter* Player;

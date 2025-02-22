@@ -3,7 +3,7 @@
 #include "GameFramework/Character.h"
 #include <GameFramework/CharacterMovementComponent.h>
 #include "Enemy/C_EnemyFSM.h"
-#include "C_EnumManager.h"
+#include "C_PlayerCharacter.h"
 #include "Enemy/C_EWeaponComp.h"
 #include "Enemy/C_EnemyAAnimInstance.h"
 #include "Components/CapsuleComponent.h"
