@@ -23,7 +23,7 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	int32 MaxAmmo = 100;
-	UPROPERTY(EditInstanceOnly)
+	UPROPERTY(VisibleAnywhere)
 	int32 CurrentAmmo;
 
 	UPROPERTY(EditDefaultsOnly)
@@ -59,14 +59,9 @@ public:
 	virtual void OnUseMode();
 	virtual void OnEndMode();
 
-	void IncreaseAmmo(int32 amount);
+	void IncreaseAmmo();
 	void OnGunChanged();
 
 	float GetFireRate();
-
-	UFUNCTION(BlueprintPure)
-	int32 GetMaxAmmo() {return MaxAmmo;};
-	UFUNCTION(BlueprintPure)
-	int32 GetCurrentAmmo() {return CurrentAmmo;};
-
+// 	int32 GetBulletDamage();
 };

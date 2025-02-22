@@ -51,8 +51,8 @@ void UC_GunSkeletalMeshComponent::OnEndMode()
 
 }
 
-void UC_GunSkeletalMeshComponent::IncreaseAmmo(int32 amount) {
-	CurrentAmmo += amount;
+void UC_GunSkeletalMeshComponent::IncreaseAmmo() {
+	CurrentAmmo += 10;
 
 	if (CurrentAmmo > MaxAmmo)
 		CurrentAmmo = MaxAmmo;

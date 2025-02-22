@@ -4,28 +4,28 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "C_EnumManager.h"
 #include "C_PlayerCharacter.generated.h"
 
-// Define Weapon Type
-// Used by Player Weapons
-UENUM(BlueprintType)
-enum class EWeaponType : uint8 {
-	Plasma,
-	Sniper,
-	Shotgun,
-	MAX
-};
-
-// Define Player's Attack Type
-// Used by Enemy FSM
-UENUM()
-enum class EAttackType {
-	Fist,
-	Gun,
-	GloryKill,
-	Chainsaw,
-	MAX
-};
+// // Define Weapon Type
+// // Used by Player Weapons and Drops
+// UENUM()
+// enum class EWeaponType : uint8 {
+// 	Plasma,
+// 	Sniper,
+// 	Shotgun,
+// 	MAX
+// };
+// 
+// // 플레이어의 공격 종류
+// UENUM()
+// enum class EAttackType {
+// 	Fist,
+// 	Gun,
+// 	GloryKill,
+// 	Chainsaw,
+// 	MAX
+// };
 
 UCLASS()
 class DOOMTEMP_API AC_PlayerCharacter : public ACharacter
@@ -87,18 +87,18 @@ public:
 	// Player Dash Input Action
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputAction* IA_Dash;
-	UPROPERTY(VisibleAnywhere, Category = "Stats")
+	UPROPERTY(EditDefaultsOnly, Category = "Stats")
 	int32 MaxDashCount = 2;
-	UPROPERTY(EditInstanceOnly, Category = "Stats")
-	int32 CurDashCount;
+	UPROPERTY(VisibleAnywhere, Category = "Stats")
+	int32 CurDashCount = MaxDashCount;
 
 	FVector DashDir = FVector::ZeroVector;
 	UPROPERTY(EditDefaultsOnly, Category = "Stats")
 	float DashDistance = 500.0f;
 	UPROPERTY(EditDefaultsOnly, Category = "Stats")
-	float DashCoolTime = 2.0f;
-	// Dash Count Reset Timer Handle
-	FTimerHandle DashTimerHandle;
+	float DashCoolTime = 4.0f;
+	// Dash Count Reset Timer
+	float DashTimer = DashCoolTime;
 
 	// Attack
 	// Player Fire Input Action
@@ -112,7 +112,7 @@ public:
 
 	// Player Weapon State
 	UPROPERTY(EditAnywhere, Category = "Guns")
-	EWeaponType mWeaponType;
+	EGunType GunType = EGunType::Sniper;
 	// Weapon Instances
 	UPROPERTY(EditDefaultsOnly, Category = "Guns")
 	class UC_GunSkeletalMeshComponent* PlasmaMesh;
@@ -137,7 +137,6 @@ public:
 	// HP
 	UPROPERTY(EditDefaultsOnly, Category = "Stats")
 	int32 MaxHP = 100;
-	UPROPERTY(EditInstanceOnly, Category = "Stats")
 	int32 CurrentHP;
 
 	// Fire Rate
@@ -155,14 +154,6 @@ public:
 	int32 MeleeDamage = 5;
 	UPROPERTY(VisibleAnywhere, Category = "Melee")
 	class AC_Enemy* MeleeTarget;
-	UPROPERTY(VisibleAnywhere, Category = "Melee")
-	int32 MaxFuel = 3;
-	UPROPERTY(VisibleAnywhere, Category = "Melee")
-	int32 CurrentFuel = 0;
-	// Fuel Regenerate Rate
-	float FuelTime = 30.0f;
-	// Timer Handle
-	FTimerHandle FuelTimerHandle;
 
 	UPROPERTY()
 	class UC_PlayerAnimInstance* Anim;
@@ -177,7 +168,7 @@ public:
 	void OnJump(const struct FInputActionValue& inputValue);
 
 	void OnDash(const struct FInputActionValue& inputValue);
-	void OnDashTime();
+	void ResetDashCount();
 
 	void OnFire(const struct FInputActionValue& inputValue);
 	void PlayerFire();
@@ -188,8 +179,8 @@ public:
 	void OnUseMode(const struct FInputActionValue& inputValue);
 
 	void OnChangeWeapon(const struct FInputActionValue& inputValue);
-	void ChangeWeapon(EWeaponType InChangeType);
-	void SetWeaponActive(EWeaponType InChangeType, bool InActive);
+	void ChangeWeapon(EGunType InChangeType);
+	void SetWeaponActive(EGunType InChangeType, bool InActive);
 
 	void PlayerHit(int32 InDamage);
 	void SetFireRate(float InFireRate);
@@ -198,31 +189,16 @@ public:
 	void OnPunchEnd();
 
 	void OnSaw(const struct FInputActionValue& inputValue);
+	
+	void OnGetDrop();
+	
 
 	UCameraComponent* GetCameraComponent();
-	UFUNCTION(BlueprintPure)
 	UC_GunSkeletalMeshComponent* GetCurrentGun();
 
 	UFUNCTION()
 	void OnMeleeOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	void MeleeDash();
-
-	void OnFuelTime();
-
-	UFUNCTION(BlueprintPure)
-	int32 GetPlayerMaxHP() {return MaxHP;};
-	UFUNCTION(BlueprintPure)
-	int32 GetPlayerCurrentHP() {return CurrentHP;};
-	UFUNCTION(BlueprintPure)
-	int32 GetPlayerMaxDash() {return MaxDashCount;};
-	UFUNCTION(BlueprintPure)
-	int32 GetPlayerCurrentDash() {return CurDashCount;};
-	UFUNCTION(BlueprintPure)
-	int32 GetPlayerMaxFuel() {return MaxFuel;};
-	UFUNCTION(BlueprintPure)
-	int32 GetPlayerCurrentFuel() {return CurrentFuel;};
-	UFUNCTION(BlueprintPure)
-	EWeaponType GetPlayerWeaponType() { return mWeaponType; };
 
 };
