@@ -179,6 +179,13 @@ void AC_PlayerCharacter::BeginPlay()
 	SetFireRate(GetCurrentGun()->GetFireRate());
 	FireTimer = FireRate;
 
+	// Set Stats
+	CurrentHP = MaxHP;
+	CurDashCount = MaxDashCount;
+
+	// Set Fuel Timer
+	GetWorld()->GetTimerManager().SetTimer(FuelTimerHandle, this, &AC_PlayerCharacter::OnFuelTime, (FuelTime / 2), false);
+
 // 	for (int32 i = 0; i < 3; i++) {
 // 		if (Guns[i] != nullptr) {
 // 			UC_GunSkeletalMeshComponent* gun = NewObject<UC_GunSkeletalMeshComponent>(this, Guns[i].GetDefaultObject()->StaticClass(), Guns[i].GetDefaultObject()->MeshName);
@@ -199,7 +206,6 @@ void AC_PlayerCharacter::Tick(float DeltaTime)
 	PlayerMove();
 	FireTimer += DeltaTime;
 	PlayerFire();
-	ResetDashCount();
 }
 
 // Called to bind functionality to input
@@ -278,24 +284,23 @@ void AC_PlayerCharacter::OnDash(const struct FInputActionValue& inputValue)
 	if (CurDashCount <= 0 || DashDir == FVector::ZeroVector)
 		return;
 
+	CurDashCount--;
+	GetWorld()->GetTimerManager().SetTimer(DashTimerHandle, this, &AC_PlayerCharacter::OnDashTime, DashCoolTime, false);
+
 	DashDir.Normalize();
 	UE_LOG(LogTemp, Warning, TEXT("DashDir X: %f, Y: %f, Z: %f"), DashDir.X, DashDir.Y, DashDir.Z);
 
 	SetActorLocation(GetActorLocation() + DashDir * DashDistance, true);
 
 	DashDir = FVector::ZeroVector;
-	CurDashCount--;
 }
 
-void AC_PlayerCharacter::ResetDashCount()
+void AC_PlayerCharacter::OnDashTime()
 {
-	DashTimer -= GetWorld()->GetDeltaSeconds();
+	CurDashCount++;
 
-	if (DashTimer <= 0.0f) {
-		CurDashCount = MaxDashCount;
-
-		DashTimer = DashCoolTime;
-	}
+	if (CurDashCount < MaxDashCount)
+		GetWorld()->GetTimerManager().SetTimer(DashTimerHandle, this, &AC_PlayerCharacter::OnDashTime, DashCoolTime, false);
 }
 
 void AC_PlayerCharacter::OnFire(const struct FInputActionValue& inputValue)
@@ -446,6 +451,12 @@ void AC_PlayerCharacter::OnPunchEnd()
 
 void AC_PlayerCharacter::OnSaw(const struct FInputActionValue& inputValue)
 {
+	if (CurrentFuel <= 0)
+		return;
+
+	CurrentFuel--;
+	GetWorld()->GetTimerManager().SetTimer(FuelTimerHandle, this, &AC_PlayerCharacter::OnFuelTime, FuelTime, false);
+
 	// Deactivate Weapon Mesh
 	SetWeaponActive(GunType, false);
 
@@ -461,10 +472,6 @@ void AC_PlayerCharacter::OnSaw(const struct FInputActionValue& inputValue)
 	MeleeTarget->OnDamageProcess(10000, EAttackType::Chainsaw);
 }
 
-void AC_PlayerCharacter::OnGetDrop() {
-	GetCurrentGun()->IncreaseAmmo();
-}
-
 UCameraComponent* AC_PlayerCharacter::GetCameraComponent()
 {
 	return FPSCamComp;
@@ -478,7 +485,7 @@ UC_GunSkeletalMeshComponent* AC_PlayerCharacter::GetCurrentGun()
 		case EGunType::Shotgun:	{ return ShotgunMesh; }
 	}
 
-	return ShotgunMesh;
+	return nullptr;
 }
 
 void AC_PlayerCharacter::OnMeleeOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -530,5 +537,14 @@ void AC_PlayerCharacter::MeleeDash()
 	else {
 		UE_LOG(LogTemp, Error, TEXT("Capsule Component Not Found!!!"));
 	}
+}
+
+void AC_PlayerCharacter::OnFuelTime()
+{
+	CurrentFuel++;
+
+	if (CurrentFuel < MaxFuel)
+		GetWorld()->GetTimerManager().SetTimer(FuelTimerHandle, this, &AC_PlayerCharacter::OnFuelTime, FuelTime, false);
+
 }
 
