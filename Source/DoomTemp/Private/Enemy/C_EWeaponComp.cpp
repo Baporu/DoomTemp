@@ -126,3 +126,10 @@ void UC_EWeaponComp::WeaponDestroy()
 	for(AC_EWeapon* weapon : Weapons)
 		weapon->Destroy();
 }
+
+TArray<class AC_EWeapon*> UC_EWeaponComp::GetWeapons()
+{
+	return Weapons;
+}
+
+

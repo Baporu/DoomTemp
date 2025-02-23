@@ -9,6 +9,10 @@ AC_EWeaponScratch::AC_EWeaponScratch()
     /***** Scratch Comp *****/
     C_Helpers::CreateComponent<USphereComponent>(this, &ScratchComp, "Scratch_L", RootComponent);
     ScratchComp->SetCollisionProfileName( FName("EnemyAttack") );
+
+    // 시작할 때는 player와의 충돌을 ignore로 설정
+    ScratchComp->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Ignore);
+
     ScratchComp->SetRelativeScale3D( FVector(0.4f) );
     ScratchComp->OnComponentBeginOverlap.AddDynamic(this, &AC_EWeaponScratch::OnEWeaponScratchOverlap);
     //ScratchComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -28,5 +32,12 @@ void AC_EWeaponScratch::OnEWeaponScratchOverlap(UPrimitiveComponent* OverlappedC
 
     // 2. player에게 데미지를 입힌다
     player->PlayerHit(Owner->GetMeleeDamage());
+    //*** Debug
+    UE_LOG(LogTemp, Warning, TEXT(">>> Enemy Attack Succeeded!"));
+}
+
+USphereComponent* AC_EWeaponScratch::GetScratchComp()
+{
+    return ScratchComp;
 }
 

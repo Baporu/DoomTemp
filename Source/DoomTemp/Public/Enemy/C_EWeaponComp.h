@@ -75,4 +75,7 @@ private:
 private:
 	class AC_Enemy* Owner;	// Enemy
 	TArray<class AC_EWeapon*> Weapons;	// 무기 배열 변수
+
+public:
+	TArray<class AC_EWeapon*> GetWeapons();
 };

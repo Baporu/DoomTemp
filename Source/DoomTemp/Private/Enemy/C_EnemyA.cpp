@@ -18,7 +18,7 @@ AC_EnemyA::AC_EnemyA()
 
 
     /***** Animation *****/
-    ConstructorHelpers::FClassFinder<UAnimInstance> tmpAnim(L"/Script/Engine.AnimBlueprint'/Game/DYL/Blueprints/Enemy/Animations/ABP_EnemyA.ABP_EnemyA'_C");
+    ConstructorHelpers::FClassFinder<UAnimInstance> tmpAnim(L"/Script/Engine.AnimBlueprint'/Game/DYL/Blueprints/Enemy/Animations/ABP_EnemyA.ABP_EnemyA_C'");
     if (tmpAnim.Succeeded())
         GetMesh()->SetAnimInstanceClass(tmpAnim.Class);
 }

@@ -24,4 +24,7 @@ public:
 	UFUNCTION()
 	void OnEWeaponScratchOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 		int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+public:
+	USphereComponent* GetScratchComp();
 };
