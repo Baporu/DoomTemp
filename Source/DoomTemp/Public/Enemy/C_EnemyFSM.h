@@ -81,13 +81,18 @@ protected:
 	/***** Time *****/
     UPROPERTY(EditDefaultsOnly, Category = "FSM")
 	float IdleDelayTime = 3.f;		// 대기 시간
-	float CurTime = 0.f;			// 경과 시간
-	UPROPERTY(EditDefaultsOnly, Category = "FSM")
-	float AttackDelayTime = 2.6f;	// 공격 대기 시간
-    UPROPERTY(EditAnywhere, Category = "FSM")
-	float DamageDelayTime = 5.f;	// 피격 대기 시간
+
 	UPROPERTY(EditAnywhere, Category = "FSM")
-	float DestroyDelayTime = 3.f;	// 죽음 후 사라짐 대기 시간
+	float CurTime = 0.f;			// 경과 시간
+
+	UPROPERTY(EditAnywhere, Category = "FSM")
+	float AttackDelayTime = 0.7f;	// 공격 대기 시간
+
+    UPROPERTY(EditAnywhere, Category = "FSM")
+	float DamageDelayTime = 3.f;	// 피격 대기 시간
+
+	UPROPERTY(EditAnywhere, Category = "FSM")
+	float DestroyDelayTime = 4.5f;	// 죽음 후 사라짐 대기 시간
 
 
 	/***** Target & Self *****/
@@ -105,6 +110,11 @@ protected:
 	/***** Animation *****/
 	UPROPERTY()
 	class UC_EnemyAAnimInstance* Anim;
+
+
+	/***** Dead *****/
+	bool bDeadDone;
+
 
 	/***** Main State *****/
 public:
@@ -126,6 +136,7 @@ public:
 
 	// 죽음
 	void DeadState();
+	void onDeadEnd();	// DeadEnd Notify 제어용
 
 
 	/***** Sub State *****/
@@ -158,8 +169,19 @@ public:
 public:
 	// 이동 및 순찰
 	void Move();
+
 	// 거리에 따른 근거리 공격 상태로 전환
-	void CheckDistance(float InDistance);
+	void CanMeleeAttack(float InDistance);
+
 	// Animation Montage 재생
 	void PlayEnemyMontage(FString* InSectionName);
+
+	// 근거리 벗어나면 MOVE로 전환
+	void CanMove(float InDistance);
+
+	// Enemy Main state 및 Movement state 변경
+	void ChangeEnemyStates(EEnemyState InMain, EEnemyMovement InMovement);
+
+	// Enemy Movement 상태에 따른 Damage Animation Montage 재생
+	void PlayDamageAM(FString* InSectionName);
 };

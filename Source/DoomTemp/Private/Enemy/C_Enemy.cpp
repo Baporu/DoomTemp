@@ -21,7 +21,7 @@ AC_Enemy::AC_Enemy()
     C_Helpers::CreateActorComponent<UC_EnemyFSM>(this, &FSM, "FSM");
 
     /***** Weapon *****/
-    C_Helpers::CreateActorComponent<UC_EWeaponComp>(this, &Weapon, "Weapon");
+    C_Helpers::CreateActorComponent<UC_EWeaponComp>(this, &WeaponComps, "Weapon");
 }
 
 void AC_Enemy::BeginPlay()
@@ -40,53 +40,25 @@ void AC_Enemy::Tick(float DeltaTime)
 
 
 /***** Getters *****/
-float AC_Enemy::GetMeleeRange()
-{
-	return MeleeRange;
-}
+float AC_Enemy::GetMeleeRange() { return MeleeRange; }
 
-// Enemy가 Flinch 상태이면 공격력 약화됨
-int32 AC_Enemy::GetMeleeDamage()
-{
-    return MeleeDamage;
-}
+int32 AC_Enemy::GetMeleeDamage() { return MeleeDamage; }
 
+//float AC_Enemy::GetLongRange() { return LongRange; }
 
-//float AC_Enemy::GetLongRange()
-//{
-//	return LongRange;
-//}
+float AC_Enemy::GetSpeed() { return Speed; }
 
-// EnemyMovement에 따라 다른 Speed return
-float AC_Enemy::GetSpeed()
-{
-    return Speed;
-}
+UC_EnemyFSM* AC_Enemy::GetEnemyFSM() { return FSM; }
 
-
-UC_EnemyFSM* AC_Enemy::GetEnemyFSM()
-{
-    return FSM;
-}
+UC_EWeaponComp* AC_Enemy::GetWeaponComps() { return WeaponComps; }
 
 
 /***** Setters *****/
-void AC_Enemy::SetHP(int32 InVal)
-{
-    HP -= InVal;
-}
+void AC_Enemy::SetHP(int32 InVal) { HP -= InVal; }
 
+void AC_Enemy::SetMeleeDamage(int32 InVal) { MeleeDamage = InVal; }
 
-void AC_Enemy::SetMeleeDamage(int32 InVal)
-{
-    MeleeDamage = InVal;
-}
-
-
-void AC_Enemy::SetSpeed(float InVal)
-{
-    Speed = InVal;
-}
+void AC_Enemy::SetSpeed(float InVal) { Speed = InVal; }
 
 
 /***** Enemy 상태 체크 *****/
@@ -94,7 +66,7 @@ void AC_Enemy::CheckSubState()
 {
     /* Enemy Move : Walk > Flinch > Stagger > Dead */
 
-    if (HP > HPFlinched)
+    /*if (HP > HPFlinched)
         FSM->SetEnemyMovement(EEnemyMovement::WALK);
     else if (HP > HPStaggered)
         FSM->SetEnemyMovement(EEnemyMovement::FLINCH);
@@ -103,6 +75,27 @@ void AC_Enemy::CheckSubState()
     else
     {
         FSM->SetEnemyState(EEnemyState::DEAD);
+        GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    }*/
+
+    if (HP > HPFlinched)
+    {
+        // 이동 중에 체크했다면
+        if(FSM->GetEnemyState() == EEnemyState::MOVE)
+            FSM->SetEnemyMovement(EEnemyMovement::WALK);
+        // 정지 상태에서 체크했다면
+        if (FSM->GetEnemyState() == EEnemyState::IDLE)
+            FSM->SetEnemyMovement(EEnemyMovement::MAX);
+    }
+    else if (HP > HPStaggered)
+        FSM->SetEnemyMovement(EEnemyMovement::FLINCH);
+    else if (HP > 0.f)
+        FSM->SetEnemyMovement(EEnemyMovement::STAGGER);
+    else
+    {
+        //FSM->SetEnemyState(EEnemyState::DEAD);
+        FSM->ChangeEnemyStates(EEnemyState::DEAD, EEnemyMovement::MAX);
+        OnDead();
         GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     }
 
@@ -124,12 +117,12 @@ void AC_Enemy::OnDamageProcess(int32 InDamage, enum class EAttackType InAttackTy
     // HP를 깎는다
     SetHP(InDamage);
 
+    // Enemy 상태 변경
+    FSM->SetEnemyState(EEnemyState::DAMAGE);
+    CheckSubState();
+
     // 길찾기 기능 정지
     FSM->GetMyAI()->StopMovement();
-
-    // Enemy 상태 변경
-    //CheckSubState();
-
 
     // Attack Type에 따른 애니메이션 및 이펙트 실행
     switch (InAttackType)
@@ -155,33 +148,31 @@ void AC_Enemy::OnDead()
 {
     GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Cyan, FString("Enemy Dead !!!!!"));
 
-    // 1. 바닥에 피 VFX가 나타난다
-    
-    // 2. 죽음 애니메이션이 재생된다
+    // 죽음 애니메이션이 재생된다
+    SectionName = FString::Printf(TEXT("Dead"));
+    FSM->PlayEnemyMontage(&SectionName);
 
-    // 3. 들고 있던 Weapon을 Destroy한다
-    Weapon->WeaponDestroy();
+    // 바닥에 피 VFX가 나타난다
+
+    // 들고 있던 Weapon을 Destroy한다
+    WeaponComps->WeaponDestroy();
 }
 
 
 // Enemy 상태에 따른 Speed 변경
 void AC_Enemy::SetEnemySpeed()
 {
-    auto movement = FSM->GetEnemyMovement();
+    EEnemyState state = FSM->GetEnemyState();
+    EEnemyMovement movement = FSM->GetEnemyMovement();
 
     // 1. Enemy 상태에 따른 speed 변경
-    if (movement == EEnemyMovement::WALK)
+    if (state == EEnemyState::MOVE && movement == EEnemyMovement::WALK)
         SetSpeed(SpeedMax);
     else
-        SetSpeed(0);   // FLINCH, STAGGER, ATTACK, DEAD
+        SetSpeed(0);   // ATTACK, DAMAGE, FLINCH, STAGGER, DEAD
 
     // 2. 변경 내용 적용
     GetCharacterMovement()->MaxWalkSpeed = Speed;
-
-    // Debug
-    FString DebugMessage = FString::Printf(TEXT(">>>>> Speed Change: %f"), Speed);
-    GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Orange, DebugMessage);
-    // 250217 - Sub state check 진행하고 speed 변경하게 했더니 제대로 실행됨
 }
 
 
@@ -204,9 +195,9 @@ void AC_Enemy::OnDamageFist()
 {
     GEngine->AddOnScreenDebugMessage(0, 1, FColor::Orange, L"-----Get Damage FIST-----");
 
-    // 1. 맞는 애니메이션 재생
+    // 1. FLINCH, STAGGER 상태가 아닐 때만 맞는 애니메이션 재생
     SectionName = FString::Printf(TEXT("Damage%d"), 0);
-    FSM->PlayEnemyMontage(&SectionName);
+    FSM->PlayDamageAM(&SectionName);
 
     // 2. 맞은 위치에 피 튀기는 VFX 나올 컴포넌트 부착
 
@@ -215,14 +206,15 @@ void AC_Enemy::OnDamageFist()
     // 4. Enemy HP에 따른 Sub State 변경 및 죽음 처리
     //CheckSubState();
 }
+
 
 void AC_Enemy::OnDamageGun()
 {
-    //GEngine->AddOnScreenDebugMessage(0, 1, FColor::Orange, L"-----Get Damage GUN-----");
+    GEngine->AddOnScreenDebugMessage(0, 1, FColor::Orange, L"-----Get Damage GUN-----");
 
-    // 1. 맞는 애니메이션 재생
+    // 1. FLINCH, STAGGER 상태가 아닐 때만 맞는 애니메이션 재생
     SectionName = FString::Printf(TEXT("Damage%d"), 0);
-    FSM->PlayEnemyMontage(&SectionName);
+    FSM->PlayDamageAM(&SectionName);
 
     // 2. 맞은 위치에 피 튀기는 VFX 나올 컴포넌트 부착
 
@@ -231,14 +223,15 @@ void AC_Enemy::OnDamageGun()
     // 4. Enemy HP에 따른 Sub State 변경 및 죽음 처리
     //CheckSubState();
 }
+
 
 void AC_Enemy::OnDamageGloryKill()
 {
     GEngine->AddOnScreenDebugMessage(0, 1, FColor::Orange, L"-----Get Damage GLORYKILL-----");
 
-    // 1. 맞는 애니메이션 재생
+    // 1. FLINCH, STAGGER 상태가 아닐 때만 맞는 애니메이션 재생
     SectionName = FString::Printf(TEXT("Damage%d"), 0);
-    FSM->PlayEnemyMontage(&SectionName);
+    FSM->PlayDamageAM(&SectionName);
 
     // 2. 맞은 위치에 피 뿜어져 나오는 VFX 나올 컴포넌트 부착
 
@@ -248,13 +241,14 @@ void AC_Enemy::OnDamageGloryKill()
     //CheckSubState();
 }
 
+
 void AC_Enemy::OnDamageChainsaw()
 {
     GEngine->AddOnScreenDebugMessage(0, 1, FColor::Orange, L"-----Get Damage CHAINSAW-----");
 
-    // 1. 맞는 애니메이션 재생
+    // 1. FLINCH, STAGGER 상태가 아닐 때만 맞는 애니메이션 재생
     SectionName = FString::Printf(TEXT("Damage%d"), 0);
-    FSM->PlayEnemyMontage(&SectionName);
+    FSM->PlayDamageAM(&SectionName);
 
     // 2. 맞은 위치에 피 뿜어져 나오는 VFX 나올 컴포넌트 부착
 

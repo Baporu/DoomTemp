@@ -15,7 +15,7 @@ class DOOMTEMP_API UC_EnemyAAnimInstance : public UAnimInstance
 public:
 	/***** Enemy Main state *****/
     UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "FSM")
-	EEnemyState MainAnimState = EEnemyState::MAX;
+	EEnemyState MainAnimState = EEnemyState::IDLE;
 
 
 	/***** Enemy Sub state - movement *****/ 
@@ -37,10 +37,22 @@ public:
 
 	/***** Attack Notify *****/
 	UFUNCTION()
+	void AnimNotify_EAttackStart();
+
+	UFUNCTION()
 	void AnimNotify_EAttackEnd();
+
+	UFUNCTION()
+	void AnimNotify_DeadEnd();
 
 
 	/***** Spawn Notify *****/
 	UFUNCTION()
 	void AnimNotify_SpawnEnd();
+
+
+	/***** Change Player Collision Channel's setting *****/
+private:
+	class AC_EnemyA* Enemy;
+	void ChangePlayerChannelCollision(ECollisionResponse InResponse);
 };

@@ -1,37 +1,61 @@
 #include "Enemy/C_EnemyAAnimInstance.h"
 #include "Enemy/C_EnemyA.h"
 #include "C_Helpers.h"
+#include "Enemy/C_EWeaponComp.h"
+#include "Enemy/C_EWeaponScratch.h"
+#include "Components/SphereComponent.h"
 
 void UC_EnemyAAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
     Super::NativeUpdateAnimation( DeltaSeconds );
+    Enemy = Cast<AC_EnemyA>(TryGetPawnOwner());
+    CheckNull(Enemy);
+}
 
+void UC_EnemyAAnimInstance::AnimNotify_EAttackStart()
+{
+    // Weapon Scratch의 player channel과의 collision을 overlap으로 변경
+    ChangePlayerChannelCollision(ECR_Overlap);
 }
 
 void UC_EnemyAAnimInstance::AnimNotify_EAttackEnd()
 {
-    GEngine->AddOnScreenDebugMessage(0, 1.f, FColor::Red, TEXT(">>>>> Enemy Attack End"));
-    UE_LOG(LogTemp, Warning, TEXT(">>>>> Enemy Attack End"));
+    // Weapon Scratch의 player channel과의 collision을 Ignore로 변경
+    ChangePlayerChannelCollision(ECR_Ignore);
 
-    AC_EnemyA* enemy = Cast<AC_EnemyA>(TryGetPawnOwner());
+    // Attack이 끝났을 때 실행할 함수 실행
+    Enemy->GetEnemyFSM()->OnAttackEnd();
+}
 
-    if (enemy != nullptr)
-    {
-        // Attack이 끝났을 때 실행할 함수 실행
-        enemy->GetEnemyFSM()->OnAttackEnd();
-    }
+void UC_EnemyAAnimInstance::AnimNotify_DeadEnd()
+{
+    // Dead 애니메이션이 끝남
+    if( AC_EnemyA* enemy = Cast<AC_EnemyA>( TryGetPawnOwner() ) )
+        enemy->GetEnemyFSM()->onDeadEnd();
 }
 
 void UC_EnemyAAnimInstance::AnimNotify_SpawnEnd()
 {
-    GEngine->AddOnScreenDebugMessage(0, 1.f, FColor::Red, TEXT(">>>>> Enemy Attack End"));
-    UE_LOG(LogTemp, Warning, TEXT(">>>>> Enemy Spawn End"));
+    // Attack이 끝났을 때 실행할 함수 실행
+    Enemy->GetEnemyFSM()->SetEnemyState(EEnemyState::IDLE);
+}
 
-    AC_EnemyA* enemy = Cast<AC_EnemyA>(TryGetPawnOwner());
+void UC_EnemyAAnimInstance::ChangePlayerChannelCollision(ECollisionResponse InResponse)
+{
+    // Enemy가 장착 중인 무기들을 가져온다
+    TArray<class AC_EWeapon*> weapons = Enemy->GetWeaponComps()->GetWeapons();
 
-    if (enemy != nullptr)
+    for (AC_EWeapon* weapon : weapons)
     {
-        // Attack이 끝났을 때 실행할 함수 실행
-        enemy->GetEnemyFSM()->SetEnemyState(EEnemyState::IDLE);
+        if (weapon != nullptr)
+        {
+            // Scratch Weapon이 있다면 
+            if (weapon->IsA<AC_EWeaponScratch>())
+            {
+                // player channel과의 collision을 InResponse로 변경
+                AC_EWeaponScratch* scratch = Cast<AC_EWeaponScratch>(weapon);
+                scratch->GetScratchComp()->SetCollisionResponseToChannel(ECC_GameTraceChannel1, InResponse);
+            }
+        }
     }
 }

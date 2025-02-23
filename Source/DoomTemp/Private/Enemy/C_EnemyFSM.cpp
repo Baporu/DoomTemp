@@ -48,7 +48,7 @@ void UC_EnemyFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	UE_LOG(LogTemp, Error, TEXT(">>> Enemy Main State: %s / Sub State : %s"), *UEnum::GetValueAsString(EnemyState), *UEnum::GetValueAsString(EnemyMovement));
+	//UE_LOG(LogTemp, Error, TEXT("--- Enemy Main State: %s / Sub State : %s ---"), *UEnum::GetValueAsString(EnemyState), *UEnum::GetValueAsString(EnemyMovement));
 
 	switch (EnemyState)
 	{
@@ -85,35 +85,40 @@ bool UC_EnemyFSM::GetRandomPositionInNavMesh(FVector InCenterLocation, float InR
 
 void UC_EnemyFSM::SpawnState()
 {
-	// 1. 랜덤 위치 정하기
+	// 랜덤 위치 정하기
 	GetRandomPositionInNavMesh(Self->GetActorLocation(), 500, RandPos);
 
-	// 2. 애니메이션 재생
+	// 애니메이션 재생
 	Anim->MainAnimState = EnemyState;
 	Anim->SubAnimMovement = EnemyMovement;
 
-	// 3. Spawn VFX를 소환한다
+	// Spawn VFX를 소환한다
 
-	// 4. Idle 상태로 전환한다
+	// Idle 상태로 전환한다
 	EnemyState = EEnemyState::IDLE;
 	EnemyMovement = EEnemyMovement::MAX;
-	//CurTime = 0.f;	// IDLE에서 더하고 있던 CurTime 초기화
 }
 
 void UC_EnemyFSM::IdleState()
 {
+	//*** Debug
+	UE_LOG(LogTemp, Warning, TEXT(">>>>> IdleState CurTime : %f"), CurTime);
+
 	CurTime += GetWorld()->DeltaTimeSeconds;
 
-	if (CurTime > IdleDelayTime)
+	if (CurTime >= IdleDelayTime)
 	{
-		// 1. 이동 상태로 전환
+		// 이동 상태로 전환
 		EnemyState = EEnemyState::MOVE;
 		EnemyMovement = EEnemyMovement::WALK;
 
-		// 2. 경과 시간 초기화
+		// 경과 시간 초기화
 		CurTime = 0.f;
 
-		// 3. 애니메이션 상태 동기화
+		// Speed 변경
+		Self->SetEnemySpeed();
+
+		// 애니메이션 상태 동기화
 		Anim->MainAnimState = EnemyState;
 		Anim->SubAnimMovement = EnemyMovement;
 	}
@@ -122,8 +127,6 @@ void UC_EnemyFSM::IdleState()
 
 void UC_EnemyFSM::MoveState()
 {
-	FString DebugMessage;
-
 	/*** Sub state에 따른 행동 실행 ***/
 	switch (EnemyMovement)
 	{
@@ -154,43 +157,25 @@ void UC_EnemyFSM::AttackState()
 	/*** 일정 시간이 지나면 공격 ***/
 	CurTime += GetWorld()->DeltaTimeSeconds;
 
-	// 1. 일정 시간이 되면 
+	// 일정 시간이 되면 
 	if (CurTime > AttackDelayTime)
 	{
-		// 2. 근거리 공격을 한다
+		// 근거리 공격을 한다
 		GEngine->AddOnScreenDebugMessage(0, 1, FColor::Blue, L"Melee Attack!!!!!");
 
         //// 원거리 공격을 한다
         //GEngine->AddOnScreenDebugMessage(0, 1, FColor::Blue, L"Long Range Attack!!!!!");
 
-		// 3. 경과 시간 초기화
+		// 경과 시간 초기화
 		CurTime = 0.f;
 
-		// 4. animaiton 공격 플래그 전환
+		// animaiton 공격 플래그 전환
 		Anim->bAttackPlay = true;
-	}
 
-	
-	/*** 근거리를 벗어나면 MOVE 상태로 전환 ***/
-	float distance = FVector::Distance( Target->GetActorLocation(), Self->GetActorLocation() );
 
-	// 만약 Player가 근거리 범위에서 벗어났다면
-	if (distance > MeleeRange)
-	{
-		// Debug
-		//GEngine->AddOnScreenDebugMessage(0, 1, FColor::Blue, L">>> Out /of /Distance");
-		UE_LOG(LogTemp, Error, TEXT(">>> Player Out of Range"));
-	
-		// 새로운 랜덤 위치 정하기
-		GetRandomPositionInNavMesh(Self->GetActorLocation(), 500, RandPos);
-
-		// 상태를 이동으로 전환한다
-		EnemyState = EEnemyState::MOVE;
-		EnemyMovement = EEnemyMovement::WALK;
-	
-		// 애니메이션 상태 동기화
-		Anim->MainAnimState = EnemyState;
-		Anim->SubAnimMovement = EnemyMovement;
+		/*** 근거리를 벗어나면 MOVE 상태로 전환 ***/
+		float distance = FVector::Distance(Target->GetActorLocation(), Self->GetActorLocation());
+		CanMove(distance);
 	}
 }
 
@@ -202,36 +187,37 @@ void UC_EnemyFSM::OnAttackEnd()
 
 void UC_EnemyFSM::DamageState()
 {
-	// Attack Type에 따른 애니메이션 및 이펙트 실행
-	switch (AttackType)
-	{
-		case EAttackType::Fist:
-			Self->OnDamageFist();
-			break;
-		case EAttackType::Gun:
-			Self->OnDamageGun();
-			break;
-		case EAttackType::GloryKill:
-			Self->OnDamageGloryKill();
-			break;
-		case EAttackType::Chainsaw:
-			Self->OnDamageChainsaw();
-			break;
-	}
-
 	// 시간이 흐르다가
 	CurTime += GetWorld()->DeltaTimeSeconds;
+	//*** Debug
+	UE_LOG(LogTemp, Warning, TEXT(">>>>> DamageState CurTime : %f"), CurTime);
 
 	// 경과 시간이 대기 시간을 초과하면
-	if (CurTime > DamageDelayTime)
+	if (CurTime >= DamageDelayTime )
 	{
-		// Enemy 상태를 IDLE로 변경
-		EnemyState = EEnemyState::IDLE;
-		EnemyMovement = EEnemyMovement::MAX;
+		// Enemy Movement 상태에 따른 Main state 변경
+		if (EnemyMovement == EEnemyMovement::FLINCH || EnemyMovement == EEnemyMovement::STAGGER)
+		{
+			EnemyState = EEnemyState::MOVE;
+			// 경과 시간 초기화
+			CurTime = IdleDelayTime;
+			//*** Debug
+			UE_LOG(LogTemp, Warning, TEXT(">>>>> DamageState CurTime : %f"), CurTime);
+		}
+		else
+		{
+			EnemyState = EEnemyState::IDLE; // 이동 중에 맞은 경우 or 정지 상태에서 맞은 경우
+			EnemyMovement = EEnemyMovement::MAX;
+			// 경과 시간 초기화
+			CurTime = IdleDelayTime* 0.98;
+			//*** Debug
+			UE_LOG(LogTemp, Warning, TEXT(">>>>> DamageState CurTime : %f"), CurTime);
+		}
+		
 
-		// 경과 시간 초기화
-		CurTime = 0.f;
+		Self->CheckSubState();
 
+	
 		// 애니메이션 상태 동기화
 		Anim->MainAnimState = EnemyState;
 		Anim->SubAnimMovement = EnemyMovement;
@@ -241,28 +227,25 @@ void UC_EnemyFSM::DamageState()
 
 void UC_EnemyFSM::DeadState()
 {
-	// 1. 죽음 처리시 할 일을 한다
-	Self->OnDead();
-
-	// 2. 시간이 흐르다가
+	// 애니메이션이 끝나면 사라지도록 한다
+	if( !bDeadDone ) return;
+	
+	// 시간이 흐르다가
 	CurTime += GetWorld()->DeltaRealTimeSeconds;
-
-	// 3. 경과 시간이 대기 시간을 초과하면
+	
+	// 경과 시간이 대기 시간을 초과하면
 	if (CurTime > DestroyDelayTime)
 	{
-		// 4. Enemy를 제거시킨다
+		// Enemy를 제거시킨다
 		Self->Destroy();
 	}
 }
 
+void UC_EnemyFSM::onDeadEnd() { bDeadDone = true; }
+
 
 void UC_EnemyFSM::WalkMovement()
 {
-	/*** Debug ***/
-	FString DebugMessage = UEnum::GetValueAsString(EnemyMovement);
-	//GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Magenta, DebugMessage);
-
-	// player를 향해 움직인다
 	Move();
 }
 
@@ -336,7 +319,6 @@ void UC_EnemyFSM::Move()
 	/*** 이동 : Walk 상태일 때 가능 ***/
 	FVector destination = Target->GetActorLocation();
 	FVector dir = Target->GetActorLocation() - Self->GetActorLocation();
-	//Self->AddMovementInput(dir.GetSafeNormal());
 
 
 	/*** 순찰 : Walk 상태일 때 가능 ***/
@@ -361,38 +343,37 @@ void UC_EnemyFSM::Move()
 		if (result == EPathFollowingRequestResult::AlreadyAtGoal)
 			GetRandomPositionInNavMesh(Self->GetActorLocation(), 500, RandPos);
 	}
-	UE_LOG(LogTemp, Warning, TEXT(">>> Enemy Nav Move : %s"), *UEnum::GetValueAsString( rslt.Result ) );
 	
 	/*** 거리에 따른 근거리 공격 상태로 전환 ***/
-	CheckDistance(dir.Size());
+	CanMeleeAttack(dir.Size());
 }
 
 
-void UC_EnemyFSM::CheckDistance(float InDistance)
+void UC_EnemyFSM::CanMeleeAttack(float InDistance)
 {
 	/*** 거리에 따른 근거리 공격 상태로 전환 ***/
 	if (InDistance < MeleeRange)
 	{
-		// 1. 움직임을 멈춘다
+		// 움직임을 멈춘다
 		MyAI->StopMovement();
 
-		// 2. 공격 상태로 전환
+		// 공격 상태로 전환
 		EnemyState = EEnemyState::ATTACK;
 		EnemyMovement = EEnemyMovement::MAX;
 
-		// 3. 애니메이션 상태 동기화
+		// 애니메이션 상태 동기화
 		Anim->MainAnimState = EnemyState;
 		Anim->SubAnimMovement = EnemyMovement;
 
-		// 4. 공격 애니메이션 재생 활성화
+		// 공격 애니메이션 재생 활성화
 		Anim->bAttackPlay = true;
 
-		// 5. 공격 상태 전환 시 대기 시간 없이 바로 플레이 되도록
+		// 공격 상태 전환 시 대기 시간 없이 바로 플레이 되도록
 		CurTime = AttackDelayTime;
 	}
 }
 
-// Animation Montage를 실행하는 부분이 많아서 함수로 만들었음
+// Animation Montage를 실행하는 부분이 많아서 함수로 제작
 void UC_EnemyFSM::PlayEnemyMontage(FString* InSectionName)
 {
 	if (InSectionName->Contains(TEXT("Damage")))
@@ -402,7 +383,39 @@ void UC_EnemyFSM::PlayEnemyMontage(FString* InSectionName)
 	}
 	else
 	{
-		// Spawn Animation Montage 실행
-		Self->PlayAnimMontage(Anim->EnemyMontageSpawn, 3.f, FName(*InSectionName));
+		// Dead Animation Montage 실행
+		Self->PlayAnimMontage(Anim->EnemyMontage, 3.f, FName(*InSectionName));
 	}
+}
+
+void UC_EnemyFSM::CanMove(float InDistance)
+{
+	// 만약 Player가 근거리 범위에서 벗어났다면
+	if (InDistance > MeleeRange)
+	{
+		// 새로운 랜덤 위치 정하기
+		GetRandomPositionInNavMesh(Self->GetActorLocation(), 500, RandPos);
+
+		// 상태를 이동으로 전환한다
+		EnemyState = EEnemyState::MOVE;
+		EnemyMovement = EEnemyMovement::WALK;
+
+		// 애니메이션 상태 동기화
+		Anim->MainAnimState = EnemyState;
+		Anim->SubAnimMovement = EnemyMovement;
+	}
+}
+
+// Enemy Main state 및 Movement state 변경
+void UC_EnemyFSM::ChangeEnemyStates(EEnemyState InMain, EEnemyMovement InMovement)
+{
+	EnemyState = InMain;
+	EnemyMovement = InMovement;
+}
+
+// Enemy Movement 상태에 따른 Damage Animation Montage 재생
+void UC_EnemyFSM::PlayDamageAM(FString* InSectionName)
+{
+	if (EnemyMovement == EEnemyMovement::WALK)
+		PlayEnemyMontage(InSectionName);
 }

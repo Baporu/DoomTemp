@@ -55,7 +55,7 @@ protected:
 	/***** Weapon *****/
 	// Weapon component 안에 Weapon이 있으니까 Weapon Comp로 Weapon에 접근 가능
     UPROPERTY(VisibleAnywhere)
-	class UC_EWeaponComp* Weapon;
+	class UC_EWeaponComp* WeaponComps;
 	#pragma endregion
 
 
@@ -78,6 +78,7 @@ public:
 	float GetSpeed();
 	
 	UC_EnemyFSM* GetEnemyFSM();
+	UC_EWeaponComp* GetWeaponComps();
 	
 	/***** Setters *****/
 protected:
@@ -88,13 +89,18 @@ protected:
 
 	/***** Functions *****/
 public:
-	void CheckSubState();		// 주춤거리는 상태인지, 비틀거리는 상태인지, 죽었는지 체크
+	// 주춤거리는 상태인지, 비틀거리는 상태인지, 죽었는지 체크
+	void CheckSubState();		
+
 	void OnDamageProcess(int32 InDamage, enum class EAttackType InAttackType);
-	void OnDead();			// Enemy 사망 시 처리할 일
+	// Enemy 사망 시 처리할 일
+	void OnDead();			
 
-	void SetEnemySpeed();			// Enemy 상태에 따른 Speed 변경
-	void ChangeMeleeDamage();	// Enemy 상태에 따른 Melee Attack Damage 변경
+	// Enemy 상태에 따른 Speed 변경
+	void SetEnemySpeed();
 
+	// Enemy 상태에 따른 Melee Attack Damage 변경
+	void ChangeMeleeDamage();	
 
 	/***** Damage Events *****/
 public:
