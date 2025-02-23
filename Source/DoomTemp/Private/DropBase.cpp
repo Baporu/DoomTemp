@@ -17,6 +17,7 @@ ADropBase::ADropBase()
 	CollisionComp = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionComp"));
 	// 2. 충돌 프로필 설정
 	CollisionComp->SetCollisionProfileName(TEXT("Drop"));
+	CollisionComp->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Ignore);
 	// 3. 충돌체 크기 설정
 	CollisionComp->SetBoxExtent(FVector(27.0, 25.0, 40.0));
 	// 4. 루트로 등록
@@ -31,6 +32,8 @@ void ADropBase::BeginPlay()
 {
 	Super::BeginPlay();
 	
+
+	Dir = (GetActorForwardVector() * FMath::RandRange(-0.5, 0.5) + GetActorRightVector() * FMath::RandRange(-0.5, 0.5) + GetActorUpVector()).GetSafeNormal2D();
 }
 
 // Called every frame
@@ -38,7 +41,19 @@ void ADropBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	FlyTimer += DeltaTime;
 
+	if (FlyTimer >= FlyTime) {
+		if (!bEnabledCollision) {
+			CollisionComp->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Overlap);
+
+			bEnabledCollision = !bEnabledCollision;
+		}
+
+		return;
+	}
+
+	SetActorLocation(GetActorLocation() + Dir, true);
 }
 
 void ADropBase::OnDropOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

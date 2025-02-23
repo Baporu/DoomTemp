@@ -58,7 +58,8 @@ AC_PlayerCharacter::AC_PlayerCharacter()
 	MeleeComp = CreateDefaultSubobject<UBoxComponent>(TEXT("MeleeComp"));
 	
 	MeleeComp->SetupAttachment(FPSCamComp);
-	MeleeComp->SetRelativeLocation(FVector(215.0, 0.0, 0.0));
+	MeleeComp->SetBoxExtent(FVector(40.0, 32.0, 32.0));
+	MeleeComp->SetRelativeLocation(FVector(265.0, 0.0, 0.0));
 	MeleeComp->SetRelativeScale3D(FVector(5.0, 3.0, 1.0));
 
 	MeleeComp->SetCollisionProfileName(TEXT("PlayerAttack"));
@@ -345,7 +346,7 @@ void AC_PlayerCharacter::OnFire(const struct FInputActionValue& inputValue)
 
 void AC_PlayerCharacter::PlayerFire()
 {
-	// During Melee Attack, Bullets Not Spawnned
+	// During Melee Attack, Bullets Not Spawned
 	if (!bIsFire || bIsPunching)
 		return;
 
@@ -381,6 +382,8 @@ void AC_PlayerCharacter::Fire_Shotgun()
 
 void AC_PlayerCharacter::OnUseMode(const struct FInputActionValue& inputValue)
 {
+	bUseMode = !bUseMode;
+
 	switch (mWeaponType)
 	{
 		case EWeaponType::Plasma:	{ PlasmaMesh->OnUseMode(); }	break;
@@ -391,7 +394,8 @@ void AC_PlayerCharacter::OnUseMode(const struct FInputActionValue& inputValue)
 
 void AC_PlayerCharacter::OnChangeWeapon(const struct FInputActionValue& inputValue)
 {
-	if (bIsPunching)
+	// If Player is Firing or Punching or Using Mode, Player Can't Change Weapon
+	if (bIsFire || bIsPunching || bUseMode)
 		return;
 
 	switch (mWeaponType)

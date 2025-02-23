@@ -43,6 +43,12 @@ public:
 	EDropType DropType;
 	UPROPERTY(EditDefaultsOnly, Category = "Basics | Stats")
 	int32 HealValue;
+	UPROPERTY(EditDefaultsOnly, Category = "Basics | Stats")
+	float FlyTime = 1.5f;
+	float FlyTimer = 0.0f;
+	bool bEnabledCollision = false;
+
+	FVector Dir;
 
 
 	UFUNCTION()

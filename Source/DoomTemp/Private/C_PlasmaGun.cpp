@@ -27,6 +27,7 @@ void UC_PlasmaGun::BeginPlay()
 	ToggleLaser(false);
 	
 	LaserTimer = LaserTime;
+	LaserAttackTimer = LaserTime;
 }
 
 // Tick Function, Currently Not Used
@@ -66,8 +67,6 @@ void UC_PlasmaGun::OnFire()
 
 	// When Firing While Use Mode
 	if (bUsingMode) {
-		me->SetFireRate(0);
-
 		// Variables for LineTrace
 		FVector startPos = FPSCam->GetComponentLocation();
 		FVector endPos = startPos + FPSCam->GetForwardVector() * 5000.0f;
@@ -86,6 +85,7 @@ void UC_PlasmaGun::OnFire()
 		FVector soundPos = endPos;
 
 		LaserTimer += GetWorld()->GetDeltaSeconds();
+		LaserAttackTimer += GetWorld()->GetDeltaSeconds();
 
 		if (bHit) {
 			LaserComp->SetBeamEndPoint(0, hitInfo.ImpactPoint);
@@ -101,15 +101,24 @@ void UC_PlasmaGun::OnFire()
 			LaserHitComp->SetWorldLocation(endPos);
 		}
 
-		if (LaserTimer >= LaserTime) {
-			CurrentAmmo -= 1;
+		if (LaserTimer >= 0.1f) {
+			if (enemy && LaserAttackTimer >= LaserTime) {
+				UGameplayStatics::PlaySoundAtLocation(GetWorld(), LaserSound, soundPos);
+				CurrentAmmo -= 1;
 
-			UGameplayStatics::PlaySoundAtLocation(GetWorld(), LaserSound, soundPos);
-
-			if (enemy)
 				enemy->OnDamageProcess(LaserDamage, EAttackType::Gun);
 
-			LaserTime = 0.0f;
+				LaserAttackTimer = 0.0f;
+				LaserTime = 0.0f;
+			}
+
+			if (LaserTimer >= LaserTime) {
+				CurrentAmmo -= 1;
+
+				UGameplayStatics::PlaySoundAtLocation(GetWorld(), LaserSound, soundPos);
+
+				LaserTime = 0.0f;
+			}
 		}
 
 		ToggleLaser(true);
@@ -130,6 +139,9 @@ void UC_PlasmaGun::OnUseMode()
 		
 		me->SetFireRate(FireRate);
 	}
+
+	else
+		me->SetFireRate(0);
 }
 
 void UC_PlasmaGun::ToggleLaser(bool InActive)
@@ -138,4 +150,7 @@ void UC_PlasmaGun::ToggleLaser(bool InActive)
 
 	LaserComp->SetVisibility(InActive);
 	LaserHitComp->SetVisibility(InActive);
+
+	if (!InActive)
+		LaserHitComp->SetWorldLocation(LaserHitComp->GetComponentLocation() + FVector(0.0, 0.0, -2000.0));
 }

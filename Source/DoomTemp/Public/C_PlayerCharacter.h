@@ -127,6 +127,7 @@ public:
 	// Mode Use Input Action
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputAction* IA_UseMode;
+	bool bUseMode = false;
 
 	// Change Weapon Input Action
 	UPROPERTY(EditDefaultsOnly, Category = "Input")

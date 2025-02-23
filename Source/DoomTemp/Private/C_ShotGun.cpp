@@ -43,7 +43,6 @@ void UC_ShotGun::OnFire()
 		bullet->OnBulletInit(BulletDamage);
 
 		AC_Pellet* pellet = Cast<AC_Pellet>(bullet);
-		pellet->Dir = pellet->GetActorForwardVector();
 		pellet->ApplySpread(SpreadPercent);
 
 		// Both Codes Can be Used

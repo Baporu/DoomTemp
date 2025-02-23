@@ -39,6 +39,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = Laser)
 	float LaserTime = 0.5f;
 	float LaserTimer;
+	float LaserAttackTimer;
 	bool bUseLaser = false;
 
 	class USoundBase* LaserSound;
