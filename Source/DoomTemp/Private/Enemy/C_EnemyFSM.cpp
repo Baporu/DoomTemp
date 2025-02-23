@@ -174,14 +174,18 @@ void UC_EnemyFSM::AttackState()
 
 
 		/*** 근거리를 벗어나면 MOVE 상태로 전환 ***/
-		float distance = FVector::Distance(Target->GetActorLocation(), Self->GetActorLocation());
-		CanMove(distance);
+		//float distance = FVector::Distance(Target->GetActorLocation(), Self->GetActorLocation());
+		//CanMove(distance);
 	}
 }
 
 void UC_EnemyFSM::OnAttackEnd()
 {
 	Anim->bAttackPlay = false;
+
+	/*** 근거리를 벗어나면 MOVE 상태로 전환 ***/
+	float distance = FVector::Distance(Target->GetActorLocation(), Self->GetActorLocation());
+	CanMove(distance);
 }
 
 

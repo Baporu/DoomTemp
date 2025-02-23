@@ -34,6 +34,19 @@ void UC_EnemyAAnimInstance::AnimNotify_DeadEnd()
         enemy->GetEnemyFSM()->onDeadEnd();
 }
 
+void UC_EnemyAAnimInstance::AnimNotify_ChangeDamageRateStart()
+{
+    // 해당 Notify가 실행되면 실행 중인 montage의 실행 속도를 0.8로 바꿔줌
+    if(Enemy->GetCurrentMontage() != nullptr)
+        Montage_SetPlayRate(Enemy->GetCurrentMontage(), 0.85f);
+}
+
+void UC_EnemyAAnimInstance::AnimNotify_ChangeDamageRateEnd()
+{
+    if (Enemy->GetCurrentMontage() != nullptr)
+        Montage_SetPlayRate(Enemy->GetCurrentMontage(), 1.f);
+}
+
 void UC_EnemyAAnimInstance::AnimNotify_SpawnEnd()
 {
     // Attack이 끝났을 때 실행할 함수 실행

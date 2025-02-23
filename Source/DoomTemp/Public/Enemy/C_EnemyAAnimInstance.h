@@ -51,6 +51,14 @@ public:
 	void AnimNotify_SpawnEnd();
 
 
+	/***** Damage Notify *****/
+	UFUNCTION()
+	void AnimNotify_ChangeDamageRateStart();
+
+	UFUNCTION()
+	void AnimNotify_ChangeDamageRateEnd();
+
+
 	/***** Change Player Collision Channel's setting *****/
 private:
 	class AC_EnemyA* Enemy;
