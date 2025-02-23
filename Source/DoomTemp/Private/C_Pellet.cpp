@@ -39,13 +39,6 @@ void AC_Pellet::BeginPlay()
 	
 }
 
-void AC_Pellet::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-	Super::EndPlay(EndPlayReason);
-
-	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), PelletVFX, GetActorLocation());
-}
-
 void AC_Pellet::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -55,8 +48,11 @@ void AC_Pellet::Tick(float DeltaTime)
 
 	LifeTime -= DeltaTime;
 
-	if (LifeTime <= 0)
+	if (LifeTime <= 0) {
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BulletVFX, GetActorLocation());
+
 		Destroy();
+	}
 }
 
 void AC_Pellet::OnBulletHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& HitResult)
@@ -64,6 +60,8 @@ void AC_Pellet::OnBulletHit(UPrimitiveComponent* HitComponent, AActor* OtherActo
 	AC_Enemy* enemy = Cast<AC_Enemy>(OtherActor);
 
 	if (enemy == nullptr) {
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BulletVFX, HitResult.ImpactPoint);
+
 		Destroy();
 	}
 }

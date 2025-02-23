@@ -15,6 +15,7 @@
 #include "Enemy/C_Enemy.h"
 #include "C_PlayerAnimInstance.h"
 #include "Components/BoxComponent.h"
+#include "Components/SphereComponent.h"
 
 // Sets default values
 AC_PlayerCharacter::AC_PlayerCharacter()
@@ -63,6 +64,18 @@ AC_PlayerCharacter::AC_PlayerCharacter()
 	MeleeComp->SetCollisionProfileName(TEXT("PlayerAttack"));
 	MeleeComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	MeleeComp->OnComponentBeginOverlap.AddDynamic(this, &AC_PlayerCharacter::OnMeleeOverlap);
+
+	PunchComp = CreateDefaultSubobject<USphereComponent>(TEXT("PunchComp"));
+
+	PunchComp->SetupAttachment(FPSMeshComp, TEXT("RightHandPalm"));
+	PunchComp->SetSphereRadius(8.5f);
+	PunchComp->SetRelativeLocation(FVector(1.0, -2.0, 0.0));
+
+	PunchComp->SetCollisionProfileName(TEXT("PlayerAttack"));
+	PunchComp->SetCollisionResponseToChannel(ECC_GameTraceChannel2, ECollisionResponse::ECR_Ignore);
+	PunchComp->OnComponentBeginOverlap.AddDynamic(this, &AC_PlayerCharacter::OnPunchOverlap);
+
+	PunchComp->SetVisibility(false);
 
 	// Update Yaw Only
 	bUseControllerRotationPitch = false;
@@ -305,10 +318,7 @@ void AC_PlayerCharacter::OnDashTime()
 
 void AC_PlayerCharacter::OnFire(const struct FInputActionValue& inputValue)
 {
-	// During Melee Attack, Player Can't Use Gun
-	if (bIsPunching)
-		return;
-
+	// Shotgun is Semi-Automatic
 	if (mWeaponType == EWeaponType::Shotgun && ShotgunMesh->bUsingMode == false) {
 		bIsFire = false;
 		bShotgun = !bShotgun;
@@ -320,9 +330,11 @@ void AC_PlayerCharacter::OnFire(const struct FInputActionValue& inputValue)
 				FireTimer = 0.0f;
 			}
 	}
+	// Other Guns are Fully Automatic
 	else
 		bIsFire = !bIsFire;
 
+	// Erase Laser
 	if (!bIsFire && mWeaponType == EWeaponType::Plasma) {
 		UC_PlasmaGun* plasmaGun = Cast<UC_PlasmaGun>(PlasmaMesh);
 
@@ -333,7 +345,8 @@ void AC_PlayerCharacter::OnFire(const struct FInputActionValue& inputValue)
 
 void AC_PlayerCharacter::PlayerFire()
 {
-	if (!bIsFire)
+	// During Melee Attack, Bullets Not Spawnned
+	if (!bIsFire || bIsPunching)
 		return;
 
 	if (FireTimer >= FireRate) {
@@ -436,7 +449,7 @@ void AC_PlayerCharacter::SetFireRate(float InFireRate)
 
 void AC_PlayerCharacter::OnPunch(const struct FInputActionValue& inputValue)
 {
-	if (!bIsPunching)
+	if (bIsPunching)
 		return;
 
 	bIsPunching = true;
@@ -465,6 +478,10 @@ void AC_PlayerCharacter::OnPunchEnd()
 	// Activate Weapon Mesh
 	SetWeaponActive(mWeaponType, true);
 
+	if (!MeleeTarget) {
+		PunchComp->SetCollisionResponseToChannel(ECC_GameTraceChannel2, ECR_Ignore);
+		PunchComp->SetVisibility(false);
+	}
 	MeleeTarget = nullptr;
 	bIsPunching = false;
 }
@@ -530,6 +547,16 @@ void AC_PlayerCharacter::OnMeleeOverlap(UPrimitiveComponent* OverlappedComponent
 		if (newDist < curDist)
 			MeleeTarget = enemy;
 	}
+}
+
+void AC_PlayerCharacter::OnPunchOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	AC_Enemy* enemy = Cast<AC_Enemy>(OtherActor);
+
+	if (!enemy)
+		return;
+
+	enemy->OnDamageProcess(MeleeDamage, EAttackType::Fist);
 }
 
 void AC_PlayerCharacter::MeleeDash()
