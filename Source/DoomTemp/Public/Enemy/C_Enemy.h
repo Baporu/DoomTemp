@@ -102,6 +102,9 @@ public:
 	// Enemy 상태에 따른 Melee Attack Damage 변경
 	void ChangeMeleeDamage();	
 
+	// Enemy의 방향 지정
+	//void ChangeRotation();
+
 	/***** Damage Events *****/
 public:
 	void OnDamageFist();

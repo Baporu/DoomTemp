@@ -9,12 +9,12 @@
 #include "Runtime/AIModule/Classes/AIController.h"
 #include "Runtime/AIModule/Classes/Navigation/PathFollowingComponent.h"
 #include <Runtime/AIModule/Classes/AITypes.h>
+#include "Kismet/KismetSystemLibrary.h"
 
 
 UC_EnemyFSM::UC_EnemyFSM()
 {
 	PrimaryComponentTick.bCanEverTick = true;
-
 }
 
 
@@ -48,8 +48,6 @@ void UC_EnemyFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	//UE_LOG(LogTemp, Error, TEXT("--- Enemy Main State: %s / Sub State : %s ---"), *UEnum::GetValueAsString(EnemyState), *UEnum::GetValueAsString(EnemyMovement));
-
 	switch (EnemyState)
 	{
 		case EEnemyState::IDLE:
@@ -70,6 +68,22 @@ void UC_EnemyFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 		case EEnemyState::SPAWN:
 			SpawnState();
 			break;
+	}
+
+	/* 거리에 따른 Enemy Rotation 변경 */
+	FVector destination = Target->GetActorLocation();
+	FVector dir = Target->GetActorLocation() - Self->GetActorLocation();
+
+	// 걸어가고 있는 상태에서 Player가 사정 거리 내에 들어오면
+	if ( EnemyState != EEnemyState::DEAD && EnemyMovement != EEnemyMovement::FLINCH && EnemyMovement != EEnemyMovement::STAGGER && dir.Size() <= MeleeRange )
+	{
+		// 여기서부터 정연님이 알려주심
+		FVector rot = destination - Self->GetActorLocation();
+
+		FRotator TargetRotation = rot.Rotation();
+
+		FRotator NewRotation = Self->GetActorRotation();
+		NewRotation.Yaw = TargetRotation.Yaw; 
 	}
 }
 
@@ -101,9 +115,6 @@ void UC_EnemyFSM::SpawnState()
 
 void UC_EnemyFSM::IdleState()
 {
-	//*** Debug
-	UE_LOG(LogTemp, Warning, TEXT(">>>>> IdleState CurTime : %f"), CurTime);
-
 	CurTime += GetWorld()->DeltaTimeSeconds;
 
 	if (CurTime >= IdleDelayTime)
@@ -152,7 +163,6 @@ void UC_EnemyFSM::AttackState()
 	/*** 타겟이 있는지 체크 - 타겟이 죽었는데 공격하면 안되니까 ***/
 	CheckNull(Target);
 
-	//if(Anim->bAttackPlay) return;
 
 	/*** 일정 시간이 지나면 공격 ***/
 	CurTime += GetWorld()->DeltaTimeSeconds;
@@ -171,11 +181,6 @@ void UC_EnemyFSM::AttackState()
 
 		// animaiton 공격 플래그 전환
 		Anim->bAttackPlay = true;
-
-
-		/*** 근거리를 벗어나면 MOVE 상태로 전환 ***/
-		//float distance = FVector::Distance(Target->GetActorLocation(), Self->GetActorLocation());
-		//CanMove(distance);
 	}
 }
 

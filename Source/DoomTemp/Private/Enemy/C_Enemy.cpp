@@ -22,12 +22,24 @@ AC_Enemy::AC_Enemy()
 
     /***** Weapon *****/
     C_Helpers::CreateActorComponent<UC_EWeaponComp>(this, &WeaponComps, "Weapon");
+
+    /***** AI Controller *****/
+    // 월드에 배치되거나 스폰될 때 자동으로 AIController로부터 Possess되도록 설정
+    AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
 
 void AC_Enemy::BeginPlay()
 {
 	Super::BeginPlay();
-    
+
+    // Spawn 시 player를 바라보도록
+    APawn* player = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+    if (player)
+    {
+        //ChangeRotation();
+        FRotator dir = (player->GetActorLocation() - GetActorLocation()).Rotation();
+        SetActorRotation(FRotator(0.f, dir.Yaw, 0.f));
+    }
 }
 
 void AC_Enemy::Tick(float DeltaTime)
@@ -65,18 +77,6 @@ void AC_Enemy::SetSpeed(float InVal) { Speed = InVal; }
 void AC_Enemy::CheckSubState()
 {
     /* Enemy Move : Walk > Flinch > Stagger > Dead */
-
-    /*if (HP > HPFlinched)
-        FSM->SetEnemyMovement(EEnemyMovement::WALK);
-    else if (HP > HPStaggered)
-        FSM->SetEnemyMovement(EEnemyMovement::FLINCH);
-    else if (HP > 0.f)
-        FSM->SetEnemyMovement(EEnemyMovement::STAGGER);
-    else
-    {
-        FSM->SetEnemyState(EEnemyState::DEAD);
-        GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-    }*/
 
     if (HP > HPFlinched)
     {
@@ -189,6 +189,12 @@ void AC_Enemy::ChangeMeleeDamage()
         SetMeleeDamage(0);   // STAGGER, DEAD
 }
 
+//void AC_Enemy::ChangeRotation()
+//{
+//    FRotator dir = (player->GetActorLocation() - GetActorLocation()).Rotation();
+//    SetActorRotation(FRotator(0.f, dir.Yaw, 0.f));
+//}
+
 
 /***** Damage Events *****/
 void AC_Enemy::OnDamageFist()
@@ -203,8 +209,6 @@ void AC_Enemy::OnDamageFist()
 
     // 3. 부착한 컴포넌트에서 맞은 부분의 normal 방향으로 피 튀기는 VFX 소환
 
-    // 4. Enemy HP에 따른 Sub State 변경 및 죽음 처리
-    //CheckSubState();
 }
 
 
@@ -220,8 +224,6 @@ void AC_Enemy::OnDamageGun()
 
     // 3. 부착한 컴포넌트에서 맞은 부분의 normal 방향으로 피 튀기는 VFX 소환
 
-    // 4. Enemy HP에 따른 Sub State 변경 및 죽음 처리
-    //CheckSubState();
 }
 
 
@@ -237,8 +239,6 @@ void AC_Enemy::OnDamageGloryKill()
 
     // 3. 부착한 컴포넌트에서 맞은 부분의 normal 방향으로 피 뿜어져 나오는 VFX 소환
 
-    // 4. Enemy HP에 따른 Sub State 변경 및 죽음 처리
-    //CheckSubState();
 }
 
 
@@ -254,6 +254,4 @@ void AC_Enemy::OnDamageChainsaw()
 
     // 3. 부착한 컴포넌트에서 맞은 부분의 normal 방향으로 피 뿜어져 나오는 VFX 소환
 
-    // 4. Enemy HP에 따른 Sub State 변경 및 죽음 처리
-    //CheckSubState();
 }
