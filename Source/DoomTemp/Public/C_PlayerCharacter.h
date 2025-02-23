@@ -149,6 +149,7 @@ public:
 	class UInputAction* IA_Punch;
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputAction* IA_Saw;
+	bool bIsPunching = false;
 
 	// Melee Attack Damage
 	UPROPERTY(EditDefaultsOnly, Category = "Stats")

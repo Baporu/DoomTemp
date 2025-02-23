@@ -305,6 +305,10 @@ void AC_PlayerCharacter::OnDashTime()
 
 void AC_PlayerCharacter::OnFire(const struct FInputActionValue& inputValue)
 {
+	// During Melee Attack, Player Can't Use Gun
+	if (bIsPunching)
+		return;
+
 	if (mWeaponType == EWeaponType::Shotgun && ShotgunMesh->bUsingMode == false) {
 		bIsFire = false;
 		bShotgun = !bShotgun;
@@ -318,6 +322,13 @@ void AC_PlayerCharacter::OnFire(const struct FInputActionValue& inputValue)
 	}
 	else
 		bIsFire = !bIsFire;
+
+	if (!bIsFire && mWeaponType == EWeaponType::Plasma) {
+		UC_PlasmaGun* plasmaGun = Cast<UC_PlasmaGun>(PlasmaMesh);
+
+		if (plasmaGun)
+			plasmaGun->ToggleLaser(false);
+	}
 }
 
 void AC_PlayerCharacter::PlayerFire()
@@ -367,6 +378,9 @@ void AC_PlayerCharacter::OnUseMode(const struct FInputActionValue& inputValue)
 
 void AC_PlayerCharacter::OnChangeWeapon(const struct FInputActionValue& inputValue)
 {
+	if (bIsPunching)
+		return;
+
 	switch (mWeaponType)
 	{
 		case EWeaponType::Plasma:	{ ChangeWeapon(EWeaponType::Sniper); }	break;
@@ -422,6 +436,11 @@ void AC_PlayerCharacter::SetFireRate(float InFireRate)
 
 void AC_PlayerCharacter::OnPunch(const struct FInputActionValue& inputValue)
 {
+	if (!bIsPunching)
+		return;
+
+	bIsPunching = true;
+
 	// Deactivate Weapon Mesh
 	SetWeaponActive(mWeaponType, false);
 
@@ -447,6 +466,7 @@ void AC_PlayerCharacter::OnPunchEnd()
 	SetWeaponActive(mWeaponType, true);
 
 	MeleeTarget = nullptr;
+	bIsPunching = false;
 }
 
 void AC_PlayerCharacter::OnSaw(const struct FInputActionValue& inputValue)
@@ -454,6 +474,7 @@ void AC_PlayerCharacter::OnSaw(const struct FInputActionValue& inputValue)
 	if (CurrentFuel <= 0)
 		return;
 
+	bIsPunching = true;
 	CurrentFuel--;
 	GetWorld()->GetTimerManager().SetTimer(FuelTimerHandle, this, &AC_PlayerCharacter::OnFuelTime, FuelTime, false);
 
@@ -514,12 +535,9 @@ void AC_PlayerCharacter::OnMeleeOverlap(UPrimitiveComponent* OverlappedComponent
 void AC_PlayerCharacter::MeleeDash()
 {
 	// Enable Target Finding Colldier Component
-	MeleeComp->SetVisibility(true);
 	MeleeComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-
 	// Disable Target Finding Collider Component
 	MeleeComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	MeleeComp->SetVisibility(false);
 
 	if (!MeleeTarget) {
 		// Show Target Not Found UI
