@@ -6,6 +6,18 @@
 #include "Kismet/GameplayStatics.h"
 #include "C_PlayerAnimInstance.h"
 
+UC_GunSkeletalMeshComponent::UC_GunSkeletalMeshComponent()
+{
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	//PrimaryComponentTick.bCanEverTick = true;
+
+	// Find Bullet Sound
+// 	ConstructorHelpers::FObjectFinder<USoundBase> tempSound(TEXT(""));
+// 
+// 	if (tempSound.Succeeded())
+// 		BulletSound = tempSound.Object;
+}
+
 void UC_GunSkeletalMeshComponent::BeginPlay()
 {
 	Super::BeginPlay();

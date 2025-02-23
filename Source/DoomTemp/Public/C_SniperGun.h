@@ -15,6 +15,9 @@ class DOOMTEMP_API UC_SniperGun : public UC_GunSkeletalMeshComponent
 	GENERATED_BODY()
 	
 
+public:
+	UC_SniperGun();
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -32,6 +35,7 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly)
 	int32 SnipeDamage = 40;
+	class USoundBase* SnipeSound;
 
 
 	// Mouse Left Click Event

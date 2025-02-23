@@ -9,6 +9,15 @@
 #include "Runtime/UMG/Public/Blueprint/UserWidget.h"
 #include "Enemy/C_Enemy.h"
 
+UC_SniperGun::UC_SniperGun()
+{
+	// Find Snipe Sound
+//  	ConstructorHelpers::FObjectFinder<USoundBase> tempSound(TEXT(""));
+//  
+//  	if (tempSound.Succeeded())
+//  		LaserSound = tempSound.Object;
+}
+
 void UC_SniperGun::BeginPlay()
 {
 	Super::BeginPlay();
@@ -36,10 +45,13 @@ void UC_SniperGun::OnFire()
 		params.AddIgnoredActor(GetOwner());
 
 		bool bHit = GetWorld()->LineTraceSingleByChannel(hitInfo, startPos, endPos, ECollisionChannel::ECC_Visibility, params);
+		FVector soundPos = endPos;
 
 		if (bHit) {
 			FTransform bulletTrans;
 			bulletTrans.SetLocation(hitInfo.ImpactPoint);
+
+			soundPos = hitInfo.ImpactPoint;
 
 			// Bullet FX
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SniperEffect, bulletTrans);
@@ -61,11 +73,14 @@ void UC_SniperGun::OnFire()
 			}
 		}
 
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), SnipeSound, soundPos);
+
 		// Debug LineTrace
-		DrawDebugLine(GetWorld(), startPos, endPos, FColor::Blue, false, 2.0f, 0, 1.0f);
+//		DrawDebugLine(GetWorld(), startPos, endPos, FColor::Blue, false, 2.0f, 0, 1.0f);
 	}
 
 	else {
+		UGameplayStatics::PlaySound2D(GetWorld(), BulletSound);
 		Super::OnFire();
 	}
 }

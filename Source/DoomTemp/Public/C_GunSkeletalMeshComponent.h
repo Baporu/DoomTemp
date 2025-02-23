@@ -17,6 +17,10 @@ class DOOMTEMP_API UC_GunSkeletalMeshComponent : public USkeletalMeshComponent
 	GENERATED_BODY()
 
 
+public:
+	// Sets default values for this character's properties
+	UC_GunSkeletalMeshComponent();
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -49,6 +53,9 @@ public:
 	TSubclassOf<class UUserWidget> CrossHairUIFactory;
 	// Cross-hair UI Widget Instance
 	class UUserWidget* CrossHairUI;
+
+	// Fire Sound
+	class USoundBase* BulletSound;
 
 
 	// Call by Player

@@ -5,6 +5,7 @@
 #include "C_GunBullet.h"
 #include "C_Pellet.h"
 #include "C_PlayerAnimInstance.h"
+#include "Kismet/GameplayStatics.h"
 
 void UC_ShotGun::BeginPlay()
 {
@@ -49,7 +50,7 @@ void UC_ShotGun::OnFire()
 		bullet->FinishSpawning(firePos);
 //		UGameplayStatics::FinishSpawningActor(bullet, firePos);
 	}
-
+	UGameplayStatics::PlaySound2D(GetWorld(), BulletSound);
 	--CurrentAmmo;
 }
 
