@@ -13,7 +13,7 @@ AC_Pellet::AC_Pellet()
 	// 2. 충돌 프로필 설정
 	CollisionComp->SetCollisionProfileName(TEXT("PlayerAttack"));
 	// 3. 충돌체 크기 설정
-	CollisionComp->SetSphereRadius(13.0f);
+	CollisionComp->SetSphereRadius(13.0);
 	// 4. 루트로 등록
 	SetRootComponent(CollisionComp);
 
@@ -35,8 +35,6 @@ AC_Pellet::AC_Pellet()
 void AC_Pellet::BeginPlay()
 {
 	Super::BeginPlay();
-
-	
 }
 
 void AC_Pellet::Tick(float DeltaTime)
@@ -63,7 +61,7 @@ void AC_Pellet::OnBulletHit(UPrimitiveComponent* HitComponent, AActor* OtherActo
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BulletVFX, HitResult.ImpactPoint);
 
 		Destroy();
-	}
+	}	
 }
 
 void AC_Pellet::ApplySpread(float InSpread)

@@ -26,7 +26,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	// Collision Component
-	UPROPERTY(VisibleAnywhere, Category = Basics)
+	UPROPERTY(EditDefaultsOnly, Category = Basics)
 	class USphereComponent* CollisionComp;
 	// Mesh Component
 	UPROPERTY(VisibleAnywhere, Category = Basics)
