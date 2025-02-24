@@ -63,6 +63,21 @@ protected:
 	FString SectionName;
 
 
+	///***** Niagara *****/
+	//// Deactivate Niagara System
+	//UFUNCTION()
+	//void NiagaraDeActivate(class UNiagaraComponent* PSystem);
+
+	//// Niagara Component for Electric Force
+	//UPROPERTY(EditDefaultsOnly)
+	//class UNiagaraComponent* ElectricForceComp;
+
+	//// Niagara System for Electric Force
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Niagara")
+	//class UNiagaraSystem* ElectricForceNiagaraFactory;
+
+
+
 public:
 	bool bIsFlinched = false;
 	bool bIsStaggered = false;

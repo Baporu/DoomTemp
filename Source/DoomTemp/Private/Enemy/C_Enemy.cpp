@@ -9,6 +9,11 @@
 #include "Components/CapsuleComponent.h"
 #include "Runtime/AIModule/Classes/AIController.h"
 
+/* headers for VFX */
+#include "../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraComponent.h"
+#include "../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraFunctionLibrary.h"
+#include "../../../../Plugins/FX/Niagara/Source/Niagara/Classes/NiagaraSystem.h"
+
 
 AC_Enemy::AC_Enemy()
 {
@@ -26,6 +31,19 @@ AC_Enemy::AC_Enemy()
     /***** AI Controller *****/
     // 월드에 배치되거나 스폰될 때 자동으로 AIController로부터 Possess되도록 설정
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+
+
+    ///***** Register Niagara Component for Electric Force *****/
+    //ElectricForceComp = CreateDefaultSubobject<UNiagaraComponent>(TEXT("ElectricForceNiagara"));
+    //ElectricForceComp->SetupAttachment(RootComponent);
+    //ElectricForceComp->SetAutoActivate(false);
+    //ConstructorHelpers::FObjectFinder<UNiagaraSystem> ElectricForceVFX(TEXT("NiagaraSystem'/Game/Designs/Knife_light/VFX/NE_attack03.NE_attack03'"));
+    //if (ElectricForceVFX.Succeeded())
+    //{
+    //    ElectricForceComp->SetAsset(ElectricForceVFX.Object);
+    //    ElectricForceComp->SetRelativeLocation(GetActorLocation() + FVector(0.f, 0.f, 25));
+    //    ElectricForceComp->SetRelativeScale3D(FVector(0.6f));
+    //}
 }
 
 void AC_Enemy::BeginPlay()

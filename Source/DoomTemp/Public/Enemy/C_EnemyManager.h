@@ -21,9 +21,9 @@ public:
 private:
 	// 랜덤한 시간 (최소값, 최대값)
 	UPROPERTY(EditAnywhere, Category = "SpawnSetting")
-	float MinTime = 3.f;
+	float MinTime = 2.f;
 	UPROPERTY(EditAnywhere, Category = "SpawnSetting")
-	float MaxTime = 5.f;
+	float MaxTime = 4.5f;
 
 	// 게임 시작되었는지 체크
 	bool isGameStarted = false;
