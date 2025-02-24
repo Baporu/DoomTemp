@@ -84,7 +84,7 @@ void UC_SniperGun::OnFire()
 			}
 		}
 
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), SnipeSound, soundPos);
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), BulletSound, soundPos, 0.6f);
 		me->SetFireRate(FireRate * 5);
 
 		// Debug LineTrace
@@ -92,7 +92,7 @@ void UC_SniperGun::OnFire()
 	}
 
 	else {
-		UGameplayStatics::PlaySound2D(GetWorld(), BulletSound);
+		UGameplayStatics::PlaySound2D(GetWorld(), BulletSound, 0.4f);
 		Super::OnFire();
 	}
 }

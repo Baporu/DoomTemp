@@ -103,7 +103,7 @@ void UC_PlasmaGun::OnFire()
 
 		if (LaserTimer >= 0.1f) {
 			if (enemy && LaserAttackTimer >= LaserTime) {
-				UGameplayStatics::PlaySoundAtLocation(GetWorld(), LaserSound, soundPos);
+				//UGameplayStatics::PlaySoundAtLocation(GetWorld(), LaserSound, soundPos);
 				CurrentAmmo -= 1;
 
 				enemy->OnDamageProcess(LaserDamage, EAttackType::Gun);
@@ -115,7 +115,7 @@ void UC_PlasmaGun::OnFire()
 			if (LaserTimer >= LaserTime) {
 				CurrentAmmo -= 1;
 
-				UGameplayStatics::PlaySoundAtLocation(GetWorld(), LaserSound, soundPos);
+				//UGameplayStatics::PlaySoundAtLocation(GetWorld(), LaserSound, soundPos);
 
 				LaserTime = 0.0f;
 			}
@@ -125,7 +125,7 @@ void UC_PlasmaGun::OnFire()
 	}
 	// When Firing Without Using Mode
 	else {
-		UGameplayStatics::PlaySound2D(GetWorld(), BulletSound);
+		UGameplayStatics::PlaySound2D(GetWorld(), BulletSound, 0.4f);
 		Super::OnFire();
 	}
 }
