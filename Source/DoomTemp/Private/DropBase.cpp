@@ -33,7 +33,7 @@ void ADropBase::BeginPlay()
 	Super::BeginPlay();
 	
 
-	Dir = (GetActorForwardVector() * FMath::RandRange(-0.5, 0.5) + GetActorRightVector() * FMath::RandRange(-0.5, 0.5) + GetActorUpVector()).GetSafeNormal2D();
+	Dir = (GetActorForwardVector() * FMath::RandRange(-1.0, 1.0) + GetActorRightVector() * FMath::RandRange(-1.0, 1.0) + GetActorUpVector()).GetSafeNormal2D();
 }
 
 // Called every frame

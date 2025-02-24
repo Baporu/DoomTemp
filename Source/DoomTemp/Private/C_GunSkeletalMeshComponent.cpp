@@ -12,10 +12,10 @@ UC_GunSkeletalMeshComponent::UC_GunSkeletalMeshComponent()
 	//PrimaryComponentTick.bCanEverTick = true;
 
 	// Find Bullet Sound
-// 	ConstructorHelpers::FObjectFinder<USoundBase> tempSound(TEXT(""));
-// 
-// 	if (tempSound.Succeeded())
-// 		BulletSound = tempSound.Object;
+	ConstructorHelpers::FObjectFinder<USoundBase> tempSound(TEXT("/Script/Engine.SoundWave'/Game/SniperGun/Rifle.Rifle'"));
+
+	if (tempSound.Succeeded())
+		BulletSound = tempSound.Object;
 }
 
 void UC_GunSkeletalMeshComponent::BeginPlay()

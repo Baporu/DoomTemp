@@ -114,7 +114,7 @@ public:
 	bool bShotgun = false;
 
 	// Player Weapon State
-	UPROPERTY(EditAnywhere, Category = "Guns")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Guns")
 	EWeaponType mWeaponType;
 	// Weapon Instances
 	UPROPERTY(EditDefaultsOnly, Category = "Guns")
