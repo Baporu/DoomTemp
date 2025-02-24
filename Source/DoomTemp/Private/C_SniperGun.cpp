@@ -11,11 +11,17 @@
 
 UC_SniperGun::UC_SniperGun()
 {
+	// Find Bullet Sound
+// 	ConstructorHelpers::FObjectFinder<USoundBase> tempSound(TEXT("/Script/Engine.SoundWave'/Game/SniperGun/Rifle.Rifle'"));
+// 
+// 	if (tempSound.Succeeded())
+// 		BulletSound = tempSound.Object;
+
 	// Find Snipe Sound
 //  	ConstructorHelpers::FObjectFinder<USoundBase> tempSound(TEXT(""));
 //  
 //  	if (tempSound.Succeeded())
-//  		LaserSound = tempSound.Object;
+//  		SnipeSound = tempSound.Object;
 }
 
 void UC_SniperGun::BeginPlay()
@@ -82,7 +88,7 @@ void UC_SniperGun::OnFire()
 		me->SetFireRate(FireRate * 5);
 
 		// Debug LineTrace
-//		DrawDebugLine(GetWorld(), startPos, endPos, FColor::Blue, false, 2.0f, 0, 1.0f);
+		DrawDebugLine(GetWorld(), startPos, endPos, FColor::Blue, false, 1.5f, 0, 1.0f);
 	}
 
 	else {
