@@ -126,4 +126,14 @@ public:
 	void OnDamageGun();
 	void OnDamageGloryKill();
 	void OnDamageChainsaw();
+
+
+	// Written By SHS
+public:
+	UPROPERTY(EditDefaultsOnly, Category = Drops)
+	TArray<TSubclassOf<class ADropBase>> DropTypes;
+	UPROPERTY(EditDefaultsOnly, Category = Drops)
+	TArray<int32> DropCounts;
+
+	void SpawnDrops();
 };

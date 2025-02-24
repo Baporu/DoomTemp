@@ -15,6 +15,7 @@
 #include "Enemy/C_Enemy.h"
 #include "C_PlayerAnimInstance.h"
 #include "Components/BoxComponent.h"
+#include "Components/SphereComponent.h"
 
 // Sets default values
 AC_PlayerCharacter::AC_PlayerCharacter()
@@ -57,12 +58,25 @@ AC_PlayerCharacter::AC_PlayerCharacter()
 	MeleeComp = CreateDefaultSubobject<UBoxComponent>(TEXT("MeleeComp"));
 	
 	MeleeComp->SetupAttachment(FPSCamComp);
-	MeleeComp->SetRelativeLocation(FVector(215.0, 0.0, 0.0));
+	MeleeComp->SetBoxExtent(FVector(40.0, 32.0, 32.0));
+	MeleeComp->SetRelativeLocation(FVector(265.0, 0.0, 0.0));
 	MeleeComp->SetRelativeScale3D(FVector(5.0, 3.0, 1.0));
 
 	MeleeComp->SetCollisionProfileName(TEXT("PlayerAttack"));
 	MeleeComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	MeleeComp->OnComponentBeginOverlap.AddDynamic(this, &AC_PlayerCharacter::OnMeleeOverlap);
+
+	PunchComp = CreateDefaultSubobject<USphereComponent>(TEXT("PunchComp"));
+
+	PunchComp->SetupAttachment(FPSMeshComp, TEXT("RightHandPalm"));
+	PunchComp->SetSphereRadius(8.5f);
+	PunchComp->SetRelativeLocation(FVector(1.0, -2.0, 0.0));
+
+	PunchComp->SetCollisionProfileName(TEXT("PlayerAttack"));
+	PunchComp->SetCollisionResponseToChannel(ECC_GameTraceChannel2, ECollisionResponse::ECR_Ignore);
+	PunchComp->OnComponentBeginOverlap.AddDynamic(this, &AC_PlayerCharacter::OnPunchOverlap);
+
+	PunchComp->SetVisibility(false);
 
 	// Update Yaw Only
 	bUseControllerRotationPitch = false;
@@ -179,6 +193,13 @@ void AC_PlayerCharacter::BeginPlay()
 	SetFireRate(GetCurrentGun()->GetFireRate());
 	FireTimer = FireRate;
 
+	// Set Stats
+	CurrentHP = MaxHP;
+	CurDashCount = MaxDashCount;
+
+	// Set Fuel Timer
+	GetWorld()->GetTimerManager().SetTimer(FuelTimerHandle, this, &AC_PlayerCharacter::OnFuelTime, (FuelTime / 2), false);
+
 // 	for (int32 i = 0; i < 3; i++) {
 // 		if (Guns[i] != nullptr) {
 // 			UC_GunSkeletalMeshComponent* gun = NewObject<UC_GunSkeletalMeshComponent>(this, Guns[i].GetDefaultObject()->StaticClass(), Guns[i].GetDefaultObject()->MeshName);
@@ -199,7 +220,6 @@ void AC_PlayerCharacter::Tick(float DeltaTime)
 	PlayerMove();
 	FireTimer += DeltaTime;
 	PlayerFire();
-	ResetDashCount();
 }
 
 // Called to bind functionality to input
@@ -278,28 +298,28 @@ void AC_PlayerCharacter::OnDash(const struct FInputActionValue& inputValue)
 	if (CurDashCount <= 0 || DashDir == FVector::ZeroVector)
 		return;
 
+	CurDashCount--;
+	GetWorld()->GetTimerManager().SetTimer(DashTimerHandle, this, &AC_PlayerCharacter::OnDashTime, DashCoolTime, false);
+
 	DashDir.Normalize();
 	UE_LOG(LogTemp, Warning, TEXT("DashDir X: %f, Y: %f, Z: %f"), DashDir.X, DashDir.Y, DashDir.Z);
 
 	SetActorLocation(GetActorLocation() + DashDir * DashDistance, true);
 
 	DashDir = FVector::ZeroVector;
-	CurDashCount--;
 }
 
-void AC_PlayerCharacter::ResetDashCount()
+void AC_PlayerCharacter::OnDashTime()
 {
-	DashTimer -= GetWorld()->GetDeltaSeconds();
+	CurDashCount++;
 
-	if (DashTimer <= 0.0f) {
-		CurDashCount = MaxDashCount;
-
-		DashTimer = DashCoolTime;
-	}
+	if (CurDashCount < MaxDashCount)
+		GetWorld()->GetTimerManager().SetTimer(DashTimerHandle, this, &AC_PlayerCharacter::OnDashTime, DashCoolTime, false);
 }
 
 void AC_PlayerCharacter::OnFire(const struct FInputActionValue& inputValue)
 {
+	// Shotgun is Semi-Automatic
 	if (mWeaponType == EWeaponType::Shotgun && ShotgunMesh->bUsingMode == false) {
 		bIsFire = false;
 		bShotgun = !bShotgun;
@@ -311,13 +331,23 @@ void AC_PlayerCharacter::OnFire(const struct FInputActionValue& inputValue)
 				FireTimer = 0.0f;
 			}
 	}
+	// Other Guns are Fully Automatic
 	else
 		bIsFire = !bIsFire;
+
+	// Erase Laser
+	if (!bIsFire && mWeaponType == EWeaponType::Plasma) {
+		UC_PlasmaGun* plasmaGun = Cast<UC_PlasmaGun>(PlasmaMesh);
+
+		if (plasmaGun)
+			plasmaGun->ToggleLaser(false);
+	}
 }
 
 void AC_PlayerCharacter::PlayerFire()
 {
-	if (!bIsFire)
+	// During Melee Attack, Bullets Not Spawned
+	if (!bIsFire || bIsPunching)
 		return;
 
 	if (FireTimer >= FireRate) {
@@ -352,6 +382,8 @@ void AC_PlayerCharacter::Fire_Shotgun()
 
 void AC_PlayerCharacter::OnUseMode(const struct FInputActionValue& inputValue)
 {
+	bUseMode = !bUseMode;
+
 	switch (mWeaponType)
 	{
 		case EWeaponType::Plasma:	{ PlasmaMesh->OnUseMode(); }	break;
@@ -362,6 +394,10 @@ void AC_PlayerCharacter::OnUseMode(const struct FInputActionValue& inputValue)
 
 void AC_PlayerCharacter::OnChangeWeapon(const struct FInputActionValue& inputValue)
 {
+	// If Player is Firing or Punching or Using Mode, Player Can't Change Weapon
+	if (bIsFire || bIsPunching || bUseMode)
+		return;
+
 	switch (mWeaponType)
 	{
 		case EWeaponType::Plasma:	{ ChangeWeapon(EWeaponType::Sniper); }	break;
@@ -417,6 +453,11 @@ void AC_PlayerCharacter::SetFireRate(float InFireRate)
 
 void AC_PlayerCharacter::OnPunch(const struct FInputActionValue& inputValue)
 {
+	if (bIsPunching)
+		return;
+
+	bIsPunching = true;
+
 	// Deactivate Weapon Mesh
 	SetWeaponActive(mWeaponType, false);
 
@@ -441,11 +482,23 @@ void AC_PlayerCharacter::OnPunchEnd()
 	// Activate Weapon Mesh
 	SetWeaponActive(mWeaponType, true);
 
+	if (!MeleeTarget) {
+		PunchComp->SetCollisionResponseToChannel(ECC_GameTraceChannel2, ECR_Ignore);
+		PunchComp->SetVisibility(false);
+	}
 	MeleeTarget = nullptr;
+	bIsPunching = false;
 }
 
 void AC_PlayerCharacter::OnSaw(const struct FInputActionValue& inputValue)
 {
+	if (CurrentFuel <= 0)
+		return;
+
+	bIsPunching = true;
+	CurrentFuel--;
+	GetWorld()->GetTimerManager().SetTimer(FuelTimerHandle, this, &AC_PlayerCharacter::OnFuelTime, FuelTime, false);
+
 	// Deactivate Weapon Mesh
 	SetWeaponActive(mWeaponType, false);
 
@@ -461,10 +514,6 @@ void AC_PlayerCharacter::OnSaw(const struct FInputActionValue& inputValue)
 	MeleeTarget->OnDamageProcess(10000, EAttackType::Chainsaw);
 }
 
-void AC_PlayerCharacter::OnGetDrop() {
-	GetCurrentGun()->IncreaseAmmo();
-}
-
 UCameraComponent* AC_PlayerCharacter::GetCameraComponent()
 {
 	return FPSCamComp;
@@ -478,7 +527,7 @@ UC_GunSkeletalMeshComponent* AC_PlayerCharacter::GetCurrentGun()
 		case EWeaponType::Shotgun:	{ return ShotgunMesh; }
 	}
 
-	return ShotgunMesh;
+	return nullptr;
 }
 
 void AC_PlayerCharacter::OnMeleeOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -504,15 +553,22 @@ void AC_PlayerCharacter::OnMeleeOverlap(UPrimitiveComponent* OverlappedComponent
 	}
 }
 
+void AC_PlayerCharacter::OnPunchOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	AC_Enemy* enemy = Cast<AC_Enemy>(OtherActor);
+
+	if (!enemy)
+		return;
+
+	enemy->OnDamageProcess(MeleeDamage, EAttackType::Fist);
+}
+
 void AC_PlayerCharacter::MeleeDash()
 {
 	// Enable Target Finding Colldier Component
-	MeleeComp->SetVisibility(true);
 	MeleeComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-
 	// Disable Target Finding Collider Component
 	MeleeComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	MeleeComp->SetVisibility(false);
 
 	if (!MeleeTarget) {
 		// Show Target Not Found UI
@@ -530,5 +586,14 @@ void AC_PlayerCharacter::MeleeDash()
 	else {
 		UE_LOG(LogTemp, Error, TEXT("Capsule Component Not Found!!!"));
 	}
+}
+
+void AC_PlayerCharacter::OnFuelTime()
+{
+	CurrentFuel++;
+
+	if (CurrentFuel < MaxFuel)
+		GetWorld()->GetTimerManager().SetTimer(FuelTimerHandle, this, &AC_PlayerCharacter::OnFuelTime, FuelTime, false);
+
 }
 

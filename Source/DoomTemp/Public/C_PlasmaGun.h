@@ -15,9 +15,15 @@ class DOOMTEMP_API UC_PlasmaGun : public UC_GunSkeletalMeshComponent
 	GENERATED_BODY()
 	
 
+public:
+	UC_PlasmaGun();
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+
+public:
+//	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 public:
 	UPROPERTY(EditDefaultsOnly, Category = VFX)
@@ -27,6 +33,16 @@ public:
 	
 	class UParticleSystemComponent* LaserComp;
 	class UParticleSystemComponent* LaserHitComp;
+
+	UPROPERTY(EditAnywhere, Category = Laser)
+	int32 LaserDamage = 10;
+	UPROPERTY(EditAnywhere, Category = Laser)
+	float LaserTime = 0.5f;
+	float LaserTimer;
+	float LaserAttackTimer;
+	bool bUseLaser = false;
+
+	class USoundBase* LaserSound;
 
 
 	// Mouse Left Click Event

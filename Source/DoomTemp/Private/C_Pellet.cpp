@@ -13,7 +13,7 @@ AC_Pellet::AC_Pellet()
 	// 2. 충돌 프로필 설정
 	CollisionComp->SetCollisionProfileName(TEXT("PlayerAttack"));
 	// 3. 충돌체 크기 설정
-	CollisionComp->SetSphereRadius(13.0f);
+	CollisionComp->SetSphereRadius(13.0);
 	// 4. 루트로 등록
 	SetRootComponent(CollisionComp);
 
@@ -35,15 +35,6 @@ AC_Pellet::AC_Pellet()
 void AC_Pellet::BeginPlay()
 {
 	Super::BeginPlay();
-
-	
-}
-
-void AC_Pellet::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-	Super::EndPlay(EndPlayReason);
-
-	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), PelletVFX, GetActorLocation());
 }
 
 void AC_Pellet::Tick(float DeltaTime)
@@ -55,8 +46,11 @@ void AC_Pellet::Tick(float DeltaTime)
 
 	LifeTime -= DeltaTime;
 
-	if (LifeTime <= 0)
+	if (LifeTime <= 0) {
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BulletVFX, GetActorLocation());
+
 		Destroy();
+	}
 }
 
 void AC_Pellet::OnBulletHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& HitResult)
@@ -64,8 +58,10 @@ void AC_Pellet::OnBulletHit(UPrimitiveComponent* HitComponent, AActor* OtherActo
 	AC_Enemy* enemy = Cast<AC_Enemy>(OtherActor);
 
 	if (enemy == nullptr) {
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BulletVFX, HitResult.ImpactPoint);
+
 		Destroy();
-	}
+	}	
 }
 
 void AC_Pellet::ApplySpread(float InSpread)

@@ -28,5 +28,7 @@ public:
 	void PlayShootAnim();
 	
 	UFUNCTION()
+	void AnimNotify_OnPunchStart();
+	UFUNCTION()
 	void AnimNotify_OnPunchEnd();
 };

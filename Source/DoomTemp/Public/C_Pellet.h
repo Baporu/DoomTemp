@@ -21,24 +21,18 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	// Collision Component
-	UPROPERTY(VisibleAnywhere, Category = Basics)
+	UPROPERTY(EditDefaultsOnly, Category = Basics)
 	class USphereComponent* CollisionComp;
 	// Mesh Component
 	UPROPERTY(VisibleAnywhere, Category = Basics)
 	class UStaticMeshComponent* MeshComp;
 
 	FVector Dir;
-
-	// VFX
-	UPROPERTY(EditAnywhere, Category = VFX)
-	class UParticleSystem* PelletVFX;
 
 
 	UFUNCTION()

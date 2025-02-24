@@ -8,6 +8,7 @@
 #include "Enemy/C_EnemyAAnimInstance.h"
 #include "Components/CapsuleComponent.h"
 #include "Runtime/AIModule/Classes/AIController.h"
+#include "DropBase.h"
 
 /* headers for VFX */
 #include "../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraComponent.h"
@@ -105,10 +106,16 @@ void AC_Enemy::CheckSubState()
         if (FSM->GetEnemyState() == EEnemyState::IDLE)
             FSM->SetEnemyMovement(EEnemyMovement::MAX);
     }
-    else if (HP > HPStaggered)
+    else if (HP > HPStaggered) {
+        bIsFlinched = true;
+
         FSM->SetEnemyMovement(EEnemyMovement::FLINCH);
-    else if (HP > 0.f)
+    }
+    else if (HP > 0.f) {
+        bIsStaggered = true;
+
         FSM->SetEnemyMovement(EEnemyMovement::STAGGER);
+    }
     else
     {
         //FSM->SetEnemyState(EEnemyState::DEAD);
@@ -272,4 +279,19 @@ void AC_Enemy::OnDamageChainsaw()
 
     // 3. 부착한 컴포넌트에서 맞은 부분의 normal 방향으로 피 뿜어져 나오는 VFX 소환
 
+    SpawnDrops();
+}
+
+void AC_Enemy::SpawnDrops()
+{
+    FActorSpawnParameters params;
+    params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+    for (int32 i = 0; i < DropTypes.Num(); i++) {
+        int32 randCount = FMath::RandRange(0, DropCounts[i]);
+
+        for (int32 j = 0; j < randCount; j++) {
+            GetWorld()->SpawnActor<ADropBase>(DropTypes[i], GetActorLocation(), FRotator::ZeroRotator, params);
+        }
+    }
 }

@@ -4,6 +4,7 @@
 #include "DropBase.h"
 #include "Components/BoxComponent.h"
 #include "C_PlayerCharacter.h"
+#include "C_GunSkeletalMeshComponent.h"
 
 // Sets default values
 ADropBase::ADropBase()
@@ -16,19 +17,11 @@ ADropBase::ADropBase()
 	CollisionComp = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionComp"));
 	// 2. 충돌 프로필 설정
 	CollisionComp->SetCollisionProfileName(TEXT("Drop"));
+	CollisionComp->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Ignore);
 	// 3. 충돌체 크기 설정
-	CollisionComp->SetBoxExtent(FVector(5.0));
+	CollisionComp->SetBoxExtent(FVector(27.0, 25.0, 40.0));
 	// 4. 루트로 등록
 	SetRootComponent(CollisionComp);
-
-	// 5. 외관 컴포넌트 등록하기
-	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
-	// 6. 부모 컴포넌트 지정
-	MeshComp->SetupAttachment(RootComponent);
-	// 7. 외관 컴포넌트의 충돌 비활성화
-	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	// 8. 외관 크기 설정
-	MeshComp->SetRelativeScale3D(FVector(0.1));
 
 	// Add Overlap Function
 	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &ADropBase::OnDropOverlap);
@@ -39,6 +32,8 @@ void ADropBase::BeginPlay()
 {
 	Super::BeginPlay();
 	
+
+	Dir = (GetActorForwardVector() * FMath::RandRange(-0.5, 0.5) + GetActorRightVector() * FMath::RandRange(-0.5, 0.5) + GetActorUpVector()).GetSafeNormal2D();
 }
 
 // Called every frame
@@ -46,32 +41,64 @@ void ADropBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	FlyTimer += DeltaTime;
 
-	if (!bIsChase)
+	if (FlyTimer >= FlyTime) {
+		if (!bEnabledCollision) {
+			CollisionComp->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Overlap);
+
+			bEnabledCollision = !bEnabledCollision;
+		}
+
+		return;
+	}
+
+	SetActorLocation(GetActorLocation() + Dir, true);
+}
+
+void ADropBase::OnDropOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	AC_PlayerCharacter* player = Cast<AC_PlayerCharacter>(OtherActor);
+
+	if (!player)
 		return;
 
-	FVector dir = GetActorLocation() - Player->GetActorLocation();
-	dir.Normalize();
+	switch (DropType)
+	{
+		case EDropType::Health:
+			player->CurrentHP += HealValue;
 
-	SetActorLocation(dir);
+			if (player->CurrentHP > player->MaxHP)
+				player->CurrentHP = player->MaxHP;
 
-	DebugTimer -= DeltaTime;
-		
-	if (DebugTimer <= 0)
-		OnFadeOut();
-}
+			break;
 
-void ADropBase::OnDropOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) {
-	Player = Cast<AC_PlayerCharacter>(OtherActor);
+		case EDropType::Saw:
+			player->CurrentFuel += HealValue;
 
-	if (Player) {
-		CollisionComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		bIsChase = true;
+			if (player->CurrentFuel > player->MaxFuel)
+				player->CurrentFuel = player->MaxFuel;
+
+			break;
+
+		case EDropType::Plasma:
+			if (player->PlasmaMesh)
+				player->PlasmaMesh->IncreaseAmmo(HealValue);
+			
+			break;
+
+		case EDropType::Sniper:
+			if (player->SniperMesh)
+				player->SniperMesh->IncreaseAmmo(HealValue);
+
+			break;
+
+		case EDropType::Shotgun:
+			if (player->ShotgunMesh)
+				player->ShotgunMesh->IncreaseAmmo(HealValue);
+
+			break;
 	}
-}
-
-void ADropBase::OnFadeOut() {
-	Player->OnGetDrop();
 
 	Destroy();
 }

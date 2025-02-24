@@ -6,6 +6,16 @@
 #include "GameFramework/Actor.h"
 #include "DropBase.generated.h"
 
+UENUM()
+enum class EDropType {
+	Health,
+	Saw,
+	Plasma,
+	Sniper,
+	Shotgun,
+	MAX
+};
+
 UCLASS()
 class DOOMTEMP_API ADropBase : public AActor
 {
@@ -25,29 +35,23 @@ public:
 
 
 public:
-	// 충돌체 컴포넌트
-	UPROPERTY(VisibleAnywhere, Category = Collision)
+	// Collider Component
+	UPROPERTY(VisibleAnywhere, Category = "Basics | Components")
 	class UBoxComponent* CollisionComp;
-	// 외관 컴포넌트
-	UPROPERTY(VisibleAnywhere, Category = BodyMesh)
-	class UStaticMeshComponent* MeshComp;
 
-	//UPROPERTY(EditDefaultsOnly)
-	//enum class EWeaponType* DropType;
+	UPROPERTY(EditDefaultsOnly, Category = "Basics | Stats")
+	EDropType DropType;
+	UPROPERTY(EditDefaultsOnly, Category = "Basics | Stats")
+	int32 HealValue;
+	UPROPERTY(EditDefaultsOnly, Category = "Basics | Stats")
+	float FlyTime = 1.5f;
+	float FlyTimer = 0.0f;
+	bool bEnabledCollision = false;
 
-	UPROPERTY(VisibleAnywhere)
-	class AC_PlayerCharacter* Player;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	bool bIsChase = false;
-	UPROPERTY(VisibleAnywhere)
-	bool bIsFading = false;
-
-	float DebugTimer = 2.0f;
+	FVector Dir;
 
 
 	UFUNCTION()
 	void OnDropOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-	UFUNCTION(BlueprintCallable)
-	void OnFadeOut();
 };

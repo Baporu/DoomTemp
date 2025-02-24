@@ -5,6 +5,7 @@
 #include "C_GunBullet.h"
 #include "C_Pellet.h"
 #include "C_PlayerAnimInstance.h"
+#include "Kismet/GameplayStatics.h"
 
 void UC_ShotGun::BeginPlay()
 {
@@ -22,14 +23,17 @@ void UC_ShotGun::OnFire()
 	if (CurrentAmmo <= 0)
 		return;
 	me->Anim->PlayShootAnim();
-	
-// 	FTransform firePos = GetSocketTransform(TEXT("FirePosition"));
-// 	// Prevents Bullet Rotated or Scaled by Socket
-// 	firePos.SetRotation(FPSCam->GetComponentRotation().Quaternion());
-// 	firePos.SetScale3D(FVector(1.0));
 
-// 	FVector firePos = GetSocketLocation(TEXT("FirePosition"));
-// 	FRotator fireRot = FPSCam->GetComponentRotation();
+	// Codes Before Change
+	{
+		// 	FTransform firePos = GetSocketTransform(TEXT("FirePosition"));
+		// 	// Prevents Bullet Rotated or Scaled by Socket
+		// 	firePos.SetRotation(FPSCam->GetComponentRotation().Quaternion());
+		// 	firePos.SetScale3D(FVector(1.0));
+
+		// 	FVector firePos = GetSocketLocation(TEXT("FirePosition"));
+		// 	FRotator fireRot = FPSCam->GetComponentRotation();
+	}
 
 	FTransform firePos = FTransform(FPSCam->GetComponentRotation(), GetSocketLocation(TEXT("FirePosition")));
 
@@ -41,10 +45,11 @@ void UC_ShotGun::OnFire()
 		AC_Pellet* pellet = Cast<AC_Pellet>(bullet);
 		pellet->ApplySpread(SpreadPercent);
 
+		// Both Codes Can be Used
 		bullet->FinishSpawning(firePos);
 //		UGameplayStatics::FinishSpawningActor(bullet, firePos);
 	}
-
+	UGameplayStatics::PlaySound2D(GetWorld(), BulletSound);
 	--CurrentAmmo;
 }
 

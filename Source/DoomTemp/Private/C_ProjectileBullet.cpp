@@ -4,6 +4,7 @@
 #include "C_ProjectileBullet.h"
 #include "Components/SphereComponent.h"
 #include "Enemy/C_Enemy.h"
+#include "Kismet/GameplayStatics.h"
 
 AC_ProjectileBullet::AC_ProjectileBullet()
 {
@@ -55,6 +56,8 @@ void AC_ProjectileBullet::OnBulletHit(UPrimitiveComponent* HitComponent, AActor*
 	AC_Enemy* enemy = Cast<AC_Enemy>(OtherActor);
 
 	if (enemy == nullptr) {
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BulletVFX, HitResult.ImpactPoint);
+
 		Destroy();
 	}
 }

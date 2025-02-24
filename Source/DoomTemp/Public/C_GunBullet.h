@@ -34,6 +34,11 @@ protected:
 	int32 Damage = 0;
 
 public:
+	// VFX
+	UPROPERTY(EditAnywhere, Category = VFX)
+	class UParticleSystem* BulletVFX;
+
+
 	UFUNCTION()
 	void OnBulletOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
