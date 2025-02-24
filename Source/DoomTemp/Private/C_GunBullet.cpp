@@ -4,6 +4,7 @@
 #include "C_GunBullet.h"
 #include "Enemy/C_Enemy.h"
 #include "C_PlayerCharacter.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AC_GunBullet::AC_GunBullet()
@@ -50,6 +51,7 @@ void AC_GunBullet::OnBulletOverlap(UPrimitiveComponent* OverlappedComponent, AAc
 
 	if (enemy != nullptr) {
 		enemy->OnDamageProcess(Damage, EAttackType::Gun);
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BulletVFX, SweepResult.ImpactPoint);
 
 		Destroy();
 	}

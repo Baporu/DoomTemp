@@ -181,6 +181,11 @@ void AC_Enemy::OnDead()
 
     // 들고 있던 Weapon을 Destroy한다
     WeaponComps->WeaponDestroy();
+
+    AC_PlayerCharacter* player = Cast<AC_PlayerCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+
+    if (player)
+        player->CheckGameEnd();
 }
 
 

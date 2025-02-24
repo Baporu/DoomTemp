@@ -443,6 +443,8 @@ void AC_PlayerCharacter::PlayerHit(int32 InDamage)
 	if (CurrentHP <= 0) {
 		GEngine->AddOnScreenDebugMessage(0, 5.0f, FColor::Red, TEXT("Player Dead"));
 		UE_LOG(LogTemp, Log, TEXT("Player Dead"));
+
+		OnGameOver();
 	}
 }
 
@@ -595,5 +597,21 @@ void AC_PlayerCharacter::OnFuelTime()
 	if (CurrentFuel < MaxFuel)
 		GetWorld()->GetTimerManager().SetTimer(FuelTimerHandle, this, &AC_PlayerCharacter::OnFuelTime, FuelTime, false);
 
+}
+
+void AC_PlayerCharacter::OnGameOver_Implementation()
+{
+
+}
+
+void AC_PlayerCharacter::OnGameEnd_Implementation()
+{
+
+}
+
+void AC_PlayerCharacter::CheckGameEnd()
+{
+	if (++CurrentKill >= GoalCount)
+		OnGameEnd();
 }
 

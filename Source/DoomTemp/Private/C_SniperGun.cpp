@@ -88,7 +88,7 @@ void UC_SniperGun::OnFire()
 		me->SetFireRate(FireRate * 5);
 
 		// Debug LineTrace
-		DrawDebugLine(GetWorld(), startPos, endPos, FColor::Blue, false, 1.5f, 0, 1.0f);
+// 		DrawDebugLine(GetWorld(), startPos, endPos, FColor::Blue, false, 1.5f, 0, 1.0f);
 	}
 
 	else {
