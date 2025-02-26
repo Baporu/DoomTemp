@@ -137,7 +137,7 @@ void AC_Enemy::CheckSubState()
 
 
 /***** 데미지 처리 *****/
-void AC_Enemy::OnDamageProcess(int32 InDamage, enum class EAttackType InAttackType, FVector InHitPos, FVector InHitPointNormal)
+void AC_Enemy::OnDamageProcess(int32 InDamage, enum class EAttackType InAttackType)
 {
     // HP를 깎는다
     SetHP(InDamage);
