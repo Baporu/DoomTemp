@@ -280,6 +280,9 @@ void AC_PlayerCharacter::OnJump(const struct FInputActionValue& inputValue)
 
 void AC_PlayerCharacter::PlayerMove()
 {
+	if (bIsExecuting)
+		return;
+
 	// Set Movement Direction as Relative Position
 	MoveDir = FTransform(GetControlRotation()).TransformVector(MoveDir);
 
@@ -472,11 +475,11 @@ void AC_PlayerCharacter::OnPunch(const struct FInputActionValue& inputValue)
 	if (!MeleeTarget)
 		return;
 
-	if (MeleeTarget->bIsStaggered)
+	if (MeleeTarget->bIsStaggered) {
+		bIsExecuting = true;
 		MeleeTarget->OnDamageProcess(10000, EAttackType::GloryKill);
-	else
-		MeleeTarget->OnDamageProcess(MeleeDamage, EAttackType::Fist);
-	
+		GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_GameTraceChannel5, ECR_Ignore);
+	}
 }
 
 void AC_PlayerCharacter::OnPunchEnd()
@@ -494,26 +497,35 @@ void AC_PlayerCharacter::OnPunchEnd()
 
 void AC_PlayerCharacter::OnSaw(const struct FInputActionValue& inputValue)
 {
-	if (CurrentFuel <= 0)
-		return;
-
-	bIsPunching = true;
-	CurrentFuel--;
-	GetWorld()->GetTimerManager().SetTimer(FuelTimerHandle, this, &AC_PlayerCharacter::OnFuelTime, FuelTime, false);
-
-	// Deactivate Weapon Mesh
-	SetWeaponActive(mWeaponType, false);
-
 	// Dash to Target
 	MeleeDash();
-
-	// Start Punch Animation
-	Anim->bIsPunching = true;
 
 	if (!MeleeTarget)
 		return;
 
+	if (CurrentFuel <= 0)
+		return;
+
+	CurrentFuel--;
+	GetWorld()->GetTimerManager().SetTimer(FuelTimerHandle, this, &AC_PlayerCharacter::OnFuelTime, FuelTime, false);
+
+	bIsPunching = true;
+	bIsExecuting = true;
+
+	// Deactivate Weapon Mesh
+	SetWeaponActive(mWeaponType, false);
+
+	// Start Punch Animation
+	Anim->bIsPunching = true;
+
 	MeleeTarget->OnDamageProcess(10000, EAttackType::Chainsaw);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_GameTraceChannel5, ECR_Ignore);
+}
+
+void AC_PlayerCharacter::OnGloryKillEnd()
+{
+	bIsExecuting = false;
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_GameTraceChannel5, ECR_Overlap);
 }
 
 UCameraComponent* AC_PlayerCharacter::GetCameraComponent()
@@ -562,7 +574,7 @@ void AC_PlayerCharacter::OnPunchOverlap(UPrimitiveComponent* OverlappedComponent
 	if (!enemy)
 		return;
 
-	enemy->OnDamageProcess(MeleeDamage, EAttackType::Fist);
+	enemy->OnDamageProcess(MeleeDamage, EAttackType::Fist, SweepResult.ImpactPoint, SweepResult.ImpactNormal);
 }
 
 void AC_PlayerCharacter::MeleeDash()
@@ -596,16 +608,6 @@ void AC_PlayerCharacter::OnFuelTime()
 
 	if (CurrentFuel < MaxFuel)
 		GetWorld()->GetTimerManager().SetTimer(FuelTimerHandle, this, &AC_PlayerCharacter::OnFuelTime, FuelTime, false);
-
-}
-
-void AC_PlayerCharacter::OnGameOver_Implementation()
-{
-
-}
-
-void AC_PlayerCharacter::OnGameEnd_Implementation()
-{
 
 }
 

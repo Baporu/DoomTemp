@@ -168,6 +168,11 @@ void AC_Enemy::OnDamageProcess(int32 InDamage, enum class EAttackType InAttackTy
 }
 
 
+void AC_Enemy::OnDamageProcess(int32 InDamage, enum class EAttackType InAttackType, FVector InHitPos, FVector InHitPointNormal)
+{
+
+}
+
 /***** »ç¸Á Ã³¸® *****/
 void AC_Enemy::OnDead()
 {

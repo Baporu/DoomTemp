@@ -80,7 +80,7 @@ void UC_SniperGun::OnFire()
 			AC_Enemy* enemy = Cast<AC_Enemy>(hitInfo.GetActor());
 
 			if (enemy) {
-				enemy->OnDamageProcess(SnipeDamage, EAttackType::Gun);
+				enemy->OnDamageProcess(SnipeDamage, EAttackType::Gun, hitInfo.ImpactPoint, hitInfo.ImpactNormal);
 			}
 		}
 

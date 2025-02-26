@@ -43,8 +43,13 @@ void UC_PlayerAnimInstance::AnimNotify_OnPunchEnd()
 
 	AC_PlayerCharacter* player = Cast<AC_PlayerCharacter>(TryGetPawnOwner());
 
-	if (player) {
-		bIsPunching = false;
-		player->OnPunchEnd();
+	if (!player)
+		return;
+	
+	bIsPunching = false;
+	player->OnPunchEnd();
+
+	if (player->bIsExecuting) {
+		player->OnGloryKillEnd();
 	}
 }
