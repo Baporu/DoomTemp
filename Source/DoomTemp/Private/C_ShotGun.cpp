@@ -49,7 +49,7 @@ void UC_ShotGun::OnFire()
 		bullet->FinishSpawning(firePos);
 //		UGameplayStatics::FinishSpawningActor(bullet, firePos);
 	}
-	UGameplayStatics::PlaySound2D(GetWorld(), BulletSound);
+	UGameplayStatics::PlaySound2D(GetWorld(), BulletSound, 0.4f);
 	--CurrentAmmo;
 }
 

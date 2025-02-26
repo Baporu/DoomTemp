@@ -172,6 +172,11 @@ public:
 	UPROPERTY()
 	class UC_PlayerAnimInstance* Anim;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
+	int32 GoalCount = 20;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stats")
+	int32 CurrentKill = 0;
+
 
 	void OnLookUp(const struct FInputActionValue& inputValue);
 	void OnTurn(const struct FInputActionValue& inputValue);
@@ -231,5 +236,12 @@ public:
 	int32 GetPlayerCurrentFuel() {return CurrentFuel;};
 	UFUNCTION(BlueprintPure)
 	EWeaponType GetPlayerWeaponType() { return mWeaponType; };
+
+	UFUNCTION(BlueprintNativeEvent)
+	void OnGameOver();
+	UFUNCTION(BlueprintNativeEvent)
+	void OnGameEnd();
+
+	void CheckGameEnd();
 
 };
