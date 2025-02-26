@@ -107,7 +107,7 @@ public:
 	// 주춤거리는 상태인지, 비틀거리는 상태인지, 죽었는지 체크
 	void CheckSubState();		
 
-	void OnDamageProcess(int32 InDamage, enum class EAttackType InAttackType);
+	void OnDamageProcess(int32 InDamage, enum class EAttackType InAttackType, FVector InHitPos, FVector InHitPointNormal);
 	// Enemy 사망 시 처리할 일
 	void OnDead();			
 
