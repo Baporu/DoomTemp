@@ -34,19 +34,6 @@ AC_Enemy::AC_Enemy()
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
 
-    ///***** Register Niagara Component for Electric Force *****/
-    //ElectricForceComp = CreateDefaultSubobject<UNiagaraComponent>(TEXT("ElectricForceNiagara"));
-    //ElectricForceComp->SetupAttachment(RootComponent);
-    //ElectricForceComp->SetAutoActivate(false);
-    //ConstructorHelpers::FObjectFinder<UNiagaraSystem> ElectricForceVFX(TEXT("NiagaraSystem'/Game/Designs/Knife_light/VFX/NE_attack03.NE_attack03'"));
-    //if (ElectricForceVFX.Succeeded())
-    //{
-    //    ElectricForceComp->SetAsset(ElectricForceVFX.Object);
-    //    ElectricForceComp->SetRelativeLocation(GetActorLocation() + FVector(0.f, 0.f, 25));
-    //    ElectricForceComp->SetRelativeScale3D(FVector(0.6f));
-    //}
-
-
     /***** Niagara *****/
     // Fist
     C_Helpers::CreateComponent(this, &NiagaraCompFist, FName("NiagaraCompFist"));
@@ -76,6 +63,7 @@ AC_Enemy::AC_Enemy()
     C_Helpers::GetAsset(&NiagaraSysChainsaw, FString(""));
 }
 
+
 void AC_Enemy::BeginPlay()
 {
 	Super::BeginPlay();
@@ -89,6 +77,7 @@ void AC_Enemy::BeginPlay()
         SetActorRotation(FRotator(0.f, dir.Yaw, 0.f));
     }
 }
+
 
 void AC_Enemy::Tick(float DeltaTime)
 {
@@ -166,7 +155,7 @@ void AC_Enemy::CheckSubState()
 
 
 /***** 데미지 처리 *****/
-void AC_Enemy::OnDamageProcess(int32 InDamage, enum class EAttackType InAttackType)
+void AC_Enemy::OnDamageProcess(int32 InDamage, EAttackType InAttackType)
 {
     // HP를 깎는다
     SetHP(InDamage);
@@ -181,59 +170,56 @@ void AC_Enemy::OnDamageProcess(int32 InDamage, enum class EAttackType InAttackTy
     // Attack Type에 따른 애니메이션 및 이펙트 실행
     switch (InAttackType)
     {
-    	case EAttackType::Fist:
-    		OnDamageFist();
-    		break;
-    	case EAttackType::Gun:
-    		OnDamageGun();
-    		break;
-    	case EAttackType::GloryKill:
-    		OnDamageGloryKill();
-    		break;
-    	case EAttackType::Chainsaw:
-    		OnDamageChainsaw();
-    		break;
+    case EAttackType::Fist:
+        OnDamageFist();
+        break;
+    case EAttackType::Gun:
+        OnDamageGun();
+        break;
+    case EAttackType::GloryKill:
+        OnDamageGloryKill();
+        break;
+    case EAttackType::Chainsaw:
+        OnDamageChainsaw();
+        break;
     }
 }
 
-void AC_Enemy::OnDamageProcess(int32 InDamage, enum class EAttackType InAttackType, FVector InHitPos, FVector InHitPointNormal)
-{
-    //// HP를 깎는다
-    //SetHP(InDamage);
-
-    //// Hit가 발생한 곳의 정보를 받는다
-    //HitPos = InHitPos;
-    //HitPointNormal = InHitPointNormal;
-
-    //// Enemy 상태 변경
-    //FSM->SetEnemyState(EEnemyState::DAMAGE);
-    //CheckSubState();
-
-    //// 길찾기 기능 정지
-    //FSM->GetMyAI()->StopMovement();
-
-    //// Attack Type에 따른 애니메이션 및 이펙트 실행
-    //switch (InAttackType)
-    //{
-    //case EAttackType::Fist:
-    //    OnDamageFist();
-    //    break;
-    //case EAttackType::Gun:
-    //    OnDamageGun();
-    //    break;
-    //case EAttackType::GloryKill:
-    //    OnDamageGloryKill();
-    //    break;
-    //case EAttackType::Chainsaw:
-    //    OnDamageChainsaw();
-    //    break;
-    //}
-}
 
 void AC_Enemy::OnDamageProcess(int32 InDamage, enum class EAttackType InAttackType, FVector InHitPos, FVector InHitPointNormal)
 {
+    // HP를 깎는다
+    SetHP(InDamage);
 
+    // Hit가 발생한 곳의 정보를 받는다
+    HitPos = InHitPos;
+    HitPointDir = FRotator(InHitPointNormal.Y, InHitPointNormal.Z, InHitPointNormal.X);
+
+    // Enemy 상태 변경
+    FSM->SetEnemyState(EEnemyState::DAMAGE);
+    CheckSubState();
+
+    // 길찾기 기능 정지
+    FSM->GetMyAI()->StopMovement();
+
+    // Attack Type에 따른 애니메이션 및 이펙트 실행
+    switch (InAttackType)
+    {
+    case EAttackType::Fist:
+        OnDamageFist();
+        break;
+    case EAttackType::Gun:
+        OnDamageGun();
+        break;
+    case EAttackType::GloryKill:
+        OnDamageGloryKill();
+        break;
+    case EAttackType::Chainsaw:
+        OnDamageChainsaw();
+        break;
+    }
 }
+
 
 /***** 사망 처리 *****/
 void AC_Enemy::OnDead()
@@ -244,7 +230,7 @@ void AC_Enemy::OnDead()
     SectionName = FString::Printf(TEXT("Dead"));
     FSM->PlayEnemyMontage(&SectionName);
 
-    // 바닥에 피 VFX가 나타난다
+    // 피 VFX가 나타난다
 
     // 들고 있던 Weapon을 Destroy한다
     WeaponComps->WeaponDestroy();
@@ -316,6 +302,8 @@ void AC_Enemy::OnDamageGun()
     FSM->PlayDamageAM(&SectionName);
 
     // 맞은 위치에 피 튀기는 VFX Spawn
+    SpawnNiagara(NiagaraCompGun, NiagaraSysGun);
+
     UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, NiagaraSysFist, GetActorLocation(), GetActorRotation(), FVector(1.2f));
 }
 
@@ -362,15 +350,17 @@ void AC_Enemy::SpawnDrops()
     }
 }
 
+
 // Spawn Niagara
-void AC_Enemy::SpawnNiagara(UNiagaraComponent* InComp, UNiagaraSystem* InSys)
+void AC_Enemy::SpawnNiagara(UNiagaraComponent* InComp, UNiagaraSystem* InSys, FVector InScale)
 {
-    InComp = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), InSys, GetActorLocation());
+    InComp = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), InSys, HitPos, HitPointDir, InScale);
     InComp->Activate();
 }
 
+
 // Deactivate Niagara System
-void AC_Enemy::DeActivateNiagara(UNiagaraComponent* PSystem)
+void AC_Enemy::DeActivateNiagara(UNiagaraComponent* InComp)
 {
-    
+    InComp->Deactivate();
 }
