@@ -87,6 +87,7 @@ void UC_EnemyFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 	}
 }
 
+
 bool UC_EnemyFSM::GetRandomPositionInNavMesh(FVector InCenterLocation, float InRadius, FVector& InDest)
 {
 	auto ns = UNavigationSystemV1::GetNavigationSystem(GetWorld());
@@ -96,6 +97,7 @@ bool UC_EnemyFSM::GetRandomPositionInNavMesh(FVector InCenterLocation, float InR
 
 	return rslt;
 }
+
 
 void UC_EnemyFSM::SpawnState()
 {
@@ -107,11 +109,13 @@ void UC_EnemyFSM::SpawnState()
 	Anim->SubAnimMovement = EnemyMovement;
 
 	// Spawn VFX를 소환한다
+	Self->SpawnVFX();
 
 	// Idle 상태로 전환한다
 	EnemyState = EEnemyState::IDLE;
 	EnemyMovement = EEnemyMovement::MAX;
 }
+
 
 void UC_EnemyFSM::IdleState()
 {
@@ -184,6 +188,7 @@ void UC_EnemyFSM::AttackState()
 	}
 }
 
+
 void UC_EnemyFSM::OnAttackEnd()
 {
 	Anim->bAttackPlay = false;
@@ -250,6 +255,7 @@ void UC_EnemyFSM::DeadState()
 	}
 }
 
+
 void UC_EnemyFSM::onDeadEnd() { bDeadDone = true; }
 
 
@@ -257,6 +263,7 @@ void UC_EnemyFSM::WalkMovement()
 {
 	Move();
 }
+
 
 void UC_EnemyFSM::FlinchMovement()
 {
@@ -267,6 +274,7 @@ void UC_EnemyFSM::FlinchMovement()
 	// 몸이 파란색으로 반짝인다
 
 }
+
 
 void UC_EnemyFSM::StaggerMovement()
 {
@@ -428,3 +436,4 @@ void UC_EnemyFSM::PlayDamageAM(FString* InSectionName)
 	if (EnemyMovement == EEnemyMovement::WALK)
 		PlayEnemyMontage(InSectionName);
 }
+
