@@ -50,7 +50,7 @@ void AC_GunBullet::OnBulletOverlap(UPrimitiveComponent* OverlappedComponent, AAc
 	AC_Enemy* enemy = Cast<AC_Enemy>(OtherActor);
 
 	if (enemy != nullptr) {
-		enemy->OnDamageProcess(Damage, EAttackType::Gun);
+		enemy->OnDamageProcess(Damage, EAttackType::Gun, SweepResult.ImpactPoint, SweepResult.ImpactNormal);
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BulletVFX, SweepResult.ImpactPoint);
 
 		Destroy();

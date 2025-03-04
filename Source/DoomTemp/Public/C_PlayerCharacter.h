@@ -154,6 +154,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputAction* IA_Saw;
 	bool bIsPunching = false;
+	bool bIsExecuting = false;
 
 	// Melee Attack Damage
 	UPROPERTY(EditDefaultsOnly, Category = "Stats")
@@ -208,6 +209,7 @@ public:
 	void OnPunchEnd();
 
 	void OnSaw(const struct FInputActionValue& inputValue);
+	void OnGloryKillEnd();
 
 	UCameraComponent* GetCameraComponent();
 	UFUNCTION(BlueprintPure)
@@ -237,9 +239,9 @@ public:
 	UFUNCTION(BlueprintPure)
 	EWeaponType GetPlayerWeaponType() { return mWeaponType; };
 
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintImplementableEvent)
 	void OnGameOver();
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintImplementableEvent)
 	void OnGameEnd();
 
 	void CheckGameEnd();
