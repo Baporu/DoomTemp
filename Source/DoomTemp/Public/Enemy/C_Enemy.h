@@ -50,6 +50,12 @@ protected:
 	FVector HitPos;			// 데미지 입은 곳의 위치
 	FRotator HitPointDir;	// 피가 뿜어져 나갈 방향
 
+
+	/***** Materials *****/
+	class UMaterial* MatFlinch;
+	class UMaterial* MatStagger;
+
+
 	/***** FSM *****/
     UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "FSMComp")
 	class UC_EnemyFSM* FSM;
@@ -175,4 +181,9 @@ public:
 	// Enemy Spawn VFX를 Spawn
 	UFUNCTION(BlueprintImplementableEvent, Category = "VFX")
 	void SpawnVFX();
+
+
+	/***** Change Material *****/
+	void SetFlinchMaterial();
+	void SetStaggerMaterial();
 };

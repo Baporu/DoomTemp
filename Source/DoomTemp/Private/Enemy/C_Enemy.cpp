@@ -61,6 +61,11 @@ AC_Enemy::AC_Enemy()
     NiagaraCompChainsaw->SetAutoActivate(false);
 
     C_Helpers::GetAsset(&NiagaraSysChainsaw, FString("/Script/Niagara.NiagaraSystem'/Game/sA_BloodSplatter_System/Fx/NS_Splatter_Slash_3.NS_Splatter_Slash_3'"));
+
+
+    /***** Material *****/
+    C_Helpers::GetAsset(&MatFlinch, FString("/Script/Engine.Material'/Game/DYL/Blueprints/Enemy/M_Flinch.M_Flinch'"));
+    C_Helpers::GetAsset(&MatStagger, FString("/Script/Engine.Material'/Game/DYL/Blueprints/Enemy/M_Stagger.M_Stagger'"));
 }
 
 
@@ -232,6 +237,7 @@ void AC_Enemy::OnDead()
 
     // 피 VFX가 나타난다
 
+
     // 들고 있던 Weapon을 Destroy한다
     WeaponComps->WeaponDestroy();
 
@@ -289,7 +295,7 @@ void AC_Enemy::OnDamageFist()
     FSM->PlayDamageAM(&SectionName);
 
     // 맞은 위치에 피 튀기는 VFX Spawn
-
+    SpawnNiagara(NiagaraCompFist, NiagaraSysFist);
 }
 
 
@@ -363,4 +369,14 @@ void AC_Enemy::SpawnNiagara(UNiagaraComponent* InComp, UNiagaraSystem* InSys, FV
 void AC_Enemy::DeActivateNiagara(UNiagaraComponent* InComp)
 {
     InComp->Deactivate();
+}
+
+void AC_Enemy::SetFlinchMaterial()
+{
+    GetMesh()->SetMaterial(1, MatFlinch);
+}
+
+void AC_Enemy::SetStaggerMaterial()
+{
+    GetMesh()->SetMaterial(1, MatStagger);
 }

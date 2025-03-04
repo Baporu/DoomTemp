@@ -272,7 +272,7 @@ void UC_EnemyFSM::FlinchMovement()
 	//GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Magenta, DebugMessage);
 
 	// ¸öÀÌ ÆÄ¶õ»öÀ¸·Î ¹ÝÂ¦ÀÎ´Ù
-
+	Self->SetFlinchMaterial();
 }
 
 
@@ -283,7 +283,7 @@ void UC_EnemyFSM::StaggerMovement()
 	//GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Magenta, DebugMessage);
 
 	// ¸öÀÌ »¡°£»öÀ¸·Î ¹ÝÂ¦ÀÎ´Ù
-	
+	Self->SetStaggerMaterial();
 }
 
 
