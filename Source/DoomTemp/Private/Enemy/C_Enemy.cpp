@@ -235,9 +235,6 @@ void AC_Enemy::OnDead()
     SectionName = FString::Printf(TEXT("Dead"));
     FSM->PlayEnemyMontage(&SectionName);
 
-    // 피 VFX가 나타난다
-
-
     // 들고 있던 Weapon을 Destroy한다
     WeaponComps->WeaponDestroy();
 
