@@ -47,6 +47,9 @@ protected:
 	//int32 LongRangeDamage = 0;			// 원거리 공격 시 가할 데미지
 
 
+	FVector HitPos;			// 데미지 입은 곳의 위치
+	FRotator HitPointDir;	// 피가 뿜어져 나갈 방향
+
 	/***** FSM *****/
     UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "FSMComp")
 	class UC_EnemyFSM* FSM;
@@ -106,6 +109,7 @@ public:
 	// Enemy의 방향 지정
 	//void ChangeRotation();
 
+
 	/***** Damage Events *****/
 public:
 	void OnDamageFist();
@@ -125,24 +129,46 @@ public:
 
 
 	/***** Niagara *****/
+	// Fist
 	UPROPERTY(EditDefaultsOnly)
-	class UNiagaraComponent* BloodNiagaraComp;
+	class UNiagaraComponent* NiagaraCompFist;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Niagara")
 	class UNiagaraSystem* NiagaraSysFist;
 
+
+	// Gun
+	UPROPERTY(EditDefaultsOnly)
+	class UNiagaraComponent* NiagaraCompGun;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Niagara")
 	class UNiagaraSystem* NiagaraSysGun;
+
+
+	// Glory Kill
+	UPROPERTY(EditDefaultsOnly)
+	class UNiagaraComponent* NiagaraCompGloryKill;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Niagara")
 	class UNiagaraSystem* NiagaraSysGloryKill;
 
+
+	// Chainsaw
+	UPROPERTY(EditDefaultsOnly)
+	class UNiagaraComponent* NiagaraCompChainsaw;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Niagara")
 	class UNiagaraSystem* NiagaraSysChainsaw;
 
-	// Deactivate Niagara System
+
+	// Spawn Niagara
 	UFUNCTION()
-	void NiagaraDeActivate(class UNiagaraComponent* PSystem);
+	void SpawnNiagara(class UNiagaraComponent* InComp, class UNiagaraSystem* InSys, FVector InScale = FVector(1.f));
+
+
+	// Deactivate Niagara
+	UFUNCTION()
+	void DeActivateNiagara(class UNiagaraComponent* InComp);
 
 
 	/***** Spawn *****/
