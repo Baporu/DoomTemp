@@ -477,7 +477,8 @@ void AC_PlayerCharacter::OnPunch(const struct FInputActionValue& inputValue)
 
 	if (MeleeTarget->bIsStaggered) {
 		bIsExecuting = true;
-		MeleeTarget->OnDamageProcess(10000, EAttackType::GloryKill);
+		FVector norVec = MeleeTarget->GetActorLocation() - GetActorLocation();
+		MeleeTarget->OnDamageProcess(10000, EAttackType::GloryKill, MeleeTarget->GetActorLocation(), norVec);
 		GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_GameTraceChannel5, ECR_Ignore);
 	}
 }

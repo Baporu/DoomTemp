@@ -36,31 +36,31 @@ AC_Enemy::AC_Enemy()
 
     /***** Niagara *****/
     // Fist
-    C_Helpers::CreateComponent(this, &NiagaraCompFist, FName("NiagaraCompFist"));
+    C_Helpers::CreateComponent(this, &NiagaraCompFist, FName("NiagaraCompFist"), GetCapsuleComponent());
     NiagaraCompFist->SetAutoActivate(false);
 
-    C_Helpers::GetAsset(&NiagaraSysFist, FString(""));
+    C_Helpers::GetAsset(&NiagaraSysFist, FString("/Script/Niagara.NiagaraSystem'/Game/sA_BloodSplatter_System/Fx/NS_Splatter_Hit_6.NS_Splatter_Hit_6'"));
 
 
     // Gun
-    C_Helpers::CreateComponent(this, &NiagaraCompGun, FName("NiagaraCompGun"));
+    C_Helpers::CreateComponent(this, &NiagaraCompGun, FName("NiagaraCompGun"), GetCapsuleComponent());
     NiagaraCompGun->SetAutoActivate(false);
 
-    C_Helpers::GetAsset(&NiagaraSysGun, FString("/Script/Niagara.NiagaraSystem'/Game/sA_BloodSplatter_System/Fx/NS_Splatter_Hit_4.NS_Splatter_Hit_4'"));
+    C_Helpers::GetAsset(&NiagaraSysGun, FString("/Script/Niagara.NiagaraSystem'/Game/sA_BloodSplatter_System/Fx/NS_Splatter_Hit_2.NS_Splatter_Hit_2'"));
 
 
     // Glory Kill
-    C_Helpers::CreateComponent(this, &NiagaraCompGloryKill, FName("NiagaraCompGloryKill"));
+    C_Helpers::CreateComponent(this, &NiagaraCompGloryKill, FName("NiagaraCompGloryKill"), GetCapsuleComponent());
     NiagaraCompGloryKill->SetAutoActivate(false);
 
-    C_Helpers::GetAsset(&NiagaraSysGloryKill, FString(""));
+    C_Helpers::GetAsset(&NiagaraSysGloryKill, FString("/Script/Niagara.NiagaraSystem'/Game/sA_BloodSplatter_System/Fx/NS_Splatter_Hit_4.NS_Splatter_Hit_4'"));
 
 
     // Chainsaw
-    C_Helpers::CreateComponent(this, &NiagaraCompChainsaw, FName("NiagaraCompChainsaw"));
+    C_Helpers::CreateComponent(this, &NiagaraCompChainsaw, FName("NiagaraCompChainsaw"), GetCapsuleComponent());
     NiagaraCompChainsaw->SetAutoActivate(false);
 
-    C_Helpers::GetAsset(&NiagaraSysChainsaw, FString(""));
+    C_Helpers::GetAsset(&NiagaraSysChainsaw, FString("/Script/Niagara.NiagaraSystem'/Game/sA_BloodSplatter_System/Fx/NS_Splatter_Slash_3.NS_Splatter_Slash_3'"));
 }
 
 
@@ -304,7 +304,7 @@ void AC_Enemy::OnDamageGun()
     // 맞은 위치에 피 튀기는 VFX Spawn
     SpawnNiagara(NiagaraCompGun, NiagaraSysGun);
 
-    UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, NiagaraSysFist, GetActorLocation(), GetActorRotation(), FVector(1.2f));
+    //UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, NiagaraSysFist, GetActorLocation(), GetActorRotation(), FVector(1.2f));
 }
 
 
@@ -317,7 +317,7 @@ void AC_Enemy::OnDamageGloryKill()
     FSM->PlayDamageAM(&SectionName);
 
     // 맞은 위치에 피 튀기는 VFX Spawn
-
+    SpawnNiagara(NiagaraCompGloryKill, NiagaraSysGloryKill);
 
 }
 
@@ -331,7 +331,7 @@ void AC_Enemy::OnDamageChainsaw()
     FSM->PlayDamageAM(&SectionName);
 
     // 맞은 위치에 피 튀기는 VFX Spawn
-
+    SpawnNiagara(NiagaraCompChainsaw, NiagaraSysChainsaw);
 
     SpawnDrops();
 }
