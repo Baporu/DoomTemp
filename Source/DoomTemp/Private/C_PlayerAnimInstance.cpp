@@ -30,7 +30,7 @@ void UC_PlayerAnimInstance::AnimNotify_OnPunchStart()
 
 	AC_PlayerCharacter* player = Cast<AC_PlayerCharacter>(TryGetPawnOwner());
 
-	if (player && !(player->MeleeTarget)) {
+	if (player && !(player->bIsExecuting)) {
 		player->PunchComp->SetCollisionResponseToChannel(ECC_GameTraceChannel2, ECR_Overlap);
 		player->PunchComp->SetVisibility(true);
 	}
