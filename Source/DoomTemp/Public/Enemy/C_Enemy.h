@@ -5,7 +5,7 @@
 #include "C_Enemy.generated.h"
 
 // abstract : Unreal Editor에서 추상 배이스 클래스로 취급하여 Map에 배치할 수 없음
-UCLASS(abstract)
+UCLASS()
 class DOOMTEMP_API AC_Enemy : public ACharacter
 {
 	GENERATED_BODY()
@@ -61,21 +61,6 @@ protected:
 
 	/***** Animation Montage *****/
 	FString SectionName;
-
-
-	///***** Niagara *****/
-	//// Deactivate Niagara System
-	//UFUNCTION()
-	//void NiagaraDeActivate(class UNiagaraComponent* PSystem);
-
-	//// Niagara Component for Electric Force
-	//UPROPERTY(EditDefaultsOnly)
-	//class UNiagaraComponent* ElectricForceComp;
-
-	//// Niagara System for Electric Force
-	//UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Niagara")
-	//class UNiagaraSystem* ElectricForceNiagaraFactory;
-
 
 
 public:
@@ -137,4 +122,31 @@ public:
 	TArray<int32> DropCounts;
 
 	void SpawnDrops();
+
+
+	/***** Niagara *****/
+	UPROPERTY(EditDefaultsOnly)
+	class UNiagaraComponent* BloodNiagaraComp;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Niagara")
+	class UNiagaraSystem* NiagaraSysFist;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Niagara")
+	class UNiagaraSystem* NiagaraSysGun;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Niagara")
+	class UNiagaraSystem* NiagaraSysGloryKill;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Niagara")
+	class UNiagaraSystem* NiagaraSysChainsaw;
+
+	// Deactivate Niagara System
+	UFUNCTION()
+	void NiagaraDeActivate(class UNiagaraComponent* PSystem);
+
+
+	/***** Spawn *****/
+	// Enemy Spawn VFX를 Spawn
+	UFUNCTION(BlueprintImplementableEvent, Category = "VFX")
+	void SpawnVFX();
 };

@@ -45,6 +45,35 @@ AC_Enemy::AC_Enemy()
     //    ElectricForceComp->SetRelativeLocation(GetActorLocation() + FVector(0.f, 0.f, 25));
     //    ElectricForceComp->SetRelativeScale3D(FVector(0.6f));
     //}
+
+
+    /***** Niagara *****/
+    // Fist
+    C_Helpers::CreateComponent(this, &NiagaraCompFist, FName("NiagaraCompFist"));
+    NiagaraCompFist->SetAutoActivate(false);
+
+    C_Helpers::GetAsset(&NiagaraSysFist, FString(""));
+
+
+    // Gun
+    C_Helpers::CreateComponent(this, &NiagaraCompGun, FName("NiagaraCompGun"));
+    NiagaraCompGun->SetAutoActivate(false);
+
+    C_Helpers::GetAsset(&NiagaraSysGun, FString("/Script/Niagara.NiagaraSystem'/Game/sA_BloodSplatter_System/Fx/NS_Splatter_Hit_4.NS_Splatter_Hit_4'"));
+
+
+    // Glory Kill
+    C_Helpers::CreateComponent(this, &NiagaraCompGloryKill, FName("NiagaraCompGloryKill"));
+    NiagaraCompGloryKill->SetAutoActivate(false);
+
+    C_Helpers::GetAsset(&NiagaraSysGloryKill, FString(""));
+
+
+    // Chainsaw
+    C_Helpers::CreateComponent(this, &NiagaraCompChainsaw, FName("NiagaraCompChainsaw"));
+    NiagaraCompChainsaw->SetAutoActivate(false);
+
+    C_Helpers::GetAsset(&NiagaraSysChainsaw, FString(""));
 }
 
 void AC_Enemy::BeginPlay()
@@ -167,6 +196,39 @@ void AC_Enemy::OnDamageProcess(int32 InDamage, enum class EAttackType InAttackTy
     }
 }
 
+void AC_Enemy::OnDamageProcess(int32 InDamage, enum class EAttackType InAttackType, FVector InHitPos, FVector InHitPointNormal)
+{
+    //// HP를 깎는다
+    //SetHP(InDamage);
+
+    //// Hit가 발생한 곳의 정보를 받는다
+    //HitPos = InHitPos;
+    //HitPointNormal = InHitPointNormal;
+
+    //// Enemy 상태 변경
+    //FSM->SetEnemyState(EEnemyState::DAMAGE);
+    //CheckSubState();
+
+    //// 길찾기 기능 정지
+    //FSM->GetMyAI()->StopMovement();
+
+    //// Attack Type에 따른 애니메이션 및 이펙트 실행
+    //switch (InAttackType)
+    //{
+    //case EAttackType::Fist:
+    //    OnDamageFist();
+    //    break;
+    //case EAttackType::Gun:
+    //    OnDamageGun();
+    //    break;
+    //case EAttackType::GloryKill:
+    //    OnDamageGloryKill();
+    //    break;
+    //case EAttackType::Chainsaw:
+    //    OnDamageChainsaw();
+    //    break;
+    //}
+}
 
 /***** 사망 처리 *****/
 void AC_Enemy::OnDead()
@@ -231,13 +293,11 @@ void AC_Enemy::OnDamageFist()
 {
     GEngine->AddOnScreenDebugMessage(0, 1, FColor::Orange, L"-----Get Damage FIST-----");
 
-    // 1. FLINCH, STAGGER 상태가 아닐 때만 맞는 애니메이션 재생
+    // FLINCH, STAGGER 상태가 아닐 때만 맞는 애니메이션 재생
     SectionName = FString::Printf(TEXT("Damage%d"), 0);
     FSM->PlayDamageAM(&SectionName);
 
-    // 2. 맞은 위치에 피 튀기는 VFX 나올 컴포넌트 부착
-
-    // 3. 부착한 컴포넌트에서 맞은 부분의 normal 방향으로 피 튀기는 VFX 소환
+    // 맞은 위치에 피 튀기는 VFX Spawn
 
 }
 
@@ -246,14 +306,12 @@ void AC_Enemy::OnDamageGun()
 {
     GEngine->AddOnScreenDebugMessage(0, 1, FColor::Orange, L"-----Get Damage GUN-----");
 
-    // 1. FLINCH, STAGGER 상태가 아닐 때만 맞는 애니메이션 재생
+    // FLINCH, STAGGER 상태가 아닐 때만 맞는 애니메이션 재생
     SectionName = FString::Printf(TEXT("Damage%d"), 0);
     FSM->PlayDamageAM(&SectionName);
 
-    // 2. 맞은 위치에 피 튀기는 VFX 나올 컴포넌트 부착
-
-    // 3. 부착한 컴포넌트에서 맞은 부분의 normal 방향으로 피 튀기는 VFX 소환
-
+    // 맞은 위치에 피 튀기는 VFX Spawn
+    UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, NiagaraSysFist, GetActorLocation(), GetActorRotation(), FVector(1.2f));
 }
 
 
@@ -265,9 +323,8 @@ void AC_Enemy::OnDamageGloryKill()
     SectionName = FString::Printf(TEXT("Damage%d"), 0);
     FSM->PlayDamageAM(&SectionName);
 
-    // 2. 맞은 위치에 피 뿜어져 나오는 VFX 나올 컴포넌트 부착
+    // 맞은 위치에 피 튀기는 VFX Spawn
 
-    // 3. 부착한 컴포넌트에서 맞은 부분의 normal 방향으로 피 뿜어져 나오는 VFX 소환
 
 }
 
@@ -276,13 +333,12 @@ void AC_Enemy::OnDamageChainsaw()
 {
     GEngine->AddOnScreenDebugMessage(0, 1, FColor::Orange, L"-----Get Damage CHAINSAW-----");
 
-    // 1. FLINCH, STAGGER 상태가 아닐 때만 맞는 애니메이션 재생
+    // FLINCH, STAGGER 상태가 아닐 때만 맞는 애니메이션 재생
     SectionName = FString::Printf(TEXT("Damage%d"), 0);
     FSM->PlayDamageAM(&SectionName);
 
-    // 2. 맞은 위치에 피 뿜어져 나오는 VFX 나올 컴포넌트 부착
+    // 맞은 위치에 피 튀기는 VFX Spawn
 
-    // 3. 부착한 컴포넌트에서 맞은 부분의 normal 방향으로 피 뿜어져 나오는 VFX 소환
 
     SpawnDrops();
 }
@@ -299,4 +355,17 @@ void AC_Enemy::SpawnDrops()
             GetWorld()->SpawnActor<ADropBase>(DropTypes[i], GetActorLocation(), FRotator::ZeroRotator, params);
         }
     }
+}
+
+// Spawn Niagara
+void AC_Enemy::SpawnNiagara(UNiagaraComponent* InComp, UNiagaraSystem* InSys)
+{
+    InComp = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), InSys, GetActorLocation());
+    InComp->Activate();
+}
+
+// Deactivate Niagara System
+void AC_Enemy::DeActivateNiagara(UNiagaraComponent* PSystem)
+{
+    
 }
