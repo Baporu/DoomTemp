@@ -163,19 +163,24 @@ public:
 	class AC_Enemy* MeleeTarget;
 	UPROPERTY(VisibleAnywhere, Category = "Melee")
 	int32 MaxFuel = 3;
-	UPROPERTY(VisibleAnywhere, Category = "Melee")
+	UPROPERTY(EditInstanceOnly, Category = "Melee")
 	int32 CurrentFuel = 0;
 	// Fuel Regenerate Rate
 	float FuelTime = 30.0f;
 	// Timer Handle
 	FTimerHandle FuelTimerHandle;
 
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "VFX")
+	class UNiagaraSystem* WaveVFXSystem;
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "VFX")
+	class UNiagaraComponent* WaveVFXComp;
+
 	UPROPERTY()
 	class UC_PlayerAnimInstance* Anim;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
 	int32 GoalCount = 20;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stats")
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Stats")
 	int32 CurrentKill = 0;
 
 

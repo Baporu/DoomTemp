@@ -16,6 +16,9 @@
 #include "C_PlayerAnimInstance.h"
 #include "Components/BoxComponent.h"
 #include "Components/SphereComponent.h"
+#include "../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraFunctionLibrary.h"
+#include "../../../../Plugins/FX/Niagara/Source/Niagara/Classes/NiagaraSystem.h"
+#include "../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraComponent.h"
 
 // Sets default values
 AC_PlayerCharacter::AC_PlayerCharacter()
@@ -155,6 +158,10 @@ AC_PlayerCharacter::AC_PlayerCharacter()
  		}
 	}
 
+	// Set Shockwave VFX Niagara System
+	ConstructorHelpers::FObjectFinder<UNiagaraSystem> tempNS(TEXT("/Script/Niagara.NiagaraSystem'/Game/SHS/Designs/VFX/VFX_Shockwave.VFX_Shockwave'"));
+	if (tempNS.Succeeded())
+		WaveVFXSystem = tempNS.Object;
 }
 
 // Called when the game starts or when spawned
@@ -169,7 +176,7 @@ void AC_PlayerCharacter::BeginPlay()
 	SniperMesh->FPSCam = FPSCamComp;
 	ShotgunMesh->me = this;
 	ShotgunMesh->FPSCam = FPSCamComp;
-
+	
 	Anim = Cast<UC_PlayerAnimInstance>(FPSMeshComp->GetAnimInstance());
 
 	// Get Player Controller and Map with IMC
@@ -497,13 +504,13 @@ void AC_PlayerCharacter::OnPunchEnd()
 
 void AC_PlayerCharacter::OnSaw(const struct FInputActionValue& inputValue)
 {
+	if (bIsPunching || CurrentFuel <= 0)
+		return;
+
 	// Dash to Target
 	MeleeDash();
 
 	if (!MeleeTarget)
-		return;
-
-	if (CurrentFuel <= 0)
 		return;
 
 	CurrentFuel--;
@@ -517,6 +524,10 @@ void AC_PlayerCharacter::OnSaw(const struct FInputActionValue& inputValue)
 
 	// Start Punch Animation
 	Anim->bIsPunching = true;
+	WaveVFXComp = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), WaveVFXSystem, FVector(GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z + 60.0));
+
+	if (WaveVFXComp)
+		WaveVFXComp->Activate();
 
 	MeleeTarget->OnDamageProcess(10000, EAttackType::Chainsaw);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_GameTraceChannel5, ECR_Ignore);
