@@ -95,6 +95,8 @@ void UC_SniperGun::OnFire()
 		UGameplayStatics::PlaySound2D(GetWorld(), BulletSound, 0.25f);
 		Super::OnFire();
 	}
+
+	me->ShakePlayerCamera();
 }
 
 void UC_SniperGun::OnUseMode()

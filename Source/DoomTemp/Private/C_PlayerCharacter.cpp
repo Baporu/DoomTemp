@@ -19,6 +19,7 @@
 #include "../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraFunctionLibrary.h"
 #include "../../../../Plugins/FX/Niagara/Source/Niagara/Classes/NiagaraSystem.h"
 #include "../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AC_PlayerCharacter::AC_PlayerCharacter()
@@ -162,6 +163,18 @@ AC_PlayerCharacter::AC_PlayerCharacter()
 	ConstructorHelpers::FObjectFinder<UNiagaraSystem> tempNS(TEXT("/Script/Niagara.NiagaraSystem'/Game/SHS/Designs/VFX/VFX_Shockwave.VFX_Shockwave'"));
 	if (tempNS.Succeeded())
 		WaveVFXSystem = tempNS.Object;
+
+	// Find Punch Sound
+	ConstructorHelpers::FObjectFinder<USoundBase> tempPunchSound(TEXT("/Script/Engine.SoundWave'/Game/SHS/Designs/SFX/SW_Punch.SW_Punch'"));
+
+	if (tempPunchSound.Succeeded())
+		PunchSound = tempPunchSound.Object;
+
+	// Find Saw Sound
+	ConstructorHelpers::FObjectFinder<USoundBase> tempSawSound(TEXT("/Script/Engine.SoundWave'/Game/SHS/Designs/SFX/SW_BloodSplash.SW_BloodSplash'"));
+
+	if (tempSawSound.Succeeded())
+		SawSound = tempSawSound.Object;
 }
 
 // Called when the game starts or when spawned
@@ -547,6 +560,7 @@ void AC_PlayerCharacter::OnSaw(const struct FInputActionValue& inputValue)
 	targetPos.Z += 20.0;
 
 	MeleeTarget->OnDamageProcess(10000, EAttackType::Chainsaw, targetPos, norVec);
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), PunchSound, targetPos, 0.2f);
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_GameTraceChannel5, ECR_Ignore);
 }
@@ -606,6 +620,7 @@ void AC_PlayerCharacter::OnPunchOverlap(UPrimitiveComponent* OverlappedComponent
 	FVector norVec = enemy->GetActorLocation() - GetActorLocation();
 
 	enemy->OnDamageProcess(MeleeDamage, EAttackType::Fist, OverlappedComponent->GetComponentLocation(), norVec);
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), PunchSound, OverlappedComponent->GetComponentLocation(), 0.25f);
 }
 
 void AC_PlayerCharacter::MeleeDash()
@@ -646,5 +661,13 @@ void AC_PlayerCharacter::CheckGameEnd()
 {
 	if (++CurrentKill >= GoalCount)
 		OnGameEnd();
+}
+
+void AC_PlayerCharacter::ShakePlayerCamera()
+{
+	auto controller = GetWorld()->GetFirstPlayerController();
+
+	if (controller)
+		controller->PlayerCameraManager->StartCameraShake(cameraShake);
 }
 
