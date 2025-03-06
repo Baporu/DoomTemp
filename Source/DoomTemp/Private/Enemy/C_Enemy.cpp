@@ -61,6 +61,11 @@ AC_Enemy::AC_Enemy()
     NiagaraCompChainsaw->SetAutoActivate(false);
 
     C_Helpers::GetAsset(&NiagaraSysChainsaw, FString("/Script/Niagara.NiagaraSystem'/Game/sA_BloodSplatter_System/Fx/NS_Splatter_Slash_3.NS_Splatter_Slash_3'"));
+
+
+    /***** Material *****/
+    C_Helpers::GetAsset(&MatFlinch, FString("/Script/Engine.Material'/Game/DYL/Blueprints/Enemy/M_Flinch.M_Flinch'"));
+    C_Helpers::GetAsset(&MatStagger, FString("/Script/Engine.Material'/Game/DYL/Blueprints/Enemy/M_Stagger.M_Stagger'"));
 }
 
 
@@ -224,13 +229,11 @@ void AC_Enemy::OnDamageProcess(int32 InDamage, enum class EAttackType InAttackTy
 /***** 사망 처리 *****/
 void AC_Enemy::OnDead()
 {
-    GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Cyan, FString("Enemy Dead !!!!!"));
+    //GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Cyan, FString("Enemy Dead !!!!!"));
 
     // 죽음 애니메이션이 재생된다
     SectionName = FString::Printf(TEXT("Dead"));
     FSM->PlayEnemyMontage(&SectionName);
-
-    // 피 VFX가 나타난다
 
     // 들고 있던 Weapon을 Destroy한다
     WeaponComps->WeaponDestroy();
@@ -282,20 +285,20 @@ void AC_Enemy::ChangeMeleeDamage()
 /***** Damage Events *****/
 void AC_Enemy::OnDamageFist()
 {
-    GEngine->AddOnScreenDebugMessage(0, 1, FColor::Orange, L"-----Get Damage FIST-----");
+    //GEngine->AddOnScreenDebugMessage(0, 1, FColor::Orange, L"-----Get Damage FIST-----");
 
     // FLINCH, STAGGER 상태가 아닐 때만 맞는 애니메이션 재생
     SectionName = FString::Printf(TEXT("Damage%d"), 0);
     FSM->PlayDamageAM(&SectionName);
 
     // 맞은 위치에 피 튀기는 VFX Spawn
-
+    SpawnNiagara(NiagaraCompFist, NiagaraSysFist);
 }
 
 
 void AC_Enemy::OnDamageGun()
 {
-    GEngine->AddOnScreenDebugMessage(0, 1, FColor::Orange, L"-----Get Damage GUN-----");
+    //GEngine->AddOnScreenDebugMessage(0, 1, FColor::Orange, L"-----Get Damage GUN-----");
 
     // FLINCH, STAGGER 상태가 아닐 때만 맞는 애니메이션 재생
     SectionName = FString::Printf(TEXT("Damage%d"), 0);
@@ -310,7 +313,7 @@ void AC_Enemy::OnDamageGun()
 
 void AC_Enemy::OnDamageGloryKill()
 {
-    GEngine->AddOnScreenDebugMessage(0, 1, FColor::Orange, L"-----Get Damage GLORYKILL-----");
+    //GEngine->AddOnScreenDebugMessage(0, 1, FColor::Orange, L"-----Get Damage GLORYKILL-----");
 
     // 1. FLINCH, STAGGER 상태가 아닐 때만 맞는 애니메이션 재생
     SectionName = FString::Printf(TEXT("Damage%d"), 0);
@@ -324,7 +327,7 @@ void AC_Enemy::OnDamageGloryKill()
 
 void AC_Enemy::OnDamageChainsaw()
 {
-    GEngine->AddOnScreenDebugMessage(0, 1, FColor::Orange, L"-----Get Damage CHAINSAW-----");
+    //GEngine->AddOnScreenDebugMessage(0, 1, FColor::Orange, L"-----Get Damage CHAINSAW-----");
 
     // FLINCH, STAGGER 상태가 아닐 때만 맞는 애니메이션 재생
     SectionName = FString::Printf(TEXT("Damage%d"), 0);
@@ -363,4 +366,14 @@ void AC_Enemy::SpawnNiagara(UNiagaraComponent* InComp, UNiagaraSystem* InSys, FV
 void AC_Enemy::DeActivateNiagara(UNiagaraComponent* InComp)
 {
     InComp->Deactivate();
+}
+
+void AC_Enemy::SetFlinchMaterial()
+{
+    GetMesh()->SetMaterial(1, MatFlinch);
+}
+
+void AC_Enemy::SetStaggerMaterial()
+{
+    GetMesh()->SetMaterial(1, MatStagger);
 }

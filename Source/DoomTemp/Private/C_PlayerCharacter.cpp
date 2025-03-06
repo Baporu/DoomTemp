@@ -364,9 +364,9 @@ void AC_PlayerCharacter::PlayerFire()
 
 		switch (mWeaponType)
 		{
-			case EWeaponType::Plasma: { Fire_Plasma(); }	break;
-			case EWeaponType::Sniper: { Fire_Sniper(); }	break;
-			case EWeaponType::Shotgun: { Fire_Shotgun(); }	break;
+			case EWeaponType::Plasma:	{ Fire_Plasma(); }	break;
+			case EWeaponType::Sniper:	{ Fire_Sniper(); }	break;
+			case EWeaponType::Shotgun:	{ Fire_Shotgun(); }	break;
 		}
 
 		FireTimer = 0.0f;
@@ -421,9 +421,9 @@ void AC_PlayerCharacter::ChangeWeapon(EWeaponType InChangeType)
 	// Reset Mode Use
 	switch (mWeaponType)
 	{
-		case EWeaponType::Plasma: { PlasmaMesh->OnGunChanged(); }	break;
-		case EWeaponType::Sniper: { SniperMesh->OnGunChanged(); }	break;
-		case EWeaponType::Shotgun: { ShotgunMesh->OnGunChanged(); }	break;
+		case EWeaponType::Plasma:	{ PlasmaMesh->OnGunChanged(); }		break;
+		case EWeaponType::Sniper:	{ SniperMesh->OnGunChanged(); }		break;
+		case EWeaponType::Shotgun:	{ ShotgunMesh->OnGunChanged(); }	break;
 	}
 
 	// Change Gun Mesh
@@ -442,6 +442,15 @@ void AC_PlayerCharacter::SetWeaponActive(EWeaponType InChangeType, bool InActive
 		case EWeaponType::Plasma:	{ PlasmaMesh->SetVisibility(InActive); }	break;
 		case EWeaponType::Sniper:	{ SniperMesh->SetVisibility(InActive); }	break;
 		case EWeaponType::Shotgun:	{ ShotgunMesh->SetVisibility(InActive); }	break;
+	}
+
+	if (bUseMode) {
+		switch (mWeaponType)
+		{
+			case EWeaponType::Plasma:	{ PlasmaMesh->OnUseMode(); }	break;
+			case EWeaponType::Sniper:	{ SniperMesh->OnUseMode(); }	break;
+			case EWeaponType::Shotgun:	{ ShotgunMesh->OnUseMode(); }	break;
+		}
 	}
 }
 

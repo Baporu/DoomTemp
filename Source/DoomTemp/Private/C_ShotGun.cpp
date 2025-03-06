@@ -7,6 +7,15 @@
 #include "C_PlayerAnimInstance.h"
 #include "Kismet/GameplayStatics.h"
 
+UC_ShotGun::UC_ShotGun()
+{
+	// Find Bullet Sound
+	ConstructorHelpers::FObjectFinder<USoundBase> tempSound(TEXT("/Script/Engine.SoundWave'/Game/SHS/Designs/SFX/SW_Shotgun.SW_Shotgun'"));
+
+	if (tempSound.Succeeded())
+		BulletSound = tempSound.Object;
+}
+
 void UC_ShotGun::BeginPlay()
 {
 	Super::BeginPlay();
@@ -49,7 +58,7 @@ void UC_ShotGun::OnFire()
 		bullet->FinishSpawning(firePos);
 //		UGameplayStatics::FinishSpawningActor(bullet, firePos);
 	}
-	UGameplayStatics::PlaySound2D(GetWorld(), BulletSound, 0.4f);
+	UGameplayStatics::PlaySound2D(GetWorld(), BulletSound, 0.25f);
 	--CurrentAmmo;
 }
 

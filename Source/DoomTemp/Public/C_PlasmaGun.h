@@ -42,6 +42,7 @@ public:
 	float LaserAttackTimer;
 	bool bUseLaser = false;
 
+	UPROPERTY(VisibleDefaultsOnly, Category = SFX)
 	class USoundBase* LaserSound;
 
 

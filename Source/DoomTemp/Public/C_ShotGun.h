@@ -13,7 +13,12 @@ UCLASS()
 class DOOMTEMP_API UC_ShotGun : public UC_GunSkeletalMeshComponent
 {
 	GENERATED_BODY()
-	
+
+
+public:
+	UC_ShotGun();
+
+protected:
 	virtual void BeginPlay() override;
 
 private:
@@ -27,9 +32,6 @@ private:
 	float FireRateMultiplier = 0.5f;
 
 public:
-
-
-
 	// Mouse Left Click Event
 	virtual void OnFire();
 	// Mouse Right Click Event

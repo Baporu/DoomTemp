@@ -175,7 +175,7 @@ void UC_EnemyFSM::AttackState()
 	if (CurTime > AttackDelayTime)
 	{
 		// 근거리 공격을 한다
-		GEngine->AddOnScreenDebugMessage(0, 1, FColor::Blue, L"Melee Attack!!!!!");
+		//GEngine->AddOnScreenDebugMessage(0, 1, FColor::Blue, L"Melee Attack!!!!!");
 
         //// 원거리 공격을 한다
         //GEngine->AddOnScreenDebugMessage(0, 1, FColor::Blue, L"Long Range Attack!!!!!");
@@ -272,7 +272,7 @@ void UC_EnemyFSM::FlinchMovement()
 	//GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Magenta, DebugMessage);
 
 	// 몸이 파란색으로 반짝인다
-
+	Self->SetFlinchMaterial();
 }
 
 
@@ -283,7 +283,7 @@ void UC_EnemyFSM::StaggerMovement()
 	//GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Magenta, DebugMessage);
 
 	// 몸이 빨간색으로 반짝인다
-	
+	Self->SetStaggerMaterial();
 }
 
 

@@ -9,11 +9,18 @@
 
 UC_PlasmaGun::UC_PlasmaGun()
 {
+	// Find Bullet Sound
+	ConstructorHelpers::FObjectFinder<USoundBase> tempSound(TEXT("/Script/Engine.SoundWave'/Game/SHS/Designs/SFX/SW_Scifi_Shoot.SW_Scifi_Shoot'"));
+
+	if (tempSound.Succeeded())
+		BulletSound = tempSound.Object;
+
 	// Find Laser Sound
-//  	ConstructorHelpers::FObjectFinder<USoundBase> tempSound(TEXT(""));
-//  
-//  	if (tempSound.Succeeded())
-//  		LaserSound = tempSound.Object;
+ 	ConstructorHelpers::FObjectFinder<USoundBase> tempLaserSound(TEXT("/Script/Engine.SoundWave'/Game/SHS/Designs/SFX/SW_LaserPackage.SW_LaserPackage'"));
+ 
+	if (tempSound.Succeeded()) {
+		LaserSound = tempLaserSound.Object;
+	}
 }
 
 void UC_PlasmaGun::BeginPlay()
@@ -119,13 +126,15 @@ void UC_PlasmaGun::OnFire()
 
 				LaserTime = 0.0f;
 			}
+
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), LaserSound, soundPos, 0.3f, 1.0f, 17.0f);
 		}
 
 		ToggleLaser(true);
 	}
 	// When Firing Without Using Mode
 	else {
-		UGameplayStatics::PlaySound2D(GetWorld(), BulletSound, 0.4f);
+		UGameplayStatics::PlaySound2D(GetWorld(), BulletSound, 0.2f);
 		Super::OnFire();
 	}
 }
