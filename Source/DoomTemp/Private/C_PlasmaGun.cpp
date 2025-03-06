@@ -136,7 +136,7 @@ void UC_PlasmaGun::OnFire()
 	else {
 		UGameplayStatics::PlaySound2D(GetWorld(), BulletSound, 0.2f);
 		Super::OnFire();
-		me->ShakePlayerCamera();
+		//me->ShakePlayerCamera();
 	}
 }
 

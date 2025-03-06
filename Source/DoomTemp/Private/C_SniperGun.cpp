@@ -96,7 +96,7 @@ void UC_SniperGun::OnFire()
 		Super::OnFire();
 	}
 
-	me->ShakePlayerCamera();
+	//me->ShakePlayerCamera();
 }
 
 void UC_SniperGun::OnUseMode()
