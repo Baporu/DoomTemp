@@ -47,8 +47,15 @@ protected:
 	//int32 LongRangeDamage = 0;			// 원거리 공격 시 가할 데미지
 
 
-	FVector HitPos;			// 데미지 입은 곳의 위치
-	FRotator HitPointDir;	// 피가 뿜어져 나갈 방향
+	FVector HitPos = GetActorLocation();			// 데미지 입은 곳의 위치
+	FRotator HitPointDir = FRotator(GetActorForwardVector().Y, GetActorForwardVector().Z, GetActorForwardVector().X);
+	// 피가 뿜어져 나갈 방향
+
+
+	/***** Materials *****/
+	class UMaterial* MatFlinch;
+	class UMaterial* MatStagger;
+
 
 	/***** FSM *****/
     UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "FSMComp")
@@ -136,14 +143,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Niagara")
 	class UNiagaraSystem* NiagaraSysFist;
 
-
 	// Gun
 	UPROPERTY(EditDefaultsOnly)
 	class UNiagaraComponent* NiagaraCompGun;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Niagara")
 	class UNiagaraSystem* NiagaraSysGun;
-
 
 	// Glory Kill
 	UPROPERTY(EditDefaultsOnly)
@@ -152,13 +157,13 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Niagara")
 	class UNiagaraSystem* NiagaraSysGloryKill;
 
-
 	// Chainsaw
 	UPROPERTY(EditDefaultsOnly)
 	class UNiagaraComponent* NiagaraCompChainsaw;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Niagara")
 	class UNiagaraSystem* NiagaraSysChainsaw;
+
 
 
 	// Spawn Niagara
@@ -175,4 +180,9 @@ public:
 	// Enemy Spawn VFX를 Spawn
 	UFUNCTION(BlueprintImplementableEvent, Category = "VFX")
 	void SpawnVFX();
+
+
+	/***** Change Material *****/
+	void SetFlinchMaterial();
+	void SetStaggerMaterial();
 };

@@ -13,8 +13,8 @@ void AC_EnemyManager::BeginPlay()
 	Super::BeginPlay();
 
 	/***** Timer *****/
-	// 게임이 시작되고 첫 스폰은 5초 후에 시작되도록
-	GetWorld()->GetTimerManager().SetTimer(SpawnTimerHandle, this, &AC_EnemyManager::CreateEnemy, 4.5f);
+	// 게임이 시작되고 첫 스폰은 24초 후에 시작되도록
+	GetWorld()->GetTimerManager().SetTimer(SpawnTimerHandle, this, &AC_EnemyManager::CreateEnemy, 24.f);
 
 	isGameStarted = true;
 }
