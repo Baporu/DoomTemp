@@ -30,7 +30,7 @@ void UC_SniperGun::BeginPlay()
 
 	SniperUI = CreateWidget<UUserWidget>(GetWorld(), SniperUIFactory);
 	CrossHairUI = CreateWidget<UUserWidget>(GetWorld(), CrossHairUIFactory);
-	CrossHairUI->AddToViewport();
+	//CrossHairUI->AddToViewport();
 }
 
 void UC_SniperGun::OnFire()
@@ -121,6 +121,14 @@ void UC_SniperGun::OnUseMode()
 		// 일반 조준 UI 등록
 		CrossHairUI->AddToViewport();
 		me->SetFireRate(FireRate);
+	}
+}
+
+void UC_SniperGun::StartCrossHairUI()
+{
+	if (!bUIActive) {
+		bUIActive = true;
+		CrossHairUI->AddToViewport();
 	}
 }
 

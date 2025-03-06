@@ -43,4 +43,9 @@ public:
 	// Mouse Right Click Event
 	virtual void OnUseMode() override;
 
+	UFUNCTION(BlueprintCallable)
+	void StartCrossHairUI();
+
+	bool bUIActive = false;
+
 };
