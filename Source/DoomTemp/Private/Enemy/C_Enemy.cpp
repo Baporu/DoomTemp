@@ -229,7 +229,7 @@ void AC_Enemy::OnDamageProcess(int32 InDamage, enum class EAttackType InAttackTy
 /***** 사망 처리 *****/
 void AC_Enemy::OnDead()
 {
-    GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Cyan, FString("Enemy Dead !!!!!"));
+    //GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Cyan, FString("Enemy Dead !!!!!"));
 
     // 죽음 애니메이션이 재생된다
     SectionName = FString::Printf(TEXT("Dead"));
@@ -285,7 +285,7 @@ void AC_Enemy::ChangeMeleeDamage()
 /***** Damage Events *****/
 void AC_Enemy::OnDamageFist()
 {
-    GEngine->AddOnScreenDebugMessage(0, 1, FColor::Orange, L"-----Get Damage FIST-----");
+    //GEngine->AddOnScreenDebugMessage(0, 1, FColor::Orange, L"-----Get Damage FIST-----");
 
     // FLINCH, STAGGER 상태가 아닐 때만 맞는 애니메이션 재생
     SectionName = FString::Printf(TEXT("Damage%d"), 0);
@@ -298,7 +298,7 @@ void AC_Enemy::OnDamageFist()
 
 void AC_Enemy::OnDamageGun()
 {
-    GEngine->AddOnScreenDebugMessage(0, 1, FColor::Orange, L"-----Get Damage GUN-----");
+    //GEngine->AddOnScreenDebugMessage(0, 1, FColor::Orange, L"-----Get Damage GUN-----");
 
     // FLINCH, STAGGER 상태가 아닐 때만 맞는 애니메이션 재생
     SectionName = FString::Printf(TEXT("Damage%d"), 0);
@@ -313,7 +313,7 @@ void AC_Enemy::OnDamageGun()
 
 void AC_Enemy::OnDamageGloryKill()
 {
-    GEngine->AddOnScreenDebugMessage(0, 1, FColor::Orange, L"-----Get Damage GLORYKILL-----");
+    //GEngine->AddOnScreenDebugMessage(0, 1, FColor::Orange, L"-----Get Damage GLORYKILL-----");
 
     // 1. FLINCH, STAGGER 상태가 아닐 때만 맞는 애니메이션 재생
     SectionName = FString::Printf(TEXT("Damage%d"), 0);
@@ -327,7 +327,7 @@ void AC_Enemy::OnDamageGloryKill()
 
 void AC_Enemy::OnDamageChainsaw()
 {
-    GEngine->AddOnScreenDebugMessage(0, 1, FColor::Orange, L"-----Get Damage CHAINSAW-----");
+    //GEngine->AddOnScreenDebugMessage(0, 1, FColor::Orange, L"-----Get Damage CHAINSAW-----");
 
     // FLINCH, STAGGER 상태가 아닐 때만 맞는 애니메이션 재생
     SectionName = FString::Printf(TEXT("Damage%d"), 0);

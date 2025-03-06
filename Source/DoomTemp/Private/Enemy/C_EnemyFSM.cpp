@@ -175,7 +175,7 @@ void UC_EnemyFSM::AttackState()
 	if (CurTime > AttackDelayTime)
 	{
 		// 근거리 공격을 한다
-		GEngine->AddOnScreenDebugMessage(0, 1, FColor::Blue, L"Melee Attack!!!!!");
+		//GEngine->AddOnScreenDebugMessage(0, 1, FColor::Blue, L"Melee Attack!!!!!");
 
         //// 원거리 공격을 한다
         //GEngine->AddOnScreenDebugMessage(0, 1, FColor::Blue, L"Long Range Attack!!!!!");
