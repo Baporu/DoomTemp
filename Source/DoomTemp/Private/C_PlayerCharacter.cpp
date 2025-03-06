@@ -16,6 +16,9 @@
 #include "C_PlayerAnimInstance.h"
 #include "Components/BoxComponent.h"
 #include "Components/SphereComponent.h"
+#include "../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraFunctionLibrary.h"
+#include "../../../../Plugins/FX/Niagara/Source/Niagara/Classes/NiagaraSystem.h"
+#include "../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraComponent.h"
 
 // Sets default values
 AC_PlayerCharacter::AC_PlayerCharacter()
@@ -155,6 +158,10 @@ AC_PlayerCharacter::AC_PlayerCharacter()
  		}
 	}
 
+	// Set Shockwave VFX Niagara System
+	ConstructorHelpers::FObjectFinder<UNiagaraSystem> tempNS(TEXT("/Script/Niagara.NiagaraSystem'/Game/SHS/Designs/VFX/VFX_Shockwave.VFX_Shockwave'"));
+	if (tempNS.Succeeded())
+		WaveVFXSystem = tempNS.Object;
 }
 
 // Called when the game starts or when spawned
@@ -169,7 +176,7 @@ void AC_PlayerCharacter::BeginPlay()
 	SniperMesh->FPSCam = FPSCamComp;
 	ShotgunMesh->me = this;
 	ShotgunMesh->FPSCam = FPSCamComp;
-
+	
 	Anim = Cast<UC_PlayerAnimInstance>(FPSMeshComp->GetAnimInstance());
 
 	// Get Player Controller and Map with IMC
@@ -477,8 +484,12 @@ void AC_PlayerCharacter::OnPunch(const struct FInputActionValue& inputValue)
 
 	if (MeleeTarget->bIsStaggered) {
 		bIsExecuting = true;
+
 		FVector norVec = MeleeTarget->GetActorLocation() - GetActorLocation();
-		MeleeTarget->OnDamageProcess(10000, EAttackType::GloryKill, MeleeTarget->GetActorLocation(), norVec);
+		FVector targetPos = MeleeTarget->GetActorLocation();
+		targetPos.Z += 20.0;
+		MeleeTarget->OnDamageProcess(10000, EAttackType::GloryKill, targetPos, norVec);
+
 		GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_GameTraceChannel5, ECR_Ignore);
 	}
 }
@@ -488,23 +499,22 @@ void AC_PlayerCharacter::OnPunchEnd()
 	// Activate Weapon Mesh
 	SetWeaponActive(mWeaponType, true);
 
-	if (!MeleeTarget) {
-		PunchComp->SetCollisionResponseToChannel(ECC_GameTraceChannel2, ECR_Ignore);
-		PunchComp->SetVisibility(false);
-	}
+	PunchComp->SetCollisionResponseToChannel(ECC_GameTraceChannel2, ECR_Ignore);
+	PunchComp->SetVisibility(false);
+	
 	MeleeTarget = nullptr;
 	bIsPunching = false;
 }
 
 void AC_PlayerCharacter::OnSaw(const struct FInputActionValue& inputValue)
 {
+	if (bIsPunching || CurrentFuel <= 0)
+		return;
+
 	// Dash to Target
 	MeleeDash();
 
 	if (!MeleeTarget)
-		return;
-
-	if (CurrentFuel <= 0)
 		return;
 
 	CurrentFuel--;
@@ -518,8 +528,17 @@ void AC_PlayerCharacter::OnSaw(const struct FInputActionValue& inputValue)
 
 	// Start Punch Animation
 	Anim->bIsPunching = true;
+	WaveVFXComp = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), WaveVFXSystem, FVector(GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z + 60.0));
 
-	MeleeTarget->OnDamageProcess(10000, EAttackType::Chainsaw);
+	if (WaveVFXComp)
+		WaveVFXComp->Activate();
+
+	FVector norVec = MeleeTarget->GetActorLocation() - GetActorLocation();
+	FVector targetPos = MeleeTarget->GetActorLocation();
+	targetPos.Z += 20.0;
+
+	MeleeTarget->OnDamageProcess(10000, EAttackType::Chainsaw, targetPos, norVec);
+
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_GameTraceChannel5, ECR_Ignore);
 }
 
@@ -575,12 +594,14 @@ void AC_PlayerCharacter::OnPunchOverlap(UPrimitiveComponent* OverlappedComponent
 	if (!enemy)
 		return;
 
-	enemy->OnDamageProcess(MeleeDamage, EAttackType::Fist, SweepResult.ImpactPoint, SweepResult.ImpactNormal);
+	FVector norVec = enemy->GetActorLocation() - GetActorLocation();
+
+	enemy->OnDamageProcess(MeleeDamage, EAttackType::Fist, OverlappedComponent->GetComponentLocation(), norVec);
 }
 
 void AC_PlayerCharacter::MeleeDash()
 {
-	// Enable Target Finding Colldier Component
+	// Enable Target Finding Collider Component
 	MeleeComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	// Disable Target Finding Collider Component
 	MeleeComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
