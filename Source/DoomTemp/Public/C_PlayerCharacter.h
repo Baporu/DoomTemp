@@ -183,6 +183,17 @@ public:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Stats")
 	int32 CurrentKill = 0;
 
+	UPROPERTY(VisibleDefaultsOnly, Category = SFX)
+	class USoundBase* PunchSound;
+	UPROPERTY(VisibleDefaultsOnly, Category = SFX)
+	class USoundBase* SawSound;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class UCameraShakeBase> cameraShake;
+
+	float CSTime = 18.0f;
+	float CSTimer = 0.0f;
+
 
 	void OnLookUp(const struct FInputActionValue& inputValue);
 	void OnTurn(const struct FInputActionValue& inputValue);
@@ -250,5 +261,7 @@ public:
 	void OnGameEnd();
 
 	void CheckGameEnd();
+
+	void ShakePlayerCamera();
 
 };
