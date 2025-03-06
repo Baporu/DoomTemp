@@ -236,6 +236,11 @@ void AC_PlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	CSTimer += DeltaTime;
+
+	if (CSTimer < CSTime) {
+		return;
+	}
 
 	PlayerMove();
 	FireTimer += DeltaTime;

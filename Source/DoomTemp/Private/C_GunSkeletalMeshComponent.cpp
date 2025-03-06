@@ -5,6 +5,7 @@
 #include "C_GunBullet.h"
 #include "Kismet/GameplayStatics.h"
 #include "C_PlayerAnimInstance.h"
+#include "Blueprint/UserWidget.h"
 
 UC_GunSkeletalMeshComponent::UC_GunSkeletalMeshComponent()
 {
@@ -21,7 +22,7 @@ UC_GunSkeletalMeshComponent::UC_GunSkeletalMeshComponent()
 void UC_GunSkeletalMeshComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
+	CrossHairUI = CreateWidget<UUserWidget>(GetWorld(), CrossHairUIFactory);
 	CurrentAmmo = MaxAmmo;
 }
 
@@ -74,6 +75,7 @@ void UC_GunSkeletalMeshComponent::OnGunChanged() {
 	// If Weapon is Using Mode, Reset Mode Before Being Changed
 	if (bUsingMode)
 		OnUseMode();
+	//CrossHairUI->AddToViewport();
 }
 
 float UC_GunSkeletalMeshComponent::GetFireRate()
