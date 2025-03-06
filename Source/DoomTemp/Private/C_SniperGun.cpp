@@ -12,16 +12,16 @@
 UC_SniperGun::UC_SniperGun()
 {
 	// Find Bullet Sound
-// 	ConstructorHelpers::FObjectFinder<USoundBase> tempSound(TEXT("/Script/Engine.SoundWave'/Game/SniperGun/Rifle.Rifle'"));
-// 
-// 	if (tempSound.Succeeded())
-// 		BulletSound = tempSound.Object;
+	ConstructorHelpers::FObjectFinder<USoundBase> tempSound(TEXT("/Script/Engine.SoundWave'/Game/SniperGun/Rifle.Rifle'"));
+
+	if (tempSound.Succeeded())
+		BulletSound = tempSound.Object;
 
 	// Find Snipe Sound
-//  	ConstructorHelpers::FObjectFinder<USoundBase> tempSound(TEXT(""));
-//  
-//  	if (tempSound.Succeeded())
-//  		SnipeSound = tempSound.Object;
+ 	ConstructorHelpers::FObjectFinder<USoundBase> tempSnipeSound(TEXT("/Script/Engine.SoundWave'/Game/SHS/Designs/SFX/SW_Sniper.SW_Sniper'"));
+ 
+ 	if (tempSound.Succeeded())
+ 		SnipeSound = tempSnipeSound.Object;
 }
 
 void UC_SniperGun::BeginPlay()
@@ -84,7 +84,7 @@ void UC_SniperGun::OnFire()
 			}
 		}
 
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), BulletSound, soundPos, 0.6f);
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), SnipeSound, soundPos, 0.2f);
 		me->SetFireRate(FireRate * 5);
 
 		// Debug LineTrace
@@ -92,7 +92,7 @@ void UC_SniperGun::OnFire()
 	}
 
 	else {
-		UGameplayStatics::PlaySound2D(GetWorld(), BulletSound, 0.4f);
+		UGameplayStatics::PlaySound2D(GetWorld(), BulletSound, 0.25f);
 		Super::OnFire();
 	}
 }
