@@ -119,7 +119,7 @@ public:
 	// Weapon Instances
 	UPROPERTY(EditDefaultsOnly, Category = "Guns")
 	class UC_GunSkeletalMeshComponent* PlasmaMesh;
-	UPROPERTY(EditDefaultsOnly, Category = "Guns")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Guns")
 	class UC_GunSkeletalMeshComponent* SniperMesh;
 	UPROPERTY(EditDefaultsOnly, Category = "Guns")
 	class UC_GunSkeletalMeshComponent* ShotgunMesh;
